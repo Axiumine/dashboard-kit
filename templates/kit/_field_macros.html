@@ -1,0 +1,176 @@
+{# dashboard-kit — unified config-form field + collection macros.
+
+   Shared by the DEVPROTOCOL and AGENTS-ROUTER dashboards. This is the SUPERSET
+   of both consumers: DP-only field attributes (`backends`, `reveal`, `warning`)
+   are read through `is defined` guards, so AR's simpler field specs render
+   unchanged while DP's richer specs light up the extra behaviour.
+
+   Host-app contract (both consumers already satisfy this):
+     - Jinja global  `field_unit(name) -> str`   (unit label, '' when none)
+     - Jinja filter  `humanize_no_unit`          (pretty label, unit stripped)
+
+   Field-level macros (switch/field_control/field_row/field_grid) are consumed by
+   BOTH apps. The collection macros (cell/string_list/keyed_map/object_list/
+   toggle_block) are consumed by AR; DP keeps its specialised collection
+   renderers (chip reorder, custom doc-schemas) app-local. #}
+
+{# on/off switch — a styled checkbox; POST name/value are unchanged so the wire
+   contract is identical to a bare checkbox. `role` tags section-enable toggles
+   for the launcher/accordion JS. #}
+{% macro switch(name, value, checked, ro=False, role='', aria='') %}
+  <label class="switch"{% if aria %} title="{{ aria }}"{% endif %}>
+    <input type="checkbox" name="{{ name }}" value="{{ value }}"
+           {% if checked %}checked{% endif %}{% if ro %} disabled{% endif %}{% if role %} data-role="{{ role }}"{% endif %}{% if aria %} aria-label="{{ aria }}"{% endif %}>
+    <span class="slider" aria-hidden="true"></span>
+  </label>
+{% endmacro %}
+
+{# the bare control for one field, switched on f.kind. The secret control carries
+   BOTH attribute conventions (data-eye/data-secret and data-action/data-role) so
+   either app's secret-toggle handler — and the shared kit.js handler — works. #}
+{% macro field_control(f, ro=False) %}
+  {% if f.kind == 'locked' %}
+  <input type="text" name="{{ f.name }}" value="{{ f.value }}" readonly disabled
+         data-flag="locked-field">
+  {% elif f.kind == 'password' %}
+  <span class="secret" data-block="secret">
+    <input type="password" name="{{ f.name }}" value="{{ f.value }}" autocomplete="off"
+           {% if ro %}disabled{% endif %} data-role="secret-input" data-secret>
+    <button type="button" class="icon-btn eye" data-action="toggle-secret" data-eye
+            aria-label="Show value" aria-pressed="false">👁</button>
+  </span>
+  {% elif f.kind == 'select' %}
+  <select name="{{ f.name }}"{% if f.label == 'backend' %} data-role="backend"{% endif %}
+          {% if ro %}disabled{% endif %}>
+    {% if f.value not in f.options %}
+    <option value="{{ f.value }}" selected data-flag="off-catalog">{{ f.value }} (not in catalog)</option>
+    {% endif %}
+    {% for opt in f.options %}
+    <option value="{{ opt }}" {% if opt == f.value %}selected{% endif %}>{{ opt }}</option>
+    {% endfor %}
+  </select>
+  {% elif f.kind == 'checkbox' %}
+  {{ switch(f.name, 'true', f.checked, ro, '', f.label | humanize_no_unit) }}
+  {% else %}
+  <input type="{% if f.kind == 'number' %}number{% else %}text{% endif %}"
+         {% if f.kind == 'number' %}step="any" {% endif %}name="{{ f.name }}"
+         value="{{ f.value }}" {% if ro %}disabled{% endif %}>
+  {% endif %}
+{% endmacro %}
+
+{# one grid cell: name above, control + optional [unit] inline below.
+   data-backends/data-auth-mode ride the .field wrapper so DP's reveal JS hides
+   the whole cell (not just the control, which would leave an empty grid slot).
+   Absent on AR specs → attributes omitted, behaviour identical to a plain field. #}
+{% macro field_row(f, ro=False, errors=[]) %}
+  {% if not (f.kind == 'select' and not f.options and not f.value) %}
+  {% set unit = field_unit(f.name) %}
+  {% set backends = f.backends if f.backends is defined else [] %}
+  {% set reveal = f.reveal if f.reveal is defined else none %}
+  {% set warning = f.warning if f.warning is defined else none %}
+  <div class="field" data-field="{{ f.name }}" data-kind="{{ f.kind }}"
+       {% if backends %}data-backends="{{ backends | join(',') }}"{% endif %}
+       {% if reveal %}data-auth-mode="{{ reveal }}" style="display:none"{% endif %}>
+    {# checkbox control is its own <label class="switch"> — a <label> can't nest
+       inside another <label> (invalid + double-toggles), so use a plain row. #}
+    {% set tag = 'div' if f.kind == 'checkbox' else 'label' %}
+    <{{ tag }} class="field-line">
+      <span class="field-name">{{ f.label | humanize_no_unit }}</span>
+      <span class="field-input">
+        {{ field_control(f, ro) }}
+        {% if unit %}<span class="unit" data-unit="{{ unit }}">[{{ unit }}]</span>{% endif %}
+      </span>
+    </{{ tag }}>
+    {% if f.kind == 'locked' %}
+    <span class="meta" data-flag="locked-note"><code>${VAR}</code> secrets render locked — they are never resolved here.</span>
+    {% endif %}
+    {% if warning %}
+    <span class="warning" data-flag="footgun-warning" data-warn-field="{{ f.name }}">⚠ {{ warning }}</span>
+    {% endif %}
+    {% for e in errors if e.field == f.name %}
+    <span class="error" data-error-field="{{ f.name }}" data-error-code="{{ e.code }}">{{ e.message }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endmacro %}
+
+{# render a collection of fields as a responsive grid of .field cells #}
+{% macro field_grid(fields, ro=False, errors=[]) %}
+  <div class="field-grid">
+    {% for f in fields %}{{ field_row(f, ro, errors) }}{% endfor %}
+  </div>
+{% endmacro %}
+
+{# ---- collection macros (AR consumer; DP keeps its own renderers) ---------- #}
+
+{# one keyed-map / object-list table cell, typed by subfield kind #}
+{% macro cell(prefix, sf, value) %}
+{% if sf.kind == "enum" %}<select name="{{ prefix }}.{{ sf.key }}">{% for option in sf.options %}<option value="{{ option }}" {% if option == value %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+{% elif sf.kind == "number" %}<input type="number" step="any" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
+{% else %}<input type="text" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">{% endif %}
+{% endmacro %}
+
+{% macro string_list(field) %}
+<fieldset class="string-list" data-list="{{ field.name }}">
+  <legend>{{ field.label }}</legend>
+  <input type="hidden" name="list_paths" value="{{ field.name }}">
+  <div class="chips" data-chips>
+    {% for item in field.items %}
+    <span class="chip"><input type="text" name="list.{{ field.name }}.item" value="{{ item }}"><button type="button" data-remove aria-label="Remove">✕</button></span>
+    {% endfor %}
+  </div>
+  <button type="button" data-add-chip="{{ field.name }}">+ add</button>
+  <template data-chip-template="{{ field.name }}"><span class="chip"><input type="text" name="list.{{ field.name }}.item" value=""><button type="button" data-remove aria-label="Remove">✕</button></span></template>
+</fieldset>
+{% endmacro %}
+
+{% macro keyed_map(km) %}
+<fieldset class="keyed-map" data-kmap="{{ km.map_id }}">
+  <legend>{{ km.label }}</legend>
+  <table>
+    <thead><tr><th>id</th>{% for sf in km.subfields %}<th>{{ sf.label }}</th>{% endfor %}<th></th></tr></thead>
+    <tbody data-rows>
+      {% for row in km.rows %}
+      <tr class="kmap-row">
+        <td><input type="text" name="kmap.{{ km.map_id }}.id" value="{{ row.entry_id }}"></td>
+        {% for sf in km.subfields %}<td>{{ cell("kmap." ~ km.map_id, sf, row.values[loop.index0]) }}</td>{% endfor %}
+        <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="button" data-add-row>+ add row</button>
+  <template data-row-template><tr class="kmap-row"><td><input type="text" name="kmap.{{ km.map_id }}.id" value=""></td>{% for sf in km.subfields %}<td>{{ cell("kmap." ~ km.map_id, sf, "") }}</td>{% endfor %}<td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+</fieldset>
+{% endmacro %}
+
+{% macro object_list(ol) %}
+<fieldset class="object-list" data-olist="{{ ol.path }}">
+  <legend>{{ ol.label }}</legend>
+  <table>
+    <thead><tr>{% for sf in ol.subfields %}<th>{{ sf.label }}</th>{% endfor %}<th></th></tr></thead>
+    <tbody data-rows>
+      {% for row in ol.rows %}
+      <tr class="olist-row">
+        {% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, row[loop.index0]) }}</td>{% endfor %}
+        <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="button" data-add-row>+ add row</button>
+  <template data-row-template><tr class="olist-row">{% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, "") }}</td>{% endfor %}<td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+</fieldset>
+{% endmacro %}
+
+{# optional block: enable checkbox reveals its nested fields. Inner fields render
+   through the shared field_row macro. #}
+{% macro toggle_block(t) %}
+<fieldset class="optional-block" data-toggle="{{ t.key }}">
+  <legend><label><input type="checkbox" name="enable.{{ t.key }}" value="true" {% if t.enabled %}checked{% endif %} data-enable> {{ t.label }}</label></legend>
+  <input type="hidden" name="enable_seen.{{ t.key }}" value="1">
+  <div class="toggle-fields" {% if not t.enabled %}hidden{% endif %}>
+    {% for field in t.fields %}{{ field_row(field) }}{% endfor %}
+  </div>
+</fieldset>
+{% endmacro %}

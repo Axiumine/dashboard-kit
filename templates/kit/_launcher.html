@@ -1,0 +1,36 @@
+{# dashboard-kit — section launcher (the tile grid both dashboards open with).
+
+   Two render modes from one macro:
+     - link mode  (link_base set) → each tile is an <a href="{link_base}/{id}">.
+       Used for true route-per-button nav (AR config editor, DP agent roster).
+     - drill-in mode (link_base unset) → each tile is a <button data-open-section>
+       that the page JS toggles in place. Used by DP's single-form config editor.
+
+   `items` is any sequence of objects exposing `.id`, `.icon`, `.label`, and an
+   optional `.subtitle`. `badge=True` renders a per-tile error-count slot. #}
+{% macro launcher(items, link_base=none, badge=False) %}
+<div class="section-grid" data-role="section-grid">
+  {% for s in items %}
+  {%- if link_base %}
+  <a class="section-btn" href="{{ link_base }}/{{ s.id }}">
+  {%- else %}
+  <button type="button" class="section-btn" data-open-section="{{ s.id }}">
+  {%- endif %}
+    <span class="section-icon" aria-hidden="true">{{ s.icon }}</span>
+    <span class="section-text">
+      <span class="section-label">{{ s.label }}</span>
+      {% if s.subtitle is defined and s.subtitle %}<span class="section-subtitle">{{ s.subtitle }}</span>{% endif %}
+    </span>
+    {%- if badge %}<span class="section-badge" data-section-badge="{{ s.id }}" hidden></span>{% endif %}
+  {%- if link_base %}</a>{% else %}</button>{% endif %}
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{# back-nav bar shown above an open section in drill-in mode #}
+{% macro section_bar() %}
+<div class="section-bar" data-role="section-bar" hidden>
+  <button type="button" class="section-back" data-action="section-back">← All sections</button>
+  <h2 class="section-title" data-role="section-title"></h2>
+</div>
+{% endmacro %}

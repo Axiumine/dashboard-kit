@@ -1,0 +1,4 @@
+# dashboard-kit has no source graph worth indexing on its own beyond templates.
+# Consumers exclude this submodule from their own indexes; see each repo's
+# .gitnexusignore.
+node_modules/

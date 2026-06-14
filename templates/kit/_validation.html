@@ -1,0 +1,16 @@
+{# dashboard-kit — HTMX validate partial (swapped into #validation-panel).
+
+   `errors` is a sequence of objects exposing `.field`, `.code`, `.message`.
+   data-error-field lets the page JS route focus to the first offending section.
+   Both consumers' class + data-attribute conventions are emitted side by side
+   (DP: .errors/.ok + data-flag; AR: .validation-errors/.validation-ok +
+   data-validation) so each app's CSS, JS and tests keep matching. #}
+{% if errors %}
+<ul class="errors validation-errors" data-flag="validation-errors" data-validation="errors">
+  {% for e in errors %}
+  <li class="validation-error" data-error-field="{{ e.field }}" data-error-code="{{ e.code }}"><strong>{{ e.code }}</strong>: {{ e.message }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="ok validation-ok" data-flag="validation-ok" data-validation="ok">No problems found — safe to save.</p>
+{% endif %}
