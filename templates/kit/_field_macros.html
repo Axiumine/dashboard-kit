@@ -65,11 +65,13 @@
 {% macro field_row(f, ro=False, errors=[]) %}
   {% if not (f.kind == 'select' and not f.options and not f.value) %}
   {% set unit = field_unit(f.name) %}
-  {% set backends = f.backends if f.backends is defined else [] %}
   {% set reveal = f.reveal if f.reveal is defined else none %}
   {% set warning = f.warning if f.warning is defined else none %}
+  {# data-backends emitted whenever the field spec declares it (even empty) so a
+     consumer's reveal JS that keys off `[data-backends]` sees every field; specs
+     without the attribute (AR) omit it entirely. #}
   <div class="field" data-field="{{ f.name }}" data-kind="{{ f.kind }}"
-       {% if backends %}data-backends="{{ backends | join(',') }}"{% endif %}
+       {% if f.backends is defined %}data-backends="{{ f.backends | join(',') }}"{% endif %}
        {% if reveal %}data-auth-mode="{{ reveal }}" style="display:none"{% endif %}>
     {# checkbox control is its own <label class="switch"> — a <label> can't nest
        inside another <label> (invalid + double-toggles), so use a plain row. #}
