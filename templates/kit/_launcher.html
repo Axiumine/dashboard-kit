@@ -7,8 +7,10 @@
        that the page JS toggles in place. Used by DP's single-form config editor.
 
    `items` is any sequence of objects exposing `.id`, `.icon`, `.label`, and an
-   optional `.subtitle`. `badge=True` renders a per-tile error-count slot. #}
-{% macro launcher(items, link_base=none, badge=False) %}
+   optional `.subtitle`. `badge=True` renders a per-tile badge slot; pass
+   `counts` (a {id: "enabled/total"} map) to fill it server-side (route-per-button
+   nav), or leave it empty for the page JS to fill (drill-in recount). #}
+{% macro launcher(items, link_base=none, badge=False, counts={}) %}
 <div class="section-grid" data-role="section-grid">
   {% for s in items %}
   {%- if link_base %}
@@ -21,7 +23,7 @@
       <span class="section-label">{{ s.label }}</span>
       {% if s.subtitle is defined and s.subtitle %}<span class="section-subtitle">{{ s.subtitle }}</span>{% endif %}
     </span>
-    {%- if badge %}<span class="section-badge" data-section-badge="{{ s.id }}" hidden></span>{% endif %}
+    {%- if badge %}{% set c = counts.get(s.id) %}<span class="section-badge" data-section-badge="{{ s.id }}"{% if not c %} hidden{% endif %} title="enabled / total blocks">{{ c or '' }}</span>{% endif %}
   {%- if link_base %}</a>{% else %}</button>{% endif %}
   {% endfor %}
 </div>

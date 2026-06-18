@@ -147,17 +147,24 @@
     }
   });
 
-  // ── 4. Optional-block enable toggle ───────────────────────────────────────
-  //   A change on [data-enable] shows/hides the .toggle-fields block inside
-  //   the closest [data-toggle] ancestor.
+  // ── 4. Optional-block enable switch (switch-header card) ──────────────────
+  //   A change on [data-role=enable-toggle] inside a [data-block=enable] card
+  //   reveals/hides that card's [data-role=enable-content] — which holds ALL the
+  //   block's controls (fields + keyed-map tables), so nothing escapes the box.
+  function applyEnable(box) {
+    var cb = box.querySelector("[data-role='enable-toggle']");
+    if (!cb) return;
+    var content = box.querySelector("[data-role='enable-content']");
+    if (content) content.hidden = !cb.checked;
+  }
   document.addEventListener("change", function (e) {
-    var enable = e.target.closest("[data-enable]");
-    if (!enable) return;
-    var toggleBlock = enable.closest("[data-toggle]");
-    if (!toggleBlock) return;
-    var fields = toggleBlock.querySelector(".toggle-fields");
-    if (fields) fields.hidden = !enable.checked;
+    var cb = e.target.closest("[data-role='enable-toggle']");
+    if (!cb) return;
+    var box = cb.closest("[data-block='enable']");
+    if (box) applyEnable(box);
   });
+  // initial sync — server renders the correct hidden state, this is belt-and-braces
+  document.querySelectorAll("[data-block='enable']").forEach(applyEnable);
 
   // ── 5. HTMX validate routing ──────────────────────────────────────────────
   //   On htmx:afterSwap where the swapped target id is "validation-panel",
