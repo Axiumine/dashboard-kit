@@ -175,4 +175,79 @@
     if (section) showSection(section.getAttribute("data-section"));
   });
 
+  // ── 6. Toast notifications ────────────────────────────────────────────────
+  //   The server renders hidden [data-toast] seeds (kit/_toast.html) in place of
+  //   the old inline banners. On page load (full-page POST re-renders) and after
+  //   every htmx swap (e.g. the validate dry-run), lift each seed into a floating
+  //   toast inside the #toast-host overlay (created on demand), then remove the
+  //   seed. Each toast auto-dismisses after TOAST_TTL and has a manual close
+  //   button. No-op when no seeds are present.
+  var TOAST_TTL = 4500;
+
+  function toastHost() {
+    var host = document.getElementById("toast-host");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "toast-host";
+      host.setAttribute("aria-live", "polite");
+      host.setAttribute("aria-atomic", "false");
+      document.body.appendChild(host);
+    }
+    return host;
+  }
+
+  function dismissToast(el) {
+    if (el.dataset.dismissing) return;        // a TTL + a click can both fire
+    el.dataset.dismissing = "1";
+    el.classList.remove("toast-in");
+    el.classList.add("toast-out");
+    var done = function () { if (el.parentNode) el.parentNode.removeChild(el); };
+    el.addEventListener("transitionend", done, { once: true });
+    setTimeout(done, 300);                    // fallback when no transition fires
+  }
+
+  function spawnToast(message, severity) {
+    var sev = severity || "info";
+    var host = toastHost();
+    var el = document.createElement("div");
+    el.className = "toast toast-" + sev;
+    el.setAttribute("role", sev === "error" ? "alert" : "status");
+
+    var msg = document.createElement("span");
+    msg.className = "toast-msg";
+    msg.textContent = message;
+    el.appendChild(msg);
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "toast-close";
+    close.setAttribute("aria-label", "Dismiss");
+    close.textContent = "×";             // ×
+    close.addEventListener("click", function () { dismissToast(el); });
+    el.appendChild(close);
+
+    host.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add("toast-in"); });
+    setTimeout(function () { dismissToast(el); }, TOAST_TTL);
+  }
+
+  function liftToasts(root) {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll("[data-toast]").forEach(function (seed) {
+      var severity = seed.getAttribute("data-toast-severity") || "info";
+      var message = (seed.textContent || "").trim();
+      if (message) spawnToast(message, severity);
+      if (seed.parentNode) seed.parentNode.removeChild(seed);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { liftToasts(document); });
+  } else {
+    liftToasts(document);                     // kit.js loads at end of <body>
+  }
+  document.addEventListener("htmx:afterSwap", function (e) {
+    if (e.detail && e.detail.target) liftToasts(e.detail.target);
+  });
+
 })();

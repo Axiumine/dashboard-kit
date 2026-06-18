@@ -1,0 +1,23 @@
+{# dashboard-kit — toast seed (server-rendered notification → floating toast).
+
+   `toast(message, severity, flag, banner, validation)` renders ONE hidden
+   marker element. kit.js (section 6) scans for [data-toast] on page load AND
+   after every htmx swap, lifts each seed into a floating, auto-dismissing toast
+   inside the #toast-host overlay, then removes the seed. The seed is `hidden`
+   so it never shows inline even when JS is off or kit.js is absent.
+
+   This is the single shared notification component both dashboards render in
+   place of their old inline banners (DP `.ok`/`data-flag`, AR `.banner`/
+   `data-banner`). The dual-convention markers ride the same element so each
+   app's existing tests keep matching the outcome flag they already assert:
+     flag       → DP `data-flag`   (e.g. saved, locked-refused, deleted)
+     banner     → AR `data-banner` (e.g. saved, locked)
+     validation → AR `data-validation` (ok / errors), shared by the validate flow
+   severity ∈ {success, error, warning, info} → maps to .toast-<severity> in kit.css. #}
+{% macro toast(message, severity='info', flag='', banner='', validation='') -%}
+<div class="toast-seed" data-toast data-toast-severity="{{ severity }}"
+     {%- if flag %} data-flag="{{ flag }}"{% endif %}
+     {%- if banner %} data-banner="{{ banner }}"{% endif %}
+     {%- if validation %} data-validation="{{ validation }}"{% endif %}
+     role="status" hidden>{{ message }}</div>
+{%- endmacro %}
