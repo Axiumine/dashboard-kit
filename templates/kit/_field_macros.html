@@ -86,6 +86,10 @@
     {% if f.kind == 'locked' %}
     <span class="meta" data-flag="locked-note"><code>${VAR}</code> secrets render locked — they are never resolved here.</span>
     {% endif %}
+    {% set env_var = f.env_var if f.env_var is defined else '' %}
+    {% if env_var %}
+    <span class="meta" data-flag="env-note">Stored in your <code>.env</code> file — an edit is written there, not into the YAML.</span>
+    {% endif %}
     {% if warning %}
     <span class="warning" data-flag="footgun-warning" data-warn-field="{{ f.name }}">⚠ {{ warning }}</span>
     {% endif %}
