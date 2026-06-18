@@ -169,14 +169,33 @@
 </fieldset>
 {% endmacro %}
 
-{# optional block: enable checkbox reveals its nested fields. Inner fields render
-   through the shared field_row macro. #}
-{% macro toggle_block(t) %}
-<fieldset class="optional-block" data-toggle="{{ t.key }}">
-  <legend><label><input type="checkbox" name="enable.{{ t.key }}" value="true" {% if t.enabled %}checked{% endif %} data-enable> {{ t.label }}</label></legend>
-  <input type="hidden" name="enable_seen.{{ t.key }}" value="1">
-  <div class="toggle-fields" {% if not t.enabled %}hidden{% endif %}>
-    {% for field in t.fields %}{{ field_row(field) }}{% endfor %}
+{# optional block — the kit "box" component: a switch-header card. Head shows the
+   title + an always-visible enable switch + an optional hint (a footgun ``warning``
+   when present, else a plain ``description``). ALL block content (scalar fields +
+   any keyed-map tables passed as ``maps``) lives INSIDE the card and reveals when
+   ticked. ``section`` tags the card for the per-block launcher (DP); ``data-span``
+   is the content-driven grid width (2=1.0x · 3=1.5x · 4=2.0x). Reveal JS: kit.js. #}
+{% macro toggle_block(t, maps=[], section='', ro=False, errors=[]) %}
+<div class="optional-block" data-block="enable" data-group="enable:{{ t.key }}"
+     {% if section %}data-section="{{ section }}" {% endif %}data-span="{{ t.span if t.span is defined else 2 }}">
+  <div class="optional-head">
+    <span class="optional-title">{{ t.label }}</span>
+    {# sentinel proves the toggle was rendered+submitted — drives revert-on-untick #}
+    <input type="hidden" name="enable_seen.{{ t.key }}" value="1">
+    {{ switch('enable.' ~ t.key, 'true', t.enabled, false, 'enable-toggle', 'Enable ' ~ t.label) }}
   </div>
-</fieldset>
+  {% if t.warning is defined and t.warning %}
+  <p class="warning" data-flag="footgun-warning" data-warn-toggle="{{ t.key }}">⚠ {{ t.warning }}</p>
+  {% elif t.description is defined and t.description %}
+  <p class="optional-hint">{{ t.description }}</p>
+  {% endif %}
+  <div class="optional-content" data-role="enable-content"{% if not t.enabled %} hidden{% endif %}>
+    {% if t.fields or maps %}
+    <div class="enable-content">
+      {% if t.fields %}{{ field_grid(t.fields, ro, errors) }}{% endif %}
+      {% for km in maps %}{{ keyed_map(km) }}{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% endmacro %}

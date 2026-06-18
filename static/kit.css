@@ -345,12 +345,58 @@ span.error {
 
 /* ── collections: string-list / keyed-map / object-list (AR consumer) ─────── */
 .string-list, .keyed-map, .object-list { margin: 0.5rem 0; }
+
+/* ── optional sections — switch-header cards in a grid (shared box component).
+   Width is content-driven: data-span is set server-side from the block's field
+   count + whether it owns a sibling editor; a card spans an integer count of the
+   160px base track → 2=1.0x · 3=1.5x · 4=2.0x. */
+.optional-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
+  grid-auto-flow: row dense; /* pack mixed-width cards — no ragged holes */
+  gap: 0.9rem;
+  align-items: start;
+  margin: 0 0 1.3rem;
+}
 .optional-block {
+  grid-column: span 2; /* 1.0x default; data-span widens content-heavy cards */
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 0.85rem 1.05rem 1rem;
   margin: 0;
+}
+.optional-block[data-span="3"] { grid-column: span 3; } /* 1.5x */
+.optional-block[data-span="4"] { grid-column: span 4; } /* 2.0x */
+.optional-block:has([data-role="enable-toggle"]:checked) {
+  border-color: var(--border-hi);
+  box-shadow: 0 0 0 1px rgba(109, 139, 255, 0.18);
+}
+.optional-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.optional-title { font-weight: 600; color: var(--text); }
+.optional-hint { font-size: 0.8rem; margin: 0.55rem 0 0.3rem; }
+.optional-block .meta { margin-bottom: 0; }
+.enable-content {
+  margin-top: 0.75rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+/* tablet: cap every card at 2 tracks so a 2.0x card still fits a 2-col grid */
+@media (max-width: 820px) {
+  .optional-block[data-span="3"],
+  .optional-block[data-span="4"] { grid-column: span 2; }
+}
+/* phone: single column, every card full width (span would overflow 1 track) */
+@media (max-width: 520px) {
+  .optional-grid { grid-template-columns: 1fr; }
+  .optional-block,
+  .optional-block[data-span="3"],
+  .optional-block[data-span="4"] { grid-column: 1 / -1; }
 }
 .toggle-fields { margin-top: 0.75rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
