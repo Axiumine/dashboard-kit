@@ -242,15 +242,24 @@ button[data-add-chip]:hover,
 button[data-add-row]:hover,
 button[data-add-backend]:hover { border-color: var(--accent); transform: none; background: transparent; }
 
-/* ── form action bar — validate/save pinned to the bottom-right of a form ──── */
-/* scoped to `form` so it never hijacks a non-form `.actions` row (e.g. a detail
-   panel's `article .actions`). Uses the --bg-grad-b token both consumers define. */
-form .actions {
+/* ── action section — the single kit rule for a page-bottom button row ─────── */
+/* `.actions` is THE action-section component: any group of action buttons at the
+   foot of a page/form/section goes in a `.actions` row and is flush-right. Both
+   consumers use it for every save/validate/create/delete/nav button row.
+   A consumer that needs a left-aligned button row (e.g. DEVPROTOCOL's detail
+   panel `article .actions`) overrides `justify-content` at higher specificity. */
+.actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
+  margin-top: 1.3rem;
+}
+/* inside a form the action row also pins to the bottom with a fade backdrop so it
+   stays reachable on long forms. Uses the --bg-grad-b token both consumers define. */
+form .actions {
   position: sticky;
   bottom: 0;
+  margin-top: 0;
   padding: 0.8rem 0;
   background: linear-gradient(180deg, transparent, var(--bg-grad-b) 35%);
 }
@@ -450,13 +459,7 @@ span.error {
   border-top: 1px solid var(--border);
 }
 
-/* save / validate row — flush right, NO background (sits on the page, not a box) */
-.page-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.6rem;
-  margin-top: 1.3rem;
-}
+/* (page-bottom button rows now use the single `.actions` action-section above) */
 .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem; }
 .chip {
   display: inline-flex;
