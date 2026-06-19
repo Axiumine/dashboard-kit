@@ -18,6 +18,17 @@ templates/kit/
                       # + cell, string_list, keyed_map, object_list, toggle_block (AR)
 ```
 
+## Component rules
+
+- **`.actions` — action section.** The single rule for a page-bottom button row.
+  Any group of action buttons at the foot of a page, form, or section goes in a
+  `<div class="actions">` (or `<p class="actions">`) and renders **flush-right**.
+  Every save / validate / create / delete / nav button row in both consumers uses
+  it — buttons needed as page actions must live in a `.actions` row, not loose.
+  Inside a `<form>` the row also sticks to the bottom with a fade backdrop. A
+  consumer that needs a **left-aligned** row (e.g. DEVPROTOCOL's read-only detail
+  panel `article .actions`) overrides `justify-content` at higher specificity.
+
 ## How a consumer wires it
 
 1. **Submodule**: `git submodule add <url> <dashboard>/kit`.
