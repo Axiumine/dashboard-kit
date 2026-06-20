@@ -1,0 +1,20 @@
+{# dashboard-kit — breadcrumb. A linked navigation trail, rendered under a page
+   <h1> (see kit `page_head`) or standalone; crumbs joined by '/'.
+
+   `crumbs` is a list of (label, href) pairs rendered left→right; every crumb
+   links to its href except the last (the current page, never a link). A crumb
+   with a falsy href also renders as plain text. Styled by `.breadcrumb` in
+   kit.css.
+
+     {% from "kit/_breadcrumb.html" import breadcrumb %}
+     {{ breadcrumb([("Home", "/"), ("Server & Routing", none)]) }}
+#}
+{% macro breadcrumb(crumbs) %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  {%- for label, href in crumbs %}
+  {%- if not loop.first %}<span class="crumb-sep" aria-hidden="true">/</span>{% endif %}
+  {%- if href and not loop.last %}<a href="{{ href }}">{{ label }}</a>
+  {%- else %}<span class="crumb-current" aria-current="page">{{ label }}</span>{% endif %}
+  {%- endfor %}
+</nav>
+{% endmacro %}

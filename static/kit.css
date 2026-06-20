@@ -30,6 +30,22 @@
   color: transparent;
 }
 .meta { color: var(--text-dim); font-size: 0.88rem; margin: 0 0 1.25rem; }
+/* breadcrumb — the linked trail that replaces the .meta subtitle under the
+   header <h1>; crumbs joined by '/', current page un-linked. Shares the .meta
+   colour/size/spacing so the header rhythm is unchanged. */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  margin: 0 0 1.25rem;
+}
+.breadcrumb a { color: var(--text-dim); text-decoration: none; }
+.breadcrumb a:hover { color: var(--text); text-decoration: underline; }
+.breadcrumb .crumb-sep { opacity: 0.55; }
+.breadcrumb .crumb-current { color: var(--text); font-weight: 600; }
 
 /* ── inputs / select / textarea ───────────────────────────────────────────── */
 input[type="text"],

@@ -1,20 +1,24 @@
 {# dashboard-kit — page header (the app title bar both dashboards open with).
 
    One flex row: <h1> title on the left, an optional right-slot via `caller()`
-   (action button, link), and an optional `.meta` subtitle line under it. Styled
-   by `.page-head` + `.meta` in kit.css. Used so the AGENTS-ROUTER config editor
-   and the DEVPROTOCOL roster share ONE title component instead of each forking
-   its own <header>.
+   (action button, link), and — under the title — either a `.breadcrumb` trail
+   (preferred, the kit `breadcrumb` component) or a legacy `.meta` subtitle line.
+   Styled by `.page-head`, `.breadcrumb` + `.meta` in kit.css. Used so the
+   AGENTS-ROUTER config editor and the DEVPROTOCOL roster share ONE title
+   component instead of each forking its own <header>.
 
-     page_head("Agent config roster", "DEVPROTOCOL agents village")
-     page_head("AGENTS-ROUTER configuration", model.file_path, target=model.file_path)
+     page_head("AGENTS-ROUTER configuration",
+               crumbs=[("Home", "/"), ("Server & Routing", none)])
 
-   `target`, when set, rides the subtitle as data-target (a test/JS hook some
-   consumers key off). Omitted → attribute absent, identical to a plain line. #}
-{% macro page_head(title, subtitle=none, target=none) %}
+   `crumbs` is passed straight to the `breadcrumb` component (see
+   kit/_breadcrumb.html). When omitted the legacy `subtitle` line is used
+   instead; `target`, when set, rides that subtitle as data-target (a test/JS
+   hook some consumers key off). #}
+{% from "kit/_breadcrumb.html" import breadcrumb %}
+{% macro page_head(title, subtitle=none, target=none, crumbs=none) %}
 <header class="page-head">
   <h1>{{ title }}</h1>
-  {% if subtitle %}<p class="meta"{% if target %} data-target="{{ target }}"{% endif %}>{{ subtitle }}</p>{% endif %}
+  {% if crumbs %}{{ breadcrumb(crumbs) }}{% elif subtitle %}<p class="meta"{% if target %} data-target="{{ target }}"{% endif %}>{{ subtitle }}</p>{% endif %}
   {% if caller %}{{ caller() }}{% endif %}
 </header>
 {% endmacro %}
