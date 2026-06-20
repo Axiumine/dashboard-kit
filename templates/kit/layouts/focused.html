@@ -1,0 +1,17 @@
+{# dashboard-kit — focused single-task page. Same shell as page.html but a
+   narrow centred column (`.container--narrow`, max-width 760) for short, one-job
+   pages where a wide data grid would only dilute the task: a create form, a
+   delete confirmation, a single focused action.
+
+   Extends `kit/layouts/base.html`; identical slot set to page.html (header,
+   content, container_mod, + all base slots) — only the column width differs, so
+   a page can move between `page.html` and `focused.html` by swapping the one
+   `{% extends %}` line. #}
+{% extends "kit/layouts/base.html" %}
+{% from "kit/_header.html" import page_head %}
+{% block body %}
+<main class="container container--narrow{% block container_mod %}{% endblock %}">
+  {% block header %}{{ page_head(page_title | default(''), crumbs=crumbs | default(none), home_href=home_href | default(none)) }}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+{% endblock %}

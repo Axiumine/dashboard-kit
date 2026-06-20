@@ -1,0 +1,40 @@
+{# dashboard-kit — base page shell. The single <!doctype> wrapper every dashboard
+   page extends; owns <head> (shared stylesheets + scripts), <body>, and the
+   foot-script slot. Both consumers (DEVPROTOCOL roster, AGENTS-ROUTER config
+   editor) mount /static/dashboard.css (host theme tokens) and /kit/ (this kit),
+   so the asset URLs are identical across apps and live here once.
+
+   Do NOT extend this directly from a page — extend `kit/layouts/page.html`
+   (contained) or `kit/layouts/focused.html` (narrow single-task), which fill
+   the `body` slot with a <main> + header + content. This template only renders
+   a header when a child overrides `body` to call one.
+
+   Slots (blocks):
+     lang          html lang attr            (default "en")
+     title         <title> text              (required)
+     head_extra    extra <link>/<meta>/libs  (optional — e.g. marked, dompurify)
+     scripts_head  head scripts              (default htmx; override empty to drop)
+     page_id       <body data-page> value    (optional, for CSS/JS hooks)
+     body_attrs    extra <body> attributes   (optional)
+     body          full body interior        (page.html / focused.html fill this)
+     scripts_foot  end-of-body scripts        (optional — page-specific JS)
+
+   kit.js is loaded unconditionally (every page needs its behaviours); htmx is the
+   `scripts_head` default so a page can opt out by overriding the block empty. #}
+<!doctype html>
+<html lang="{% block lang %}en{% endblock %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/dashboard.css?v={{ asset_v }}">
+  <link rel="stylesheet" href="/kit/kit.css?v={{ asset_v }}">
+  {% block head_extra %}{% endblock %}
+  {% block scripts_head %}<script src="https://unpkg.com/htmx.org@2.0.4" defer></script>{% endblock %}
+  <script src="/kit/kit.js?v={{ asset_v }}" defer></script>
+</head>
+<body{% block body_attrs %}{% endblock %} data-page="{% block page_id %}{% endblock %}">
+{% block body %}{% endblock %}
+{% block scripts_foot %}{% endblock %}
+</body>
+</html>

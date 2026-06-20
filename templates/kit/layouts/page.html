@@ -1,0 +1,25 @@
+{# dashboard-kit — standard contained page. The default layout: a centred
+   `.container` (max-width 1180) holding the page header then the page content.
+   Used by data-dense pages (roster index, edit form, config editor).
+
+   Extends `kit/layouts/base.html`; fills its `body` slot. A page extends THIS,
+   sets `title`/`page_id`, overrides `header` with its own page_head() call (so
+   the breadcrumb trail stays co-located with the page), and fills `content`.
+
+   Slots added on top of base.html's:
+     container_mod  extra class on <main class="container ...">  (optional)
+     header         the page_head() call                          (required override)
+     content        the page body                                 (required)
+
+   `page_head` is imported here (not inherited from base — Jinja import scope) so
+   the `header` override in the child can call it. The default header renders
+   from the optional `page_title`/`crumbs`/`home_href` context vars; most pages
+   override the block with a literal call instead. #}
+{% extends "kit/layouts/base.html" %}
+{% from "kit/_header.html" import page_head %}
+{% block body %}
+<main class="container{% block container_mod %}{% endblock %}">
+  {% block header %}{{ page_head(page_title | default(''), crumbs=crumbs | default(none), home_href=home_href | default(none)) }}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+{% endblock %}
