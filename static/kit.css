@@ -25,6 +25,9 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  /* breathing room under the header — 2× the breadcrumb/subtitle base (1.25rem),
+     since .head-titles zeroes the trail's own bottom margin. */
+  margin: 0 0 2.5rem;
 }
 /* stack the <h1> over the page-specific breadcrumb/subtitle on the left. */
 .head-titles { display: flex; flex-direction: column; min-width: 0; }
