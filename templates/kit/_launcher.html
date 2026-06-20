@@ -36,3 +36,14 @@
   <h2 class="section-title" data-role="section-title"></h2>
 </div>
 {% endmacro %}
+
+{# static, server-rendered sub-section heading — icon before the title with the
+   underline rule (the "Dev loop"-style section title both dashboards open a
+   section with: DP roster bucket page, AR + DP config section page). Distinct
+   from section_bar() above, which is the JS drill-in variant (back button +
+   JS-filled empty title). #}
+{% macro section_title(icon, label) %}
+<div class="section-bar">
+  <h2 class="section-title">{{ icon }} {{ label }}</h2>
+</div>
+{% endmacro %}
