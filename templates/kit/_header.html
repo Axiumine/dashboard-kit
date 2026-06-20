@@ -32,6 +32,6 @@
     <h1>{% if home_href %}<a href="{{ home_href }}" class="brand-home">{{ title }}</a>{% else %}{{ title }}{% endif %}</h1>
     {% if crumbs %}{{ breadcrumb(crumbs) }}{% elif subtitle %}<p class="meta"{% if target %} data-target="{{ target }}"{% endif %}>{{ subtitle }}</p>{% endif %}
   </div>
-  {% if caller %}<div class="head-actions">{{ caller() }}</div>{% endif %}
+  {% if caller %}<div class="actions">{{ caller() }}</div>{% endif %}
 </header>
 {% endmacro %}
