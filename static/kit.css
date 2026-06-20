@@ -33,7 +33,10 @@
 .head-titles { display: flex; flex-direction: column; min-width: 0; }
 .head-titles .meta,
 .head-titles .breadcrumb { margin: 0; }
-.head-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+/* title-bar action slot reuses the shared `.actions` component (ADR-002); the
+   header context vertically-centres it on the h1 row and kills the page-bottom
+   margin-top so it sits inline, not pushed down. */
+.page-head .actions { margin-top: 0; align-items: center; flex-shrink: 0; }
 /* the shared title look — gradient-clipped, fluid scale. One definition so every
    dashboard's <h1> is byte-identical. */
 .page-head h1 {
