@@ -10,13 +10,27 @@
      --radius --radius-sm --ring --mono --sans
    No :root block lives here. */
 
+/* ── layout shell ─────────────────────────────────────────────────────────── */
+/* The page-width column. `kit/layouts/page.html` wraps every page in
+   <main class="container">; `focused.html` adds `--narrow` for single-task
+   pages. Owned here (not the host) so both dashboards share one width. */
+.container { max-width: 1180px; margin-inline: auto; }
+.container--narrow { max-width: 760px; }
+
 /* ── page header ──────────────────────────────────────────────────────────── */
+/* Title column on the left, optional action slot on the right. `flex-start` so a
+   multi-line `.head-titles` (h1 + breadcrumb) top-aligns with the action slot. */
 .page-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
 }
+/* stack the <h1> over the page-specific breadcrumb/subtitle on the left. */
+.head-titles { display: flex; flex-direction: column; min-width: 0; }
+.head-titles .meta,
+.head-titles .breadcrumb { margin: 0; }
+.head-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
 /* the shared title look — gradient-clipped, fluid scale. One definition so every
    dashboard's <h1> is byte-identical. */
 .page-head h1 {
@@ -29,6 +43,22 @@
   background-clip: text;
   color: transparent;
 }
+/* brand title doubles as a home link (set page_head home_href). Carries its OWN
+   gradient text-clip so it stays painted independent of the parent — inheriting
+   the parent clip + a hover `filter` isolated the <a> into its own layer and
+   rendered it black-on-black. `-webkit-text-fill-color: transparent` also beats
+   the global `a`/`a:hover` colour. Hover dims via opacity (never blacks out). */
+.page-head h1 a.brand-home {
+  background: linear-gradient(120deg, #fff 20%, #b9c2da 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.page-head h1 a.brand-home:hover { opacity: 0.82; }
 .meta { color: var(--text-dim); font-size: 0.88rem; margin: 0 0 1.25rem; }
 /* breadcrumb — the linked trail that replaces the .meta subtitle under the
    header <h1>; crumbs joined by '/', current page un-linked. Shares the .meta
