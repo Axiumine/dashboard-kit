@@ -76,6 +76,10 @@
 .breadcrumb a:hover { color: var(--text); text-decoration: underline; }
 .breadcrumb .crumb-sep { opacity: 0.55; }
 .breadcrumb .crumb-current { color: var(--text); font-weight: 600; }
+/* a static current crumb promoted to a back-to-grid link by drill-in JS
+   (kit.js setCrumb) — looks/behaves like a breadcrumb link, not bold text. */
+.breadcrumb .crumb-back { color: var(--text-dim); cursor: pointer; }
+.breadcrumb .crumb-back:hover { color: var(--text); text-decoration: underline; }
 
 /* ── inputs / select / textarea ───────────────────────────────────────────── */
 input[type="text"],

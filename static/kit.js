@@ -14,10 +14,55 @@
   var openTiles = document.querySelectorAll("[data-open-section]");
   var hasDrillIn = openTiles.length > 0;
 
+  // Section-aware breadcrumb: in drill-in mode the open section is appended to the
+  // page-head trail as the current crumb, and the previously-current crumb (e.g.
+  // "Project config") becomes a back-to-grid link. `crumbBase` is that last static
+  // crumb; `crumbSection` is the {sep, cur} pair appended for the open section.
+  var crumbNav = document.querySelector(".page-head .breadcrumb");
+  var crumbBase = crumbNav ? crumbNav.querySelector(".crumb-current") : null;
+  var crumbSection = null;
+
   function labelFor(id) {
     var tile = document.querySelector("[data-open-section='" + id + "']");
     var lbl = tile && tile.querySelector(".section-label");
     return lbl ? lbl.textContent : id;
+  }
+
+  function setCrumb(id) {
+    if (!crumbNav || !crumbBase) return;
+    crumbBase.classList.remove("crumb-current");
+    crumbBase.classList.add("crumb-back");
+    crumbBase.removeAttribute("aria-current");
+    crumbBase.setAttribute("role", "link");
+    crumbBase.setAttribute("tabindex", "0");
+    if (!crumbSection) {
+      var sep = document.createElement("span");
+      sep.className = "crumb-sep";
+      sep.setAttribute("aria-hidden", "true");
+      sep.textContent = "/";
+      var cur = document.createElement("span");
+      cur.className = "crumb-current";
+      cur.setAttribute("aria-current", "page");
+      crumbNav.appendChild(sep);
+      crumbNav.appendChild(cur);
+      crumbSection = { sep: sep, cur: cur };
+    }
+    crumbSection.cur.textContent = labelFor(id);
+  }
+
+  function clearCrumb() {
+    if (crumbBase) {
+      crumbBase.classList.remove("crumb-back");
+      crumbBase.classList.add("crumb-current");
+      crumbBase.setAttribute("aria-current", "page");
+      crumbBase.removeAttribute("role");
+      crumbBase.removeAttribute("tabindex");
+    }
+    if (crumbSection) {
+      crumbSection.sep.remove();
+      crumbSection.cur.remove();
+      crumbSection = null;
+    }
   }
 
   function showSection(id) {
@@ -28,6 +73,7 @@
       if (grid) grid.hidden = true;
       if (bar) bar.hidden = false;
       if (titleEl) titleEl.textContent = labelFor(id);
+      setCrumb(id);
     }
   }
 
@@ -37,6 +83,7 @@
     });
     if (grid) grid.hidden = false;
     if (bar) bar.hidden = true;
+    clearCrumb();
   }
 
   if (hasDrillIn) {
@@ -53,6 +100,19 @@
         showGrid();
       });
     });
+
+    // the back-to-grid crumb ("Project config") acts as a link once a section opens
+    if (crumbBase) {
+      crumbBase.addEventListener("click", function () {
+        if (crumbBase.classList.contains("crumb-back")) showGrid();
+      });
+      crumbBase.addEventListener("keydown", function (e) {
+        if (crumbBase.classList.contains("crumb-back") && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          showGrid();
+        }
+      });
+    }
 
     // Start with grid visible (panels hidden) — server may have set initial state
     // via URL; if so the server renders only one section and there are no tiles.
