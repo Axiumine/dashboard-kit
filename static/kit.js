@@ -317,4 +317,42 @@
     if (e.detail && e.detail.target) liftToasts(e.detail.target);
   });
 
+  // ── 7. Invalid-field highlight ────────────────────────────────────────────
+  //   The server marks every rejected field with [data-error-field] — both the
+  //   inline per-field <span class="error"> (full-page save re-render) and the
+  //   <li> rows in the validate partial (kit/_validation.html). For each marked
+  //   name, add .is-invalid to its control so the wrong field is visibly flagged
+  //   (kit.css paints the red outline). Clear-then-set on page load AND after
+  //   every htmx swap, so a re-validate that now passes drops the stale highlight.
+  function markInvalidField(name) {
+    if (!name) return;
+    try {
+      // kit-macro forms wrap the control in [data-field] — flag the wrapper
+      var field = document.querySelector('[data-field="' + name + '"]');
+      if (field) { field.classList.add("is-invalid"); return; }
+      // bespoke forms (no wrapper) + keyed-map base paths → flag the control by name
+      var control = document.querySelector('[name="' + name + '"]')
+        || document.querySelector('[name^="' + name + '."]');
+      if (control) control.classList.add("is-invalid");
+    } catch (err) { /* field name is not a valid selector — skip it */ }
+  }
+
+  function refreshInvalidFields() {
+    document.querySelectorAll(".is-invalid").forEach(function (el) {
+      el.classList.remove("is-invalid");
+    });
+    var seen = {};
+    document.querySelectorAll("[data-error-field]").forEach(function (marker) {
+      var name = marker.getAttribute("data-error-field");
+      if (name && !seen[name]) { seen[name] = true; markInvalidField(name); }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", refreshInvalidFields);
+  } else {
+    refreshInvalidFields();
+  }
+  document.addEventListener("htmx:afterSwap", refreshInvalidFields);
+
 })();

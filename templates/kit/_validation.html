@@ -19,7 +19,7 @@
   <li class="validation-error" data-error-field="{{ e.field }}" data-error-code="{{ e.code }}"><strong>{{ e.code }}</strong>: {{ e.message }}</li>
   {% endfor %}
 </ul>
-{{ toast("Validation failed — fix the highlighted fields.", "error", flag="validation-errors", validation="errors") }}
+{{ toast("Form not valid", "error", flag="validation-errors", validation="errors") }}
 {% else %}
 {{ toast("No problems found — safe to save.", "success", flag="validation-ok", validation="ok") }}
 {% endif %}
