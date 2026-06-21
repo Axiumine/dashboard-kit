@@ -351,6 +351,21 @@ span.error {
   color: var(--err);
 }
 
+/* ── invalid-field highlight (set by kit.js section 7) ────────────────────── */
+/* kit.js adds .is-invalid to a rejected field's control (or its [data-field]
+   wrapper) for every server-rendered [data-error-field] marker, so the wrong
+   field shows a red outline alongside the inline message + the "Form not valid"
+   toast — on both the full-page save re-render and the HTMX validate swap. */
+.field.is-invalid input,
+.field.is-invalid select,
+.field.is-invalid textarea,
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+  border-color: var(--err);
+  box-shadow: 0 0 0 1px var(--err);
+}
+
 /* ── toast notifications (floating, auto-dismiss; shared by both consumers) ── */
 /* The server renders a hidden .toast-seed (kit/_toast.html) in place of the old
    inline banners; kit.js section 6 lifts each seed into a .toast inside the fixed
