@@ -51,6 +51,8 @@
   </select>
   {% elif f.kind == 'checkbox' %}
   {{ switch(f.name, 'true', f.checked, ro, '', f.label | humanize_no_unit) }}
+  {% elif f.kind == 'date' %}
+  <input type="date" name="{{ f.name }}" value="{{ f.value }}" {% if ro %}disabled{% endif %}>
   {% else %}
   <input type="{% if f.kind == 'number' %}number{% else %}text{% endif %}"
          {% if f.kind == 'number' %}step="any" {% endif %}name="{{ f.name }}"
@@ -113,6 +115,7 @@
 {% macro cell(prefix, sf, value) %}
 {% if sf.kind == "enum" %}<select name="{{ prefix }}.{{ sf.key }}">{% for option in sf.options %}<option value="{{ option }}" {% if option == value %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
 {% elif sf.kind == "number" %}<input type="number" step="any" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
+{% elif sf.kind == "date" %}<input type="date" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
 {% else %}<input type="text" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">{% endif %}
 {% endmacro %}
 
