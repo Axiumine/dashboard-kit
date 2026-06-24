@@ -355,4 +355,58 @@
   }
   document.addEventListener("htmx:afterSwap", refreshInvalidFields);
 
+  // ── 8. datetime-local UTC bridge ──────────────────────────────────────────
+  //   A [data-utc-local] picker shows the operator's LOCAL time; its paired
+  //   hidden [data-utc-value] (same cell) always holds the UTC value that posts.
+  //   The server speaks UTC; the browser converts to/from local with native Date
+  //   (no library needed). On load each picker is filled from its hidden's UTC
+  //   value; on every edit the hidden is rewritten back to UTC.
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+  function toLocalInput(d) {
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) +
+      "T" + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+  }
+
+  function pairedHidden(picker) {
+    return picker.parentNode && picker.parentNode.querySelector("[data-utc-value]");
+  }
+
+  function fillLocalFromUtc(picker) {
+    var hidden = pairedHidden(picker);
+    if (!hidden || !hidden.value) return;                 // empty → leave blank
+    var iso = hidden.value;
+    if (iso.charAt(iso.length - 1) !== "Z") iso += "Z";   // server sends naive UTC
+    var d = new Date(iso);
+    if (!isNaN(d.getTime())) picker.value = toLocalInput(d);
+  }
+
+  function syncUtcFromLocal(picker) {
+    var hidden = pairedHidden(picker);
+    if (!hidden) return;
+    if (!picker.value) { hidden.value = ""; return; }     // cleared → unchanged on save
+    var d = new Date(picker.value);                       // parsed as local wall-clock
+    if (!isNaN(d.getTime())) hidden.value = d.toISOString().slice(0, 19);  // UTC, no ms/Z
+  }
+
+  function initUtcPickers(root) {
+    var scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll("[data-utc-local]").forEach(fillLocalFromUtc);
+  }
+
+  // delegation covers cloned table rows added after load
+  document.addEventListener("input", function (e) {
+    var picker = e.target.closest && e.target.closest("[data-utc-local]");
+    if (picker) syncUtcFromLocal(picker);
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { initUtcPickers(); });
+  } else {
+    initUtcPickers();
+  }
+  document.addEventListener("htmx:afterSwap", function (e) {
+    if (e.detail && e.detail.target) initUtcPickers(e.detail.target);
+  });
+
 })();

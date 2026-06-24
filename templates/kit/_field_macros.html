@@ -54,7 +54,11 @@
   {% elif f.kind == 'date' %}
   <input type="date" name="{{ f.name }}" value="{{ f.value }}" {% if ro %}disabled{% endif %}>
   {% elif f.kind == 'datetime' %}
-  <input type="datetime-local" step="1" name="{{ f.name }}" value="{{ f.value }}" {% if ro %}disabled{% endif %}>
+  {# picker shows the operator's LOCAL time; the paired hidden field carries the
+     UTC value that actually posts (kit.js bridges the two). #}
+  <input type="datetime-local" step="1" value="{{ f.value }}" data-utc-local
+         title="Shown in your local time — saved as UTC" {% if ro %}disabled{% endif %}>
+  <input type="hidden" name="{{ f.name }}" value="{{ f.value }}" data-utc-value>
   {% else %}
   <input type="{% if f.kind == 'number' %}number{% else %}text{% endif %}"
          {% if f.kind == 'number' %}step="any" {% endif %}name="{{ f.name }}"
@@ -118,7 +122,7 @@
 {% if sf.kind == "enum" %}<select name="{{ prefix }}.{{ sf.key }}">{% for option in sf.options %}<option value="{{ option }}" {% if option == value %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
 {% elif sf.kind == "number" %}<input type="number" step="any" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
 {% elif sf.kind == "date" %}<input type="date" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
-{% elif sf.kind == "datetime" %}<input type="datetime-local" step="1" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
+{% elif sf.kind == "datetime" %}<input type="datetime-local" step="1" value="{{ value }}" data-utc-local title="Shown in your local time — saved as UTC"><input type="hidden" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}" data-utc-value>
 {% else %}<input type="text" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">{% endif %}
 {% endmacro %}
 
