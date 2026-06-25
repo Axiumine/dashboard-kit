@@ -1,0 +1,35 @@
+{# Shared icon-button component for every dashboard.
+
+   icon_button(action, label, ...) renders one <button> (or <a> when href set)
+   carrying a Lucide-style line SVG glyph, styled by the kit `.icon-btn` rules.
+   Replaces hand-written emoji/SVG buttons so edit/delete/eye/… look identical
+   across the DEVPROTOCOL and AGENTS-ROUTER dashboards.
+
+   action      one of: edit | delete | eye | up | down | close | add (else blank)
+   label       aria-label (required for a11y); title defaults to it
+   href        when set → <a href>; otherwise <button type=btn_type>
+   btn_type    button (default) | submit  (e.g. AR's per-backend delete submits)
+   cls         extra classes after "icon-btn" (e.g. "danger", "trash")
+   data_action data-action value (defaults to `action`; e.g. "toggle-secret")
+   extra_attrs raw attribute string injected verbatim (name/value/hx-*/data-*)
+#}
+{%- set _svg = {
+  "edit":   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
+  "delete": '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+  "eye":    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  "close":  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  "up":     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>',
+  "down":   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+  "add":    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>'
+} -%}
+{% macro icon_button(action, label, href=None, btn_type="button", extra_attrs="", title=None, cls="", data_action=None) -%}
+{%- set _title = title if title else label -%}
+{%- set _data_action = data_action if data_action else action -%}
+{%- set _cls = ("icon-btn " ~ cls) | trim -%}
+{%- set _glyph = _svg[action] if action in _svg else "" -%}
+{%- if href -%}
+<a class="{{ _cls }}" data-action="{{ _data_action }}" href="{{ href }}" title="{{ _title }}" aria-label="{{ label }}"{% if extra_attrs %} {{ extra_attrs | safe }}{% endif %}>{{ _glyph | safe }}</a>
+{%- else -%}
+<button type="{{ btn_type }}" class="{{ _cls }}" data-action="{{ _data_action }}" title="{{ _title }}" aria-label="{{ label }}"{% if extra_attrs %} {{ extra_attrs | safe }}{% endif %}>{{ _glyph | safe }}</button>
+{%- endif -%}
+{%- endmacro %}
