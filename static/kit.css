@@ -670,3 +670,73 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .section-back:hover { color: var(--text); border-color: var(--border-hi); }
 .section-title { margin: 0; font-size: 1.25rem; }
+/* inline title-bar actions ride the section_title() caller slot, flush-right on
+   the same line as the h2 (h2 mirror of `.page-head .actions`). */
+.section-bar .actions { margin: 0 0 0 auto; }
+
+/* ── pill CTA — `.add` (kit-owned, ADR-002) ───────────────────────────────── */
+/* Promoted out of each host's dashboard.css so AGENTS-ROUTER + DEVPROTOCOL share
+   one "+ Add …" gradient pill. Works on both <a> (roster nav) and <button>
+   (Start clean / Add backend), resetting the kit <button> chrome to the pill. */
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.5rem 0;
+  padding: 0.6rem 1.15rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #fff;
+  background: var(--accent-grad);
+  border: 1px solid transparent;  /* override the kit <button> border */
+  border-radius: 999px;
+  box-shadow: 0 3px 10px -4px rgba(109, 139, 255, 0.5);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+}
+.add:hover {
+  color: #fff;
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  background: var(--accent-grad);  /* hold the gradient over the kit button:hover */
+  border-color: transparent;
+  box-shadow: 0 5px 14px -5px rgba(109, 139, 255, 0.6);
+}
+.add:active { transform: translateY(0); }
+/* in a title bar the pill carries no stacking margin (the flex row aligns it). */
+.section-bar .actions .add, .page-head .actions .add { margin: 0; }
+
+/* ── modal dialog — kit/_modal.html (native <dialog>) ─────────────────────── */
+dialog.kit-modal {
+  padding: 0;
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius);
+  background: var(--surface-solid, var(--surface));
+  color: var(--text);
+  width: min(560px, calc(100vw - 2rem));
+  max-height: calc(100vh - 4rem);
+  box-shadow: var(--shadow, 0 20px 60px -20px rgba(0, 0, 0, 0.6));
+}
+dialog.kit-modal::backdrop { background: rgba(8, 11, 20, 0.62); backdrop-filter: blur(2px); }
+.kit-modal-card { display: flex; flex-direction: column; max-height: calc(100vh - 4rem); }
+.kit-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.kit-modal-head h2 { margin: 0; font-size: 1.15rem; }
+.kit-modal-head .meta { margin: 0.2rem 0 0; }
+.kit-modal-body { padding: 1.1rem 1.2rem 1.2rem; overflow: auto; }
+.modal-close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  line-height: 1;
+  font-size: 1.35rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+}
+.modal-close:hover { color: var(--text); transform: none; }
