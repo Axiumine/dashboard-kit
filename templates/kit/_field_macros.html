@@ -13,6 +13,7 @@
    BOTH apps. The collection macros (cell/string_list/keyed_map/object_list/
    toggle_block) are consumed by AR; DP keeps its specialised collection
    renderers (chip reorder, custom doc-schemas) app-local. #}
+{% from "kit/_icon_btn.html" import icon_button %}
 
 {# on/off switch — a styled checkbox; POST name/value are unchanged so the wire
    contract is identical to a bare checkbox. `role` tags section-enable toggles
@@ -36,8 +37,8 @@
   <span class="secret" data-block="secret">
     <input type="password" name="{{ f.name }}" value="{{ f.value }}" autocomplete="off"
            {% if ro %}disabled{% endif %} data-role="secret-input" data-secret>
-    <button type="button" class="icon-btn eye" data-action="toggle-secret" data-eye
-            aria-label="Show value" aria-pressed="false">👁</button>
+    {{ icon_button("eye", "Show value", data_action="toggle-secret", cls="eye",
+                   extra_attrs='data-eye aria-pressed="false"') }}
   </span>
   {% elif f.kind == 'select' %}
   <select name="{{ f.name }}"{% if f.label == 'backend' %} data-role="backend"{% endif %}

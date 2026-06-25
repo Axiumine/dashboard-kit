@@ -245,6 +245,22 @@ label > input[type="checkbox"] {
   border-color: var(--border-hi);
   transform: translateY(-1px);
 }
+/* line-icon glyph (Lucide) inside any .icon-btn — see kit/_icon_btn.html */
+.icon-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* destructive action (delete/remove) — red on hover */
+.icon-btn.danger:hover {
+  color: var(--err);
+  background: var(--err-bg);
+  border-color: rgba(251, 113, 133, 0.35);
+}
 
 /* ── buttons ──────────────────────────────────────────────────────────────── */
 button {
@@ -266,7 +282,7 @@ button[type="submit"] {
   color: #fff;
   background: var(--accent-grad);
   border-color: transparent;
-  box-shadow: 0 8px 22px -8px rgba(109, 139, 255, 0.6);
+  box-shadow: 0 8px 22px -8px rgba(0, 0, 0, 0.25);
 }
 button[type="submit"]:hover { filter: brightness(1.08); }
 button[data-action="delete"] {
@@ -334,7 +350,7 @@ form .actions {
 }
 .ok, .validation-ok { color: var(--ok); background: var(--ok-bg); border-color: rgba(52, 211, 153, 0.25); }
 .warning { color: var(--warn); background: var(--warn-bg); border-color: rgba(251, 191, 36, 0.25); }
-.notice { color: var(--accent); background: rgba(109, 139, 255, 0.10); border-color: rgba(109, 139, 255, 0.25); }
+.notice { color: var(--accent); background: var(--surface-hi); border-color: var(--border-hi); }
 ul.errors, .validation-errors {
   list-style: none;
   color: var(--err);
@@ -405,7 +421,7 @@ textarea.is-invalid {
 .toast-success { color: var(--ok); background: var(--ok-bg); border-color: rgba(52, 211, 153, 0.3); }
 .toast-error { color: var(--err); background: var(--err-bg); border-color: rgba(251, 113, 133, 0.3); }
 .toast-warning { color: var(--warn); background: var(--warn-bg); border-color: rgba(251, 191, 36, 0.3); }
-.toast-info { color: var(--accent); background: rgba(109, 139, 255, 0.12); border-color: rgba(109, 139, 255, 0.3); }
+.toast-info { color: var(--accent); background: var(--surface-hi); border-color: var(--border-hi); }
 .toast-msg { flex: 1; }
 .toast-close {
   flex: none;
@@ -440,8 +456,8 @@ textarea.is-invalid {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
-  background: rgba(109, 139, 255, 0.10);
-  border: 1px solid rgba(109, 139, 255, 0.22);
+  background: var(--surface-hi);
+  border: 1px solid var(--border-hi);
   border-radius: 999px;
 }
 /* optional sections — switch-header cards tiled in a responsive grid (DP layout).
@@ -514,7 +530,7 @@ textarea.is-invalid {
 }
 .optional-block:has([data-role="enable-toggle"]:checked) {
   border-color: var(--border-hi);
-  box-shadow: 0 0 0 1px rgba(109, 139, 255, 0.18);
+  box-shadow: 0 0 0 1px var(--ring);
 }
 .optional-head {
   display: flex;
