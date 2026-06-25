@@ -409,4 +409,31 @@
     if (e.detail && e.detail.target) initUtcPickers(e.detail.target);
   });
 
+  // ── 9. Modal dialogs (kit/_modal.html) ────────────────────────────────────
+  //   [data-open-modal="<id>"] → showModal() that <dialog>; [data-close-modal]
+  //   inside a [data-modal] dialog → close() it; a click that lands on the
+  //   <dialog> element itself (its padded card swallows content clicks) is the
+  //   backdrop → close. Esc is native. No-op when a page has no modals — both
+  //   dashboards share this file, only AR mounts a dialog today.
+  document.addEventListener("click", function (e) {
+    var opener = e.target.closest("[data-open-modal]");
+    if (opener) {
+      var dlg = document.getElementById(opener.getAttribute("data-open-modal"));
+      if (dlg && typeof dlg.showModal === "function") {
+        e.preventDefault();
+        if (!dlg.open) dlg.showModal();
+      }
+      return;
+    }
+    var closer = e.target.closest("[data-close-modal]");
+    if (closer) {
+      var owner = closer.closest("dialog[data-modal]");
+      if (owner) { e.preventDefault(); owner.close(); }
+      return;
+    }
+    // backdrop: the event target is the <dialog> itself, never its inner card
+    var backdrop = e.target.closest("dialog[data-modal]");
+    if (backdrop && e.target === backdrop) backdrop.close();
+  });
+
 })();

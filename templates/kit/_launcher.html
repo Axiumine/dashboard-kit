@@ -41,9 +41,19 @@
    underline rule (the "Dev loop"-style section title both dashboards open a
    section with: DP roster bucket page, AR + DP config section page). Distinct
    from section_bar() above, which is the JS drill-in variant (back button +
-   JS-filled empty title). #}
+   JS-filled empty title).
+
+   Optional inline title-bar actions ride the `caller()` slot into a flush-right
+   `.actions` cell on the same line as the h2 — the h2 mirror of page_head()'s h1
+   action slot, so a section can carry a "+ Add …" button next to its title:
+
+     {% call section_title("🧩", "Backends & GPUs") %}
+       <button type="button" class="add" data-open-modal="add-x">+ Add backend</button>
+     {% endcall %}
+#}
 {% macro section_title(icon, label) %}
 <div class="section-bar">
   <h2 class="section-title">{{ icon }} {{ label }}</h2>
+  {% if caller %}<div class="actions">{{ caller() }}</div>{% endif %}
 </div>
 {% endmacro %}

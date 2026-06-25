@@ -1,0 +1,37 @@
+{# dashboard-kit — modal dialog (native <dialog>, browser top layer).
+
+   Opened by any [data-open-modal="<id>"] control anywhere on the page; closed by
+   Esc (native), a click on the backdrop, or any [data-close-modal] inside it.
+   kit.js §9 owns the open/close wiring — no per-page script. The dialog body
+   rides the `caller()` slot.
+
+   Form nesting: a <dialog> keeps its DOM position when shown (only its paint
+   moves to the top layer), so its fields stay associated with whatever <form>
+   encloses the call. Place the {% call %} INSIDE that form when the modal's
+   inputs must post with it, and do NOT open a second <form> inside (invalid
+   nesting) — close buttons use [data-close-modal], never method="dialog".
+
+     {% call modal("add-backend-dialog", "Add backend") %}
+       …fields…
+       <div class="actions">
+         <button type="button" data-close-modal>Cancel</button>
+         <button type="submit">Add</button>
+       </div>
+     {% endcall %}
+#}
+{% macro modal(id, title, subtitle=none) %}
+<dialog id="{{ id }}" class="kit-modal" data-modal aria-labelledby="{{ id }}-title">
+  {# inner card is the only padded child → any click that lands on the <dialog>
+     itself is the backdrop, which kit.js closes on. #}
+  <div class="kit-modal-card">
+    <header class="kit-modal-head">
+      <div class="head-titles">
+        <h2 id="{{ id }}-title">{{ title }}</h2>
+        {% if subtitle %}<p class="meta">{{ subtitle }}</p>{% endif %}
+      </div>
+      <button type="button" class="modal-close" aria-label="Close" data-close-modal>&times;</button>
+    </header>
+    <div class="kit-modal-body">{% if caller %}{{ caller() }}{% endif %}</div>
+  </div>
+</dialog>
+{% endmacro %}
