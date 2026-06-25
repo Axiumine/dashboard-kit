@@ -449,5 +449,8 @@
   } else {
     openFlaggedModals();
   }
+  // same htmx:afterSwap hook the toast/invalid-field/utc initialisers use, so a
+  // swapped-in flagged modal also opens (the !d.open guard makes it idempotent).
+  document.addEventListener("htmx:afterSwap", openFlaggedModals);
 
 })();

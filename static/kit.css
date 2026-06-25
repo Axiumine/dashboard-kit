@@ -671,8 +671,16 @@ tbody tr:last-child td { border-bottom: none; }
 .section-back:hover { color: var(--text); border-color: var(--border-hi); }
 .section-title { margin: 0; font-size: 1.25rem; }
 /* inline title-bar actions ride the section_title() caller slot, flush-right on
-   the same line as the h2 (h2 mirror of `.page-head .actions`). */
-.section-bar .actions { margin: 0 0 0 auto; }
+   the same line as the h2 (h2 mirror of `.page-head .actions`). The position/
+   padding/background resets defeat the `form .actions` sticky-footer rule, which
+   would otherwise bleed in when section_title() is called inside a <form> and
+   detach the title button to the viewport bottom with the footer gradient. */
+.section-bar .actions {
+  margin: 0 0 0 auto;
+  position: static;
+  padding: 0;
+  background: none;
+}
 
 /* ── pill CTA — `.add` (kit-owned, ADR-002) ───────────────────────────────── */
 /* Promoted out of each host's dashboard.css so AGENTS-ROUTER + DEVPROTOCOL share
@@ -714,6 +722,7 @@ dialog.kit-modal {
   color: var(--text);
   width: min(560px, calc(100vw - 2rem));
   max-height: calc(100vh - 4rem);
+  overflow: hidden;  /* contain the card inside the 1px border + radius */
   box-shadow: var(--shadow, 0 20px 60px -20px rgba(0, 0, 0, 0.6));
 }
 dialog.kit-modal::backdrop { background: rgba(8, 11, 20, 0.62); backdrop-filter: blur(2px); }
@@ -731,6 +740,7 @@ dialog.kit-modal::backdrop { background: rgba(8, 11, 20, 0.62); backdrop-filter:
 .kit-modal-body { padding: 1.1rem 1.2rem 1.2rem; overflow: auto; }
 .modal-close {
   flex-shrink: 0;
+  margin: 0;  /* drop the global button margin so the × hugs the header edge */
   width: 2rem;
   height: 2rem;
   padding: 0;
