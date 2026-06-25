@@ -436,4 +436,18 @@
     if (backdrop && e.target === backdrop) backdrop.close();
   });
 
+  //   A server-rendered dialog can ask to open on first paint via
+  //   [data-open-on-load] (e.g. a rejected-save echo that must resurface the
+  //   values the operator typed). Open it modally once the DOM is ready.
+  function openFlaggedModals() {
+    document.querySelectorAll("dialog[data-modal][data-open-on-load]").forEach(function (d) {
+      if (typeof d.showModal === "function" && !d.open) d.showModal();
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", openFlaggedModals);
+  } else {
+    openFlaggedModals();
+  }
+
 })();

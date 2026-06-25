@@ -18,9 +18,12 @@
          <button type="submit">Add</button>
        </div>
      {% endcall %}
+
+   Set open_on_load=true to have kit.js showModal() it on first paint — e.g. a
+   rejected-save re-render that must resurface the values the operator typed.
 #}
-{% macro modal(id, title, subtitle=none) %}
-<dialog id="{{ id }}" class="kit-modal" data-modal aria-labelledby="{{ id }}-title">
+{% macro modal(id, title, subtitle=none, open_on_load=false) %}
+<dialog id="{{ id }}" class="kit-modal" data-modal{% if open_on_load %} data-open-on-load{% endif %} aria-labelledby="{{ id }}-title">
   {# inner card is the only padded child → any click that lands on the <dialog>
      itself is the backdrop, which kit.js closes on. #}
   <div class="kit-modal-card">
