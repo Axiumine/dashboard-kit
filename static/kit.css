@@ -697,7 +697,7 @@ tbody tr:last-child td { border-bottom: none; }
   color: #fff;
   background: var(--accent-grad);
   border: 1px solid transparent;  /* override the kit <button> border */
-  border-radius: 999px;
+  border-radius: var(--radius-sm);  /* match every other kit button (Save = --radius-sm); no pill */
   box-shadow: 0 3px 10px -4px rgba(109, 139, 255, 0.5);
   transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
 }
