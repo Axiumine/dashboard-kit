@@ -326,14 +326,14 @@ button[data-add-backend]:hover { border-color: var(--accent); transform: none; b
   gap: 0.6rem;
   margin-top: 1.3rem;
 }
-/* inside a form the action row also pins to the bottom with a fade backdrop so it
+/* inside a form the action row also pins to the bottom with a solid backdrop so it
    stays reachable on long forms. Uses the --bg-grad-b token both consumers define. */
 form .actions {
   position: sticky;
   bottom: 0;
   margin-top: 0;
   padding: 0.8rem 0;
-  background: linear-gradient(180deg, transparent, var(--bg-grad-b) 35%);
+  background: var(--bg-grad-b);
 }
 
 /* ── status / flag messages (both class conventions) ──────────────────────── */
