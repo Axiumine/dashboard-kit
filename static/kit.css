@@ -261,6 +261,22 @@ label > input[type="checkbox"] {
   background: var(--err-bg);
   border-color: rgba(251, 113, 133, 0.35);
 }
+/* canonical DELETE icon button — solid red fill, identical on every dashboard.
+   The icon_button macro auto-adds `trash` for action="delete", so this wins over
+   .icon-btn / button[data-action="delete"] on both <a> and <button> (was: AR
+   backends-gpus solid-red vs DP ghost delete — now unified). */
+.icon-btn.trash {
+  color: #fff;
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+  border-color: transparent;
+}
+.icon-btn.trash:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+  border-color: transparent;
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
 
 /* ── buttons ──────────────────────────────────────────────────────────────── */
 button {

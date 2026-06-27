@@ -29,6 +29,11 @@ templates/kit/
   Inside a `<form>` the row also sticks to the bottom with a fade backdrop. A
   consumer that needs a **left-aligned** row (e.g. DEVPROTOCOL's read-only detail
   panel `article .actions`) overrides `justify-content` at higher specificity.
+- **Delete buttons — always `icon_button("delete", …)`.** The macro auto-adds the
+  `trash danger` classes, so every delete renders as the same solid-red trash
+  icon button (`.icon-btn.trash`) on both dashboards, whether it's an `<a>` link
+  or a `<button>` submit. Do not hand-roll a delete control or pass `cls="danger"`
+  for it — the macro owns the destructive styling.
 
 ## Programmatic API (`window`)
 
