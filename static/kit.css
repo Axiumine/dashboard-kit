@@ -737,6 +737,7 @@ dialog.kit-modal {
   box-shadow: var(--shadow, 0 20px 60px -20px rgba(0, 0, 0, 0.6));
 }
 dialog.kit-modal::backdrop { background: rgba(8, 11, 20, 0.62); backdrop-filter: blur(2px); }
+dialog.kit-modal.wide { width: min(920px, calc(100vw - 2rem)); }
 .kit-modal-card { display: flex; flex-direction: column; max-height: calc(100vh - 4rem); }
 .kit-modal-head {
   display: flex;

@@ -414,7 +414,7 @@
   //   inside a [data-modal] dialog → close() it; a click that lands on the
   //   <dialog> element itself (its padded card swallows content clicks) is the
   //   backdrop → close. Esc is native. No-op when a page has no modals — both
-  //   dashboards share this file, only AR mounts a dialog today.
+  //   dashboards share this file and both mount kit dialogs.
   document.addEventListener("click", function (e) {
     var opener = e.target.closest("[data-open-modal]");
     if (opener) {
