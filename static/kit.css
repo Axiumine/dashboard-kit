@@ -762,3 +762,19 @@ dialog.kit-modal.wide { width: min(920px, calc(100vw - 2rem)); }
   color: var(--text-dim);
 }
 .modal-close:hover { color: var(--text); transform: none; }
+
+/* ── confirm dialog — programmatic kitConfirm() (kit.js §11) ───────────────── */
+.kit-confirm { width: min(440px, calc(100vw - 2rem)); }
+.kit-confirm .kit-modal-body p { margin: 0; color: var(--text-dim); line-height: 1.5; }
+.kit-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 0.9rem 1.2rem 1.1rem;
+  border-top: 1px solid var(--border);
+}
+.kit-confirm-actions button { margin: 0; }
+.kit-confirm-ok { background: var(--accent-grad); border-color: transparent; }
+.kit-confirm-ok:hover { filter: brightness(1.08); }
+.kit-confirm-ok.danger { background: var(--err-bg); border-color: rgba(251, 113, 133, 0.4); color: var(--err); }
+.kit-confirm-ok.danger:hover { background: var(--err); color: var(--bg); filter: none; }

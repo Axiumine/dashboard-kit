@@ -511,4 +511,87 @@
     }
   });
 
+  // ── 11. Confirm dialog (programmatic, Promise-based) ──────────────────────
+  //   kitConfirm(opts) → Promise<boolean>. The modern replacement for blocking
+  //   window.confirm: a native <dialog> built on demand (mirrors spawnToast §6),
+  //   reusing the kit modal shell (.kit-modal/.kit-modal-card) so it inherits the
+  //   border, backdrop blur, and top-layer focus trap for free. Cancel/Confirm
+  //   call dlg.close(value); the promise resolves on the dialog's own `close`
+  //   event, so Esc and a backdrop click (closed by §9 with returnValue "") both
+  //   resolve false — one code path for every dismissal. opts:
+  //     {title, message, confirmLabel, cancelLabel, danger}
+  //   App code:  window.kitConfirm({…}).then(function (ok) { if (ok) … });
+  function kitConfirm(opts) {
+    var o = opts || {};
+    return new Promise(function (resolve) {
+      var dlg = document.createElement("dialog");
+      dlg.className = "kit-modal kit-confirm";
+      dlg.setAttribute("data-modal", "");          // §9 backdrop/Esc close applies
+      dlg.setAttribute("role", "alertdialog");
+      dlg.setAttribute("aria-label", o.title || "Confirm");
+
+      // no-<dialog> safety net (showModal absent) — never hit in current browsers
+      if (typeof dlg.showModal !== "function") {
+        resolve(window.confirm(o.message || o.title || ""));
+        return;
+      }
+
+      var card = document.createElement("div");
+      card.className = "kit-modal-card";
+
+      var head = document.createElement("div");
+      head.className = "kit-modal-head";
+      var titles = document.createElement("div");
+      titles.className = "head-titles";
+      var h2 = document.createElement("h2");
+      h2.textContent = o.title || "Are you sure?";
+      titles.appendChild(h2);
+      head.appendChild(titles);
+      card.appendChild(head);
+
+      var body = document.createElement("div");
+      body.className = "kit-modal-body";
+      var msg = document.createElement("p");
+      msg.textContent = o.message || "";
+      body.appendChild(msg);
+      card.appendChild(body);
+
+      var actions = document.createElement("div");
+      actions.className = "kit-confirm-actions";
+
+      var cancel = document.createElement("button");
+      cancel.type = "button";
+      cancel.className = "kit-confirm-cancel";
+      cancel.textContent = o.cancelLabel || "Cancel";
+      cancel.addEventListener("click", function () { dlg.close("cancel"); });
+
+      var ok = document.createElement("button");
+      ok.type = "button";
+      ok.className = "kit-confirm-ok" + (o.danger ? " danger" : "");
+      ok.textContent = o.confirmLabel || "Confirm";
+      ok.addEventListener("click", function () { dlg.close("confirm"); });
+
+      actions.appendChild(cancel);
+      actions.appendChild(ok);
+      card.appendChild(actions);
+      dlg.appendChild(card);
+      document.body.appendChild(dlg);
+
+      // single resolve path: button close(value), Esc/backdrop close → "" → false
+      dlg.addEventListener("close", function () {
+        var confirmed = dlg.returnValue === "confirm";
+        if (dlg.parentNode) dlg.parentNode.removeChild(dlg);
+        resolve(confirmed);
+      });
+
+      dlg.showModal();
+      (o.danger ? cancel : ok).focus();            // pre-select the safe choice
+    });
+  }
+
+  // Supported programmatic surface for app scripts — the IIFE keeps everything
+  // else private. kitToast mirrors §6 so pages stop hand-rolling toast nodes.
+  window.kitConfirm = kitConfirm;
+  window.kitToast = spawnToast;
+
 })();

@@ -10,7 +10,8 @@ submodule SHA (no package publish).
 ```
 static/kit.css        # component rules referencing CSS custom properties (theme tokens)
 static/kit.js         # showSection / drill-in, secret-toggle, generic add/remove rows,
-                      # optional-block enable toggle, validate-swap section routing
+                      # optional-block enable toggle, validate-swap section routing,
+                      # toasts, modals, kitConfirm/kitToast programmatic API (§11)
 templates/kit/
   _launcher.html      # section launcher — link mode (route-per-button) or drill-in mode
   _validation.html    # HTMX validate partial (errors / ok)
@@ -28,6 +29,22 @@ templates/kit/
   Inside a `<form>` the row also sticks to the bottom with a fade backdrop. A
   consumer that needs a **left-aligned** row (e.g. DEVPROTOCOL's read-only detail
   panel `article .actions`) overrides `justify-content` at higher specificity.
+
+## Programmatic API (`window`)
+
+The IIFE keeps internals private and exposes exactly two helpers for app scripts:
+
+- **`kitConfirm({title, message, confirmLabel, cancelLabel, danger}) → Promise<boolean>`**
+  — native `<dialog>` confirm built on demand (no markup/macro). Resolves `true`
+  on Confirm, `false` on Cancel / Esc / backdrop. Set `danger:true` for a
+  destructive (red) confirm button. Replaces blocking `window.confirm`.
+- **`kitToast(message, severity)`** — spawn a floating toast (`severity ∈
+  {success, error, warning, info}`); the same renderer the server-seed lift uses.
+
+```js
+window.kitConfirm({ message: "Discard unsaved changes?", danger: true })
+  .then(function (ok) { if (ok) location.assign("/config"); });
+```
 
 ## How a consumer wires it
 
