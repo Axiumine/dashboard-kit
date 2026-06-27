@@ -30,12 +30,19 @@
    BOTH attribute conventions (data-eye/data-secret and data-action/data-role) so
    either app's secret-toggle handler — and the shared kit.js handler — works. #}
 {% macro field_control(f, ro=False) %}
+  {# `required` is a superset attribute (either consumer may set it; absent → optional).
+     A required typeable control carries data-required so kit.js validates it on save and
+     placeholders "required"; every other typeable control placeholders "optional" (shown
+     only while empty). select/checkbox/date/datetime always hold a value → neither. #}
+  {% set req = f.required is defined and f.required %}
+  {% set ph = 'required' if req else 'optional' %}
   {% if f.kind == 'locked' %}
   <input type="text" name="{{ f.name }}" value="{{ f.value }}" readonly disabled
          data-flag="locked-field">
   {% elif f.kind == 'password' %}
   <span class="secret" data-block="secret">
     <input type="password" name="{{ f.name }}" value="{{ f.value }}" autocomplete="off"
+           placeholder="{{ ph }}"{% if req %} data-required{% endif %}
            {% if ro %}disabled{% endif %} data-role="secret-input" data-secret>
     {{ icon_button("eye", "Show value", data_action="toggle-secret", cls="eye",
                    extra_attrs='data-eye aria-pressed="false"') }}
@@ -63,7 +70,8 @@
   {% else %}
   <input type="{% if f.kind == 'number' %}number{% else %}text{% endif %}"
          {% if f.kind == 'number' %}step="any" {% endif %}name="{{ f.name }}"
-         value="{{ f.value }}" {% if ro %}disabled{% endif %}>
+         value="{{ f.value }}" placeholder="{{ ph }}"{% if req %} data-required{% endif %}
+         {% if ro %}disabled{% endif %}>
   {% endif %}
 {% endmacro %}
 
