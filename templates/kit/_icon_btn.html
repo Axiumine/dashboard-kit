@@ -25,7 +25,13 @@
 {% macro icon_button(action, label, href=None, btn_type="button", extra_attrs="", title=None, cls="", data_action=None) -%}
 {%- set _title = title if title else label -%}
 {%- set _data_action = data_action if data_action else action -%}
-{%- set _cls = ("icon-btn " ~ cls) | trim -%}
+{# a delete is destructive everywhere → force the canonical solid-red `trash`
+   look (kit.css .icon-btn.trash) regardless of <a>/<button> or data_action, so
+   every dashboard's delete matches. Callers need not pass trash/danger. #}
+{%- set _parts = ["icon-btn"] -%}
+{%- if action == "delete" -%}{%- set _parts = _parts + ["trash", "danger"] -%}{%- endif -%}
+{%- if cls -%}{%- set _parts = _parts + [cls] -%}{%- endif -%}
+{%- set _cls = _parts | join(" ") -%}
 {%- set _glyph = _svg[action] if action in _svg else "" -%}
 {%- if href -%}
 <a class="{{ _cls }}" data-action="{{ _data_action }}" href="{{ href }}" title="{{ _title }}" aria-label="{{ label }}"{% if extra_attrs %} {{ extra_attrs | safe }}{% endif %}>{{ _glyph | safe }}</a>
