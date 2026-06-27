@@ -453,4 +453,62 @@
   // swapped-in flagged modal also opens (the !d.open guard makes it idempotent).
   document.addEventListener("htmx:afterSwap", openFlaggedModals);
 
+  // ── 10. Required-field validation on submit ────────────────────────────────
+  //   A control marked [data-required] (the form macro emits it for required
+  //   fields) must be non-empty when its form is submitted — Save, or a modal's
+  //   own submit (Add backend). On submit, flag every VISIBLE empty required
+  //   control with .is-invalid (reusing section 7's red outline), toast the
+  //   count, focus the first, and block the submit. HIDDEN controls — a closed
+  //   dialog, a collapsed optional block, a reveal-gated field — are skipped, so
+  //   an unrelated Save is never blocked by a field that is not on screen. A
+  //   submit fired from inside a modal validates only that modal's required
+  //   fields; a page-level Save validates the whole form. Stale flags clear as
+  //   soon as the operator types into the field again.
+  function isVisible(el) {
+    return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+  }
+
+  function emptyRequiredIn(scope) {
+    var bad = [];
+    scope.querySelectorAll("[data-required]").forEach(function (el) {
+      if (el.disabled || !isVisible(el)) return;          // not in play → don't block
+      if ((el.value || "").trim() === "") bad.push(el);
+    });
+    return bad;
+  }
+
+  function flagInvalid(el, on) {
+    var anchor = el.closest("[data-field]") || el;         // wrapper if kit-macro field
+    anchor.classList[on ? "add" : "remove"]("is-invalid");
+  }
+
+  document.addEventListener(
+    "submit",
+    function (e) {
+      var form = e.target;
+      if (!form || form.tagName !== "FORM") return;
+      // a modal's own submit button scopes validation to that dialog; otherwise
+      // the whole form (closed-modal fields self-exclude via the visibility test).
+      var scope = (e.submitter && e.submitter.closest("[data-modal]")) || form;
+      var bad = emptyRequiredIn(scope);
+      if (!bad.length) return;
+      e.preventDefault();
+      bad.forEach(function (el) { flagInvalid(el, true); });
+      spawnToast(
+        bad.length === 1 ? "A required field is empty" : bad.length + " required fields are empty",
+        "error"
+      );
+      bad[0].focus();
+    },
+    true  // capture: run before the form's native submission / any bubble handler
+  );
+
+  // drop a field's red outline the moment it stops being empty
+  document.addEventListener("input", function (e) {
+    var el = e.target;
+    if (el && el.hasAttribute && el.hasAttribute("data-required") && (el.value || "").trim() !== "") {
+      flagInvalid(el, false);
+    }
+  });
+
 })();

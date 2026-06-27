@@ -367,11 +367,22 @@ span.error {
   color: var(--err);
 }
 
-/* ── invalid-field highlight (set by kit.js section 7) ────────────────────── */
-/* kit.js adds .is-invalid to a rejected field's control (or its [data-field]
-   wrapper) for every server-rendered [data-error-field] marker, so the wrong
-   field shows a red outline alongside the inline message + the "Form not valid"
-   toast — on both the full-page save re-render and the HTMX validate swap. */
+/* ── field placeholders (optional / required hint) ────────────────────────── */
+/* Every typeable control the form macro renders carries a placeholder — "optional"
+   for the common case, "required" for a [data-required] field — shown only while the
+   control is empty. Dimmed + italic so it never reads as a real value. */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-faint);
+  font-style: italic;
+  opacity: 1;  /* Firefox dims placeholders by default; the token already carries it */
+}
+
+/* ── invalid-field highlight (server [data-error-field] AND client [data-required]) ── */
+/* kit.js adds .is-invalid to a control (or its [data-field] wrapper): section 7 for
+   every server-rendered [data-error-field] marker, section 10 for a [data-required]
+   field left empty on save. Either way the wrong field shows a red outline alongside
+   the inline message / error toast — the single shared "this field is wrong" style. */
 .field.is-invalid input,
 .field.is-invalid select,
 .field.is-invalid textarea,
