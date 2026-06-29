@@ -109,6 +109,23 @@ textarea {
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 textarea { font-family: var(--mono); font-size: 0.82rem; line-height: 1.5; resize: vertical; }
+/* custom arrow — the native one hugs the right edge. Suppress it and draw our
+   own inset triangle with two gradients (so it tints with --text-dim, which a
+   background-image SVG data-uri can't reference). */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 2.1rem;  /* reserve room so the value never sits under the arrow */
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-dim) 50%),
+    linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
+  background-position:
+    right 1.05rem center,
+    right 0.75rem center;
+  background-size: 0.32rem 0.32rem, 0.32rem 0.32rem;
+  background-repeat: no-repeat, no-repeat;
+}
 input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="password"]:focus,
@@ -120,12 +137,12 @@ textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: var(--ring);
-  background: #0f131e;
+  background-color: #0f131e;  /* not shorthand — would wipe the select arrow image */
 }
 input:disabled, select:disabled, textarea:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-  background: #0a0d14;
+  background-color: #0a0d14;  /* not shorthand — keep the select arrow image */
 }
 label > input[type="checkbox"] {
   width: auto;
