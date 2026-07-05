@@ -726,6 +726,23 @@ tbody tr:last-child td { border-bottom: none; }
   background: none;
 }
 
+/* ── card_title() — h3 card/row header, section_title()'s one-level-down sibling.
+   No underline, tighter than .section-bar; for a repeated editor row / sub-block. */
+.card-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.card-title { margin: 0; font-size: 1rem; font-weight: 600; }
+/* inline actions flush-right on the h3 row; same sticky-footer resets as .section-bar */
+.card-bar .actions {
+  margin: 0 0 0 auto;
+  position: static;
+  padding: 0;
+  background: none;
+}
+
 /* ── pill CTA — `.add` (kit-owned, ADR-002) ───────────────────────────────── */
 /* Promoted out of each host's dashboard.css so AGENTS-ROUTER + DEVPROTOCOL share
    one "+ Add …" gradient pill. Works on both <a> (roster nav) and <button>
