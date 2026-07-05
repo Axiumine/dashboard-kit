@@ -57,3 +57,22 @@
   {% if caller %}<div class="actions">{{ caller() }}</div>{% endif %}
 </div>
 {% endmacro %}
+
+{# card-scale sub-heading (h3) — section_title()'s one-level-down sibling, for the
+   header of a card/row that sits *inside* a section (a repeated editor row, a
+   config sub-block). No underline rule, tighter spacing than section_title().
+
+   Optional inline actions ride the caller() slot into a flush-right `.actions`
+   cell on the same line as the h3 (the h3 mirror of section_title()'s action
+   slot), so a repeated card can carry a delete/trash next to its title:
+
+     {% call card_title("Target") %}
+       {{ icon_button("delete", "Remove target", data_action="siem-target-delete") }}
+     {% endcall %}
+#}
+{% macro card_title(label) %}
+<div class="card-bar">
+  <h3 class="card-title">{{ label }}</h3>
+  {% if caller %}<div class="actions">{{ caller() }}</div>{% endif %}
+</div>
+{% endmacro %}
