@@ -247,8 +247,9 @@
   //   the old inline banners. On page load (full-page POST re-renders) and after
   //   every htmx swap (e.g. the validate dry-run), lift each seed into a floating
   //   toast inside the #toast-host overlay (created on demand), then remove the
-  //   seed. Each toast auto-dismisses after TOAST_TTL and has a manual close
-  //   button. No-op when no seeds are present.
+  //   seed. Every toast has a manual close button; success/info/warning auto-dismiss
+  //   after TOAST_TTL, but ERROR toasts are sticky — the operator must dismiss them
+  //   by hand so a failure is never missed. No-op when no seeds are present.
   var TOAST_TTL = 4500;
 
   function toastHost() {
@@ -295,7 +296,8 @@
 
     host.appendChild(el);
     requestAnimationFrame(function () { el.classList.add("toast-in"); });
-    setTimeout(function () { dismissToast(el); }, TOAST_TTL);
+    // errors sticky — operator dismisses by hand; success/info/warning auto-expire
+    if (sev !== "error") setTimeout(function () { dismissToast(el); }, TOAST_TTL);
   }
 
   function liftToasts(root) {
