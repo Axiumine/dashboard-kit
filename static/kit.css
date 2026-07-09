@@ -296,6 +296,24 @@ label > input[type="checkbox"] {
   transform: translateY(-1px);
 }
 
+/* ── icon-cluster — a block of adjacent square .icon-btn controls ──────────── */
+/* THE component for an in-row control cluster: reorder (▲▼) + delete, or the row
+   actions (👁 ✏ 🗑). One `gap` owns the spacing and the legacy per-button
+   `margin-left` is zeroed here, so every such block spaces its icons IDENTICALLY
+   across both dashboards. Before this, each list/table/row wrapper set its own
+   gap AND still inherited `.icon-btn { margin-left }` → doubled, inconsistent
+   gaps (the "too much space" bug). `flex: 0 0 auto` keeps the square block from
+   being squeezed when it shares a flex row with a growing input/select. Flush-
+   right per the control-cluster invariant. Render via kit/_icon_cluster.html. */
+.icon-cluster {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+.icon-cluster > .icon-btn { margin-left: 0; }
+
 /* ── buttons ──────────────────────────────────────────────────────────────── */
 button {
   cursor: pointer;
