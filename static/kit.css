@@ -65,7 +65,7 @@
   transition: opacity 0.15s;
 }
 .page-head h1 a.brand-home:hover { opacity: 0.82; }
-.meta { color: var(--text-dim); font-size: 0.88rem; margin: 0 0 1.25rem; }
+.meta { color: var(--text-dim); font-size: 0.8rem; margin: 0 0 1.25rem; }
 /* breadcrumb — the linked trail that replaces the .meta subtitle under the
    header <h1>; crumbs joined by '/', current page un-linked. Shares the .meta
    colour/size/spacing so the header rhythm is unchanged. */
@@ -75,7 +75,7 @@
   align-items: center;
   gap: 0.55rem;
   color: var(--text-dim);
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   margin: 0 0 1.25rem;
 }
 .breadcrumb a { color: var(--text-dim); text-decoration: none; }
