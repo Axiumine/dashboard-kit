@@ -1,0 +1,46 @@
+{# dashboard-kit — filesystem picker dialogs (folderPicker / filesPicker).
+
+   A project-tree browse dialog on the browser top layer (native <dialog>, via the
+   kit `modal` macro). The kit owns the CHROME: the correctly-titled modal + the
+   browse scaffold (breadcrumbs, listbox, empty note, Cancel/Select actions) styled
+   by `.kit-picker*` in kit.css. The APP owns the DATA: it points `browse_url` at an
+   endpoint that returns a directory listing and supplies a small driver that loads
+   listings, tracks selection, and does something with the picked paths (e.g. the
+   DEVPROTOCOL `reference_browse.js` clones them into a reference list).
+
+   Two macros, one per mode, so each dialog has a FIXED, correct title — no
+   shared-modal mistitling. `data-picker-mode` on the body tells the app driver
+   whether files are selectable (file mode) or the current folder is the pick
+   (folder mode).
+
+   The inner controls carry NO `name=` — they are pure JS state, never part of a
+   form POST. Open with any `[data-open-modal="<id>"]` control (kit.js §9 shows it);
+   close with Cancel (`[data-close-modal]`) or Esc/backdrop.
+
+     {% from "kit/_picker.html" import folderPicker, filesPicker %}
+     {{ folderPicker("ref-folder-picker", "/config/browse") }}
+     {{ filesPicker("ref-files-picker", "/config/browse") }}
+#}
+{% from "kit/_modal.html" import modal %}
+
+{% macro _picker_body(browse_url, mode) %}
+<div class="kit-picker" data-browse-url="{{ browse_url }}" data-picker-mode="{{ mode }}">
+  <nav class="kit-picker-crumbs" data-picker-crumbs aria-label="Current folder"></nav>
+  <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
+  <p class="meta kit-picker-empty" data-picker-empty hidden>This folder is empty.</p>
+  <div class="actions">
+    <button type="button" data-close-modal>Cancel</button>
+    <button type="button" data-picker-select disabled>Select</button>
+  </div>
+</div>
+{% endmacro %}
+
+{# folderPicker — browse + pick a single folder (the current directory). #}
+{% macro folderPicker(id, browse_url, subtitle="Confined to the project folder") %}
+{% call modal(id, "Browse project folders", subtitle=subtitle, size="wide") %}{{ _picker_body(browse_url, "folder") }}{% endcall %}
+{% endmacro %}
+
+{# filesPicker — browse folders + tick one or more files. #}
+{% macro filesPicker(id, browse_url, subtitle="Confined to the project folder") %}
+{% call modal(id, "Browse project files", subtitle=subtitle, size="wide") %}{{ _picker_body(browse_url, "file") }}{% endcall %}
+{% endmacro %}

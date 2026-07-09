@@ -17,6 +17,9 @@ templates/kit/
   _validation.html    # HTMX validate partial (errors / ok)
   _field_macros.html  # switch, field_control, field_row, field_grid (shared by both apps)
                       # + cell, string_list, keyed_map, object_list, toggle_block (AR)
+  _picker.html        # folderPicker / filesPicker — project-tree browse dialogs
+                      # (correctly-titled modal + browse scaffold; app supplies the
+                      # data driver via data-browse-url + selection handling)
 ```
 
 ## Component rules
