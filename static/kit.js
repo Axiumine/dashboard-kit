@@ -248,8 +248,11 @@
   //   every htmx swap (e.g. the validate dry-run), lift each seed into a floating
   //   toast inside the #toast-host overlay (created on demand), then remove the
   //   seed. Every toast has a manual close button; success/info/warning auto-dismiss
-  //   after TOAST_TTL, but ERROR toasts are sticky — the operator must dismiss them
-  //   by hand so a failure is never missed. No-op when no seeds are present.
+  //   after TOAST_TTL — counted down by a 100%→0% progress bar that FREEZES while the
+  //   operator hovers or focuses the toast (banking the remaining "on" time so it can
+  //   be read at leisure, then resuming on leave). ERROR toasts are sticky — no bar,
+  //   no timer; the operator dismisses them by hand so a failure is never missed.
+  //   No-op when no seeds are present.
   var TOAST_TTL = 4500;
 
   function toastHost() {
@@ -272,6 +275,60 @@
     var done = function () { if (el.parentNode) el.parentNode.removeChild(el); };
     el.addEventListener("transitionend", done, { once: true });
     setTimeout(done, 300);                    // fallback when no transition fires
+  }
+
+  // Auto-dismiss countdown with a visible 100%→0% progress bar. The bar scales from
+  // full to empty over TOAST_TTL; at 0% the toast dismisses. Hover OR focus FREEZES
+  // the countdown — the bar holds and the remaining "on" time is banked — so the
+  // operator reads at their pace; leaving resumes from where it paused. A held-count
+  // keeps hover and focus independent (frozen while EITHER is active). Driven by rAF
+  // + performance.now for exact pause/resume; scaleX keeps the bar compositor-cheap.
+  // Errors never call this — they are sticky.
+  function startToastCountdown(el) {
+    var track = document.createElement("div");
+    track.className = "toast-progress";
+    track.setAttribute("aria-hidden", "true");   // decorative — live region already spoke
+    var bar = document.createElement("div");
+    bar.className = "toast-progress-bar";
+    track.appendChild(bar);
+    el.appendChild(track);
+
+    var remaining = TOAST_TTL;   // ms of on-time still to run
+    var segmentStart = 0;        // performance.now() when the running segment began
+    var rafId = 0;
+    var held = 0;                // >0 while hovered/focused → frozen
+    // honour reduced-motion: step the bar in coarse 10% jumps instead of a smooth
+    // per-frame slide — keeps the remaining-time cue without continuous motion (the
+    // slide is JS-driven inline style, so kit.css's transition:none can't suppress it)
+    var reduce = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+    function frame() {
+      if (el.dataset.dismissing) { rafId = 0; return; }   // closed by hand mid-run
+      var left = remaining - (performance.now() - segmentStart);
+      if (left <= 0) { bar.style.transform = "scaleX(0)"; dismissToast(el); return; }
+      var scale = left / TOAST_TTL;
+      bar.style.transform = "scaleX(" + (reduce ? Math.ceil(scale * 10) / 10 : scale) + ")";
+      rafId = requestAnimationFrame(frame);
+    }
+    function freeze() {                       // hover/focus enter
+      if (++held > 1 || !rafId) return;       // already frozen / not running
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+      remaining -= performance.now() - segmentStart;   // bank the consumed slice
+    }
+    function thaw() {                         // hover/focus leave
+      if (held > 0) held--;
+      if (held > 0 || rafId || el.dataset.dismissing) return;
+      segmentStart = performance.now();
+      rafId = requestAnimationFrame(frame);
+    }
+
+    el.addEventListener("mouseenter", freeze);
+    el.addEventListener("mouseleave", thaw);
+    el.addEventListener("focusin", freeze);   // keyboard hover — same freeze
+    el.addEventListener("focusout", thaw);
+    segmentStart = performance.now();
+    rafId = requestAnimationFrame(frame);
   }
 
   function spawnToast(message, severity) {
@@ -297,7 +354,8 @@
     host.appendChild(el);
     requestAnimationFrame(function () { el.classList.add("toast-in"); });
     // errors sticky — operator dismisses by hand; success/info/warning auto-expire
-    if (sev !== "error") setTimeout(function () { dismissToast(el); }, TOAST_TTL);
+    // via a hover-pausable 100%→0% countdown bar
+    if (sev !== "error") startToastCountdown(el);
   }
 
   function liftToasts(root) {

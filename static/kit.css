@@ -446,6 +446,8 @@ textarea.is-invalid {
   pointer-events: none;  /* clicks fall through the gaps; each .toast re-enables */
 }
 .toast {
+  position: relative;      /* anchor the countdown bar */
+  overflow: hidden;        /* clip the bar to the rounded corners */
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
@@ -460,6 +462,26 @@ textarea.is-invalid {
   opacity: 0;
   transform: translateX(0.5rem);
   transition: opacity 0.18s ease, transform 0.18s ease;
+}
+/* countdown bar for auto-dismiss toasts — kit.js scales it 1→0 over the remaining
+   on-time (frozen on hover/focus). Errors are sticky → kit.js never adds it. Colour
+   is the toast's own severity colour (currentColor). */
+.toast-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  /* neutral translucent track — reads on both themes; NOT `opacity`, which would
+     cascade onto the bar child and hide it */
+  background: rgba(128, 128, 128, 0.22);
+}
+.toast-progress-bar {
+  height: 100%;
+  background: currentColor;   /* severity colour, matches the toast text */
+  opacity: 0.85;
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 .toast.toast-in { opacity: 1; transform: translateX(0); }
 .toast.toast-out { opacity: 0; transform: translateX(0.5rem); }
