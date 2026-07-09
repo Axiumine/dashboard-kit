@@ -98,6 +98,7 @@ select,
 textarea {
   width: 100%;
   margin-top: 0.35rem;
+  margin-bottom: 0.35rem;  /* breathing room below every field, not glued to the next row */
   font-family: var(--sans);
   font-size: 0.9rem;
   font-weight: 400;  /* don't inherit the 600 from a label/.field-name ancestor */
