@@ -70,6 +70,8 @@
   {% else %}
   <input type="{% if f.kind == 'number' %}number{% else %}text{% endif %}"
          {% if f.kind == 'number' %}step="any" {% endif %}name="{{ f.name }}"
+         {%- if f.kind == 'number' and f.min_value is defined and f.min_value != '' %} min="{{ f.min_value }}"{% endif %}
+         {%- if f.kind == 'number' and f.max_value is defined and f.max_value != '' %} max="{{ f.max_value }}"{% endif %}
          value="{{ f.value }}" placeholder="{{ ph }}"{% if req %} data-required{% endif %}
          {% if ro %}disabled{% endif %}>
   {% endif %}
