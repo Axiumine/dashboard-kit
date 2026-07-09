@@ -1,0 +1,19 @@
+{# Shared control-cluster wrapper for a block of adjacent .icon-btn controls
+   (reorder ▲▼ + delete, or the row actions 👁 ✏ 🗑). Wrap the icon_button()
+   calls in `{% call icon_cluster() %}…{% endcall %}` so every such block spaces
+   and aligns its icons identically (kit `.icon-cluster`) across the DEVPROTOCOL
+   and AGENTS-ROUTER dashboards. Replaces the hand-rolled per-block wrappers
+   (`.row-controls`, `.context-controls`, `.actions-cell`, `.coord-actions`, …)
+   that each set their own gap and double-spaced against the legacy .icon-btn
+   margin.
+
+   tag    wrapper element — "div" (default) | "td" | "span" (table cells / inline
+          rows want td/span so markup stays valid)
+   cls    extra classes appended after "icon-cluster" (e.g. "coord-actions" for
+          positioning that is NOT spacing)
+   attrs  raw attribute string injected verbatim on the wrapper (data-*/hx-* JS
+          hooks). The per-button data-action stays on each icon_button.
+#}
+{% macro icon_cluster(cls="", tag="div", attrs="") -%}
+<{{ tag }} class="icon-cluster{% if cls %} {{ cls }}{% endif %}"{% if attrs %} {{ attrs | safe }}{% endif %}>{{ caller() }}</{{ tag }}>
+{%- endmacro %}
