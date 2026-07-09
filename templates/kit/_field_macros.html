@@ -1,8 +1,8 @@
 {# dashboard-kit — unified config-form field + collection macros.
 
    Shared by the DEVPROTOCOL and AGENTS-ROUTER dashboards. This is the SUPERSET
-   of both consumers: DP-only field attributes (`backends`, `reveal`, `warning`)
-   are read through `is defined` guards, so AR's simpler field specs render
+   of both consumers: DP-only field attributes (`backends`, `reveal`, `warning`,
+   `help`) are read through `is defined` guards, so AR's simpler field specs render
    unchanged while DP's richer specs light up the extra behaviour.
 
    Host-app contract (both consumers already satisfy this):
@@ -100,6 +100,11 @@
         {% if unit %}<span class="unit" data-unit="{{ unit }}">[{{ unit }}]</span>{% endif %}
       </span>
     </{{ tag }}>
+    {#- neutral per-field caption — plain .optional-hint, no ⚠/alert. Superset attr via is-defined guard. -#}
+    {%- set help = f.help if f.help is defined else '' %}
+    {%- if help %}
+    <span class="optional-hint" data-flag="field-help" data-help-field="{{ f.name }}">{{ help }}</span>
+    {%- endif %}
     {% if f.kind == 'locked' %}
     <span class="meta" data-flag="locked-note"><code>${VAR}</code> secrets render locked — they are never resolved here.</span>
     {% endif %}
