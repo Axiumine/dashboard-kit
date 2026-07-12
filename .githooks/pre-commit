@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# pre-commit — dashboard-kit visual snapshot gate.
+#
+# The kit ships pure static assets (static/kit.css, static/kit.js) + Jinja
+# templates, rendered LIVE by demo/gallery.html. An edit to any of those can
+# silently change how every consumer dashboard renders. This hook runs the
+# Playwright visual snapshot suite on every commit that touches a render-affecting
+# path, so a WRONG edit is caught HERE — before it ships to both dashboards — and
+# the baselines stay 100% green.
+#
+# Green  = rendered pixels match the committed baselines (tests/__screenshots__/).
+# Red    = the edit changed the render. Either it's a bug, or it's intended and
+#          you must re-baseline:  uv run pytest --snapshot-update
+#                                 git add tests/__screenshots__
+#
+# Emergency bypass (discouraged, client-side only, not a security boundary):
+#   SKIP_SNAPSHOT_TESTS=1 git commit ...
+set -uo pipefail
+
+if [[ "${SKIP_SNAPSHOT_TESTS:-0}" == "1" ]]; then
+  echo "⚠️  SKIP_SNAPSHOT_TESTS=1 — skipping kit visual snapshot gate."
+  exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+[[ -n "$REPO_ROOT" ]] || { echo "❌ pre-commit: cannot determine repo root"; exit 1; }
+cd "$REPO_ROOT" || { echo "❌ pre-commit: cannot cd to repo root"; exit 1; }
+
+# Only spin up the browser when a render-affecting path is staged. A docs-only
+# commit (README/CLAUDE.md) skips it — keeps unrelated commits fast.
+if ! git diff --cached --name-only --diff-filter=ACMR \
+     | grep -qE '^(static/|templates/|demo/|tests/)'; then
+  exit 0
+fi
+
+if ! command -v uv >/dev/null 2>&1; then
+  echo "❌ pre-commit: 'uv' not found — needed to run the snapshot suite."
+  echo "   Install uv, or bypass with SKIP_SNAPSHOT_TESTS=1 (discouraged)."
+  exit 1
+fi
+
+echo "── kit visual snapshots (Playwright) ──────────────"
+if uv run pytest -q; then
+  echo "✅ kit visual snapshots: match baselines"
+  exit 0
+fi
+
+cat <<'MSG'
+
+❌ pre-commit BLOCKED: kit render differs from the committed snapshot baselines.
+
+A staged edit to static/ · templates/ · demo/ changed how the gallery renders.
+  • WRONG edit  → a real regression. Fix it above.
+  • INTENDED    → re-baseline, then stage the new baselines:
+        uv run pytest --snapshot-update
+        git add tests/__screenshots__
+  • Inspect the diff dump: tests/__screenshots__/<name>.actual.png
+
+First run here? Install the browser once:  uv run playwright install chromium
+Bypass (discouraged): SKIP_SNAPSHOT_TESTS=1 git commit ...
+MSG
+exit 1

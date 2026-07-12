@@ -1,0 +1,7 @@
+# dev-only test toolchain (tests/) — nothing here ships in a consumer wheel
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# diff dumps written on a snapshot mismatch (baselines *.png ARE committed)
+tests/__screenshots__/*.actual.png
