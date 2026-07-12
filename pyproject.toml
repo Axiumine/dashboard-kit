@@ -1,0 +1,28 @@
+# dashboard-kit ships NO Python at runtime (pure static assets + Jinja templates,
+# consumed as a submodule). This file exists ONLY to declare the dev-only visual
+# snapshot suite under tests/ and is never vendored into a consumer's wheel.
+#
+#   playwright install chromium      # once — the headless browser the shots run in
+#   uv run pytest                    # compare against committed baselines
+#   uv run pytest --snapshot-update  # re-baseline after an INTENDED visual change
+[project]
+name = "dashboard-kit"
+version = "0.0.0"
+description = "Dev-only visual snapshot tests for the dashboard-kit component gallery."
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-playwright>=0.5",
+    "pillow>=10",
+]
+
+# No [build-system]: the kit is not a Python package. Tell uv not to try building
+# it — it only manages the dev group + venv for the snapshot suite.
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

@@ -1,0 +1,3 @@
+# committed: the *.png baselines. Ignored: the *.actual.png diff dumps the
+# suite writes on a mismatch (inspection artifacts, never a baseline).
+*.actual.png

@@ -30,6 +30,33 @@ browser (`file://…/demo/gallery.html`); it links the real `../static/kit.css` 
 `../static/kit.js`, so what you see is the actual component driven by the real
 behaviour. Not vendored into app wheels — a dev aid only.
 
+## Visual snapshot tests
+
+A Playwright suite screenshots `demo/gallery.html` (full page + interactive states)
+and diffs against committed baselines in `tests/__screenshots__/`, so an edit to
+`static/` or `templates/` that changes the render is caught before it ships. A
+`.githooks/pre-commit` hook runs it automatically on any commit touching a
+render path. **Dev-only — no Python ships in a consumer wheel.**
+
+**New dev machine — once per clone:**
+
+```bash
+git config core.hooksPath .githooks          # arm the pre-commit gate
+uv sync && uv run playwright install chromium # test venv + headless browser (~177MB)
+```
+
+Then:
+
+```bash
+uv run pytest                   # compare against baselines
+uv run pytest --snapshot-update # re-baseline after an INTENDED visual change, then
+                                # git add tests/__screenshots__
+```
+
+Baselines are headless-Chromium + Linux specific; a different OS/browser can
+false-fail on font anti-aliasing. Bypass the hook in a pinch (discouraged):
+`SKIP_SNAPSHOT_TESTS=1 git commit …`. See `CLAUDE.md` for the full rule.
+
 ## Component rules
 
 - **`.actions` — action section.** The single rule for a page-bottom button row.
