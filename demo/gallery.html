@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dashboard-kit — component gallery</title>
+
+<!-- The REAL kit assets (single source of truth — no duplicated component HTML in
+     this page's own CSS/JS). Relative paths work from demo/ over file:// too.
+     Every live component below is the actual kit markup, so kit.js drives all the
+     real behaviour (switch, secret eye, add/remove rows, optional-block reveal,
+     toasts, modals, kitConfirm). -->
+<link rel="stylesheet" href="../static/kit.css">
+
+<style>
+/* ── theme tokens the kit consumes (copied from the AGENTS-ROUTER host palette so
+      the gallery renders exactly like a live dashboard) ─────────────────────── */
+:root {
+  color-scheme: dark;
+  --bg: #0a0c12;
+  --bg-grad-a: #11151f;
+  --bg-grad-b: #0a0c12;
+  --surface: rgba(22, 27, 38, 0.72);
+  --surface-solid: #161b26;
+  --surface-hi: rgba(34, 41, 57, 0.85);
+  --surface-2: rgba(127, 127, 127, 0.10);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hi: rgba(255, 255, 255, 0.16);
+  --text: #e7ebf3;
+  --text-dim: #9aa3b5;
+  --text-faint: #646d80;
+  --accent: #6d8bff;
+  --accent-2: #b07cff;
+  --accent-grad: linear-gradient(135deg, #6d8bff 0%, #b07cff 100%);
+  --ok: #34d399;
+  --ok-bg: rgba(52, 211, 153, 0.12);
+  --err: #fb7185;
+  --err-bg: rgba(251, 113, 133, 0.12);
+  --warn: #fbbf24;
+  --warn-bg: rgba(251, 191, 36, 0.12);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.7);
+  --ring: 0 0 0 3px rgba(109, 139, 255, 0.35);
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(109, 139, 255, 0.10), transparent 60%),
+    radial-gradient(900px 500px at 5% 0%, rgba(176, 124, 255, 0.10), transparent 55%),
+    linear-gradient(180deg, var(--bg-grad-a), var(--bg-grad-b));
+  background-attachment: fixed;
+  padding: clamp(1rem, 3vw, 2.75rem);
+}
+
+/* ── gallery chrome only (everything else is kit.css) ──────────────────────── */
+.gal-lead { color: var(--text-dim); max-width: 60ch; margin: 0 0 1.4rem; }
+.gal-lead code { font-family: var(--mono); color: var(--text); }
+.gal-section { margin: 2.6rem 0; scroll-margin-top: 1rem; }
+
+.demo-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 1rem 1.15rem 1.15rem;
+  margin: 0.9rem 0;
+}
+.demo-head { display: flex; align-items: baseline; gap: 0.55rem; flex-wrap: wrap; }
+.demo-name {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-hi);
+  border: 1px solid var(--border-hi);
+  padding: 0.12rem 0.5rem;
+  border-radius: 6px;
+}
+.demo-alt { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); }
+.demo-tag {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.demo-desc { color: var(--text-dim); font-size: 0.85rem; margin: 0.35rem 0 0.9rem; }
+.demo-desc code { font-family: var(--mono); color: var(--text); font-size: 0.82em; }
+.demo-stage { border-top: 1px dashed var(--border); padding-top: 1rem; }
+.demo-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
+.demo-note { font-size: 0.78rem; color: var(--text-faint); margin: 0.6rem 0 0; }
+</style>
+</head>
+<body data-page="kit-gallery">
+<main class="container">
+
+<!-- ═══════════════ page_head (this hero is itself the live component) ═══════════════ -->
+<header class="page-head">
+  <div class="head-titles">
+    <h1><a href="#top" class="brand-home">dashboard-kit gallery</a></h1>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="#top">Kit</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <span class="crumb-current" aria-current="page">Component gallery</span>
+    </nav>
+  </div>
+  <div class="actions">
+    <a class="add" href="#top">+ New</a>
+  </div>
+</header>
+
+<p class="gal-lead" id="top">
+  Every reusable UI object in the kit, live, each tagged with the <strong>name to
+  say in a prompt</strong> (the monospace badge). Say the badge — e.g. “add a
+  <code>toggle_block</code>”, “put the buttons in an <code>.actions</code> row”,
+  “show a sticky error <code>toast</code>” — and I’ll know exactly which object
+  you mean. The hero above is itself a live <code>page_head</code> +
+  <code>breadcrumb</code> + <code>.add</code> pill.
+</p>
+
+<!-- Index — a real launcher (link mode) whose tiles jump to each section -->
+<div class="section-grid" data-role="gallery-index">
+  <a class="section-btn" href="#layout">
+    <span class="section-icon" aria-hidden="true">🗂️</span>
+    <span class="section-text"><span class="section-label">Layout shells</span><span class="section-subtitle">page · focused · base</span></span>
+  </a>
+  <a class="section-btn" href="#headers">
+    <span class="section-icon" aria-hidden="true">🧭</span>
+    <span class="section-text"><span class="section-label">Headers &amp; titles</span><span class="section-subtitle">page_head, section_title…</span></span>
+  </a>
+  <a class="section-btn" href="#launcher">
+    <span class="section-icon" aria-hidden="true">🚀</span>
+    <span class="section-text"><span class="section-label">Launcher tiles</span><span class="section-subtitle">launcher, section-badge</span></span>
+  </a>
+  <a class="section-btn" href="#buttons">
+    <span class="section-icon" aria-hidden="true">🔘</span>
+    <span class="section-text"><span class="section-label">Buttons &amp; actions</span><span class="section-subtitle">.actions, .add, icon_button</span></span>
+  </a>
+  <a class="section-btn" href="#fields">
+    <span class="section-icon" aria-hidden="true">📝</span>
+    <span class="section-text"><span class="section-label">Form fields</span><span class="section-subtitle">field_grid, switch, secret…</span></span>
+  </a>
+  <a class="section-btn" href="#collections">
+    <span class="section-icon" aria-hidden="true">📚</span>
+    <span class="section-text"><span class="section-label">Collections</span><span class="section-subtitle">chips, tables, optional-block</span></span>
+  </a>
+  <a class="section-btn" href="#status">
+    <span class="section-icon" aria-hidden="true">🚦</span>
+    <span class="section-text"><span class="section-label">Status &amp; toasts</span><span class="section-subtitle">.ok/.warning, toast</span></span>
+  </a>
+  <a class="section-btn" href="#dialogs">
+    <span class="section-icon" aria-hidden="true">🪟</span>
+    <span class="section-text"><span class="section-label">Dialogs</span><span class="section-subtitle">modal, kitConfirm, picker</span></span>
+  </a>
+</div>
+
+
+<!-- ════════════════════════════ LAYOUT SHELLS ════════════════════════════ -->
+<section class="gal-section" id="layout">
+<div class="section-bar"><h2 class="section-title">🗂️ Layout shells</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">page.html</code><span class="demo-alt">.container</span><span class="demo-tag">layout · max 1180</span></div>
+  <p class="demo-desc">Standard contained page — a centred column (max-width 1180) holding header + content. The wrapper this whole gallery sits in. Extend it for data-dense pages (roster, config editor).</p>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">focused.html</code><span class="demo-alt">.container--narrow</span><span class="demo-tag">layout · max 760</span></div>
+  <p class="demo-desc">Narrow single-task column (max-width 760) for a create form, a delete confirm, one focused action. Same slots as <code>page.html</code> — swap the one <code>{% extends %}</code> line to move between them.</p>
+  <div class="demo-stage">
+    <div class="container--narrow" style="border:1px dashed var(--border-hi);border-radius:var(--radius-sm);padding:1rem;">
+      <p class="meta" style="margin:0">↑ this box is a <code>.container--narrow</code> width sample</p>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">base.html</code><span class="demo-tag">layout · shell</span></div>
+  <p class="demo-desc">The <code>&lt;!doctype&gt;</code> shell every page extends — owns <code>&lt;head&gt;</code>, theme stylesheet links, htmx + kit.js, the <code>body</code> / <code>scripts_foot</code> slots. You never extend this directly; extend <code>page.html</code> or <code>focused.html</code>.</p>
+</div>
+</section>
+
+
+<!-- ════════════════════════════ HEADERS & TITLES ════════════════════════════ -->
+<section class="gal-section" id="headers">
+<div class="section-bar"><h2 class="section-title">🧭 Headers &amp; titles</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">page_head</code><span class="demo-alt">.page-head</span><span class="demo-tag">macro · _header.html</span></div>
+  <p class="demo-desc">The app title bar: gradient <code>&lt;h1&gt;</code> (optionally a <code>brand-home</code> home link), a breadcrumb or subtitle under it, and an optional flush-right action slot. One per page.</p>
+  <div class="demo-stage">
+    <header class="page-head">
+      <div class="head-titles">
+        <h1><a href="#headers" class="brand-home">Agent config roster</a></h1>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="#top">Roster</a>
+          <span class="crumb-sep" aria-hidden="true">/</span>
+          <span class="crumb-current" aria-current="page">Edit agent: planner</span>
+        </nav>
+      </div>
+      <div class="actions"><a class="add" href="#headers">+ New agent</a></div>
+    </header>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">breadcrumb</code><span class="demo-alt">.breadcrumb</span><span class="demo-tag">macro · _breadcrumb.html</span></div>
+  <p class="demo-desc">A linked navigation trail joined by “/”; every crumb links except the last (the current page). Renders under an <code>&lt;h1&gt;</code> or standalone.</p>
+  <div class="demo-stage">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="#top">Home</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <a href="#headers">Server &amp; Routing</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <span class="crumb-current" aria-current="page">Backends</span>
+    </nav>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">section_title</code><span class="demo-alt">.section-bar / h2</span><span class="demo-tag">macro · _launcher.html</span></div>
+  <p class="demo-desc">Server-rendered section heading — icon + title with the underline rule, plus an optional flush-right action slot on the same line. (Every <code>🟣 Section</code> header in this gallery is one.)</p>
+  <div class="demo-stage">
+    <div class="section-bar">
+      <h2 class="section-title">🧩 Backends &amp; GPUs</h2>
+      <div class="actions"><button type="button" class="add">+ Add backend</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">card_title</code><span class="demo-alt">.card-bar / h3</span><span class="demo-tag">macro · _launcher.html</span></div>
+  <p class="demo-desc">One level down from <code>section_title</code> — an <code>h3</code> header for a card/row inside a section (no underline, tighter). Optional flush-right action (e.g. a delete).</p>
+  <div class="demo-stage">
+    <div class="card-bar">
+      <h3 class="card-title">Target</h3>
+      <div class="actions">
+        <button type="button" class="icon-btn trash danger" data-action="delete" title="Remove target" aria-label="Remove target"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">section_bar</code><span class="demo-tag">macro · drill-in variant</span></div>
+  <p class="demo-desc">The JS drill-in back bar (“← All sections” + JS-filled title) shown above an open section when a <code>launcher</code> runs in drill-in mode. Static variant is <code>section_title</code> above.</p>
+  <div class="demo-stage">
+    <div class="section-bar">
+      <button type="button" class="section-back" data-action="section-back-demo">← All sections</button>
+      <h2 class="section-title">Server &amp; Routing</h2>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ════════════════════════════ LAUNCHER ════════════════════════════ -->
+<section class="gal-section" id="launcher">
+<div class="section-bar"><h2 class="section-title">🚀 Launcher tiles</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">launcher</code><span class="demo-alt">.section-grid / .section-btn</span><span class="demo-tag">macro · _launcher.html</span></div>
+  <p class="demo-desc">The tile grid a dashboard opens with — icon-left buttons with a label + optional subtitle. <strong>link mode</strong> (each tile an <code>&lt;a href&gt;</code>, shown here) for route-per-button nav, or <strong>drill-in mode</strong> (each a <code>data-open-section</code> button kit.js toggles in place). The gallery index at the top is a live link-mode launcher.</p>
+  <div class="demo-stage">
+    <div class="section-grid">
+      <a class="section-btn" href="#launcher">
+        <span class="section-icon" aria-hidden="true">🌐</span>
+        <span class="section-text"><span class="section-label">Server &amp; Routing</span><span class="section-subtitle">host, port, workers</span></span>
+      </a>
+      <a class="section-btn" href="#launcher">
+        <span class="section-icon" aria-hidden="true">🧩</span>
+        <span class="section-text"><span class="section-label">Backends</span><span class="section-subtitle">Claude, OpenRouter, GPU</span></span>
+      </a>
+      <a class="section-btn" href="#launcher">
+        <span class="section-icon" aria-hidden="true">⚙️</span>
+        <span class="section-text"><span class="section-label">Advanced</span><span class="section-subtitle">timeouts, retries, and other expert knobs</span></span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">section-badge</code><span class="demo-tag">launcher · badge slot</span></div>
+  <p class="demo-desc">Per-tile badge (pass <code>badge=True</code>) showing an <code>enabled / total</code> count. An error state paints the tile red (<code>.section-btn.has-error</code>).</p>
+  <div class="demo-stage">
+    <div class="section-grid">
+      <a class="section-btn" href="#launcher">
+        <span class="section-icon" aria-hidden="true">🧩</span>
+        <span class="section-text"><span class="section-label">Backends</span><span class="section-subtitle">providers &amp; GPUs</span></span>
+        <span class="section-badge" title="enabled / total blocks">3 / 7</span>
+      </a>
+      <a class="section-btn has-error" href="#launcher">
+        <span class="section-icon" aria-hidden="true">🔐</span>
+        <span class="section-text"><span class="section-label">Auth</span><span class="section-subtitle">token missing</span></span>
+        <span class="section-badge" title="enabled / total blocks">0 / 1</span>
+      </a>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ════════════════════════════ BUTTONS & ACTIONS ════════════════════════════ -->
+<section class="gal-section" id="buttons">
+<div class="section-bar"><h2 class="section-title">🔘 Buttons &amp; actions</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">.actions</code><span class="demo-tag">action section</span></div>
+  <p class="demo-desc">THE page-bottom button row — any group of save/validate/create/delete/nav buttons goes in a <code>&lt;div class="actions"&gt;</code> and renders flush-right. Inside a <code>&lt;form&gt;</code> it also sticks to the bottom with a fade backdrop.</p>
+  <div class="demo-stage">
+    <div class="actions">
+      <button type="button">Validate</button>
+      <button type="button">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">.add</code><span class="demo-tag">pill CTA</span></div>
+  <p class="demo-desc">The gradient pill call-to-action — “+ New”, “+ Add backend”. Lives in a title-bar action slot or a <code>.actions</code> row.</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <a class="add" href="#buttons">+ New agent</a>
+      <button type="button" class="add">+ Add backend</button>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">icon_button</code><span class="demo-alt">.icon-btn</span><span class="demo-tag">macro · _icon_btn.html</span></div>
+  <p class="demo-desc">One square line-icon button. <code>action</code> ∈ <code>edit · delete · eye · up · down · close · add</code>. A <code>delete</code> is forced to the solid-red <code>trash</code> look everywhere — never hand-roll a delete.</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <button type="button" class="icon-btn" data-action="edit" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>
+      <button type="button" class="icon-btn trash danger" data-action="delete" title="Delete" aria-label="Delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+      <button type="button" class="icon-btn" data-action="eye" title="Show value" aria-label="Show value"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+      <button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="icon-btn" data-action="close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      <button type="button" class="icon-btn" data-action="add" title="Add" aria-label="Add"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button>
+    </div>
+    <p class="demo-note">left → right: edit · delete (trash) · eye · up · down · close · add</p>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">icon_cluster</code><span class="demo-alt">.icon-cluster</span><span class="demo-tag">macro · _icon_cluster.html</span></div>
+  <p class="demo-desc">Wrapper for a block of adjacent icon buttons (reorder ▲▼ + delete, or 👁 ✏ 🗑 row actions) so every such cluster spaces identically.</p>
+  <div class="demo-stage">
+    <div class="icon-cluster">
+      <button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+      <button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="icon-btn" data-action="edit" title="Edit" aria-label="Edit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>
+      <button type="button" class="icon-btn trash danger" data-action="delete" title="Delete" aria-label="Delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ════════════════════════════ FORM FIELDS ════════════════════════════ -->
+<section class="gal-section" id="fields">
+<div class="section-bar"><h2 class="section-title">📝 Form fields</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">switch</code><span class="demo-alt">.switch</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">On/off toggle — a styled checkbox (the POST contract is a bare checkbox). Try it.</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <label class="switch" title="Enabled"><input type="checkbox" checked aria-label="Enabled"><span class="slider" aria-hidden="true"></span></label>
+      <label class="switch" title="Disabled"><input type="checkbox" aria-label="Disabled"><span class="slider" aria-hidden="true"></span></label>
+      <label class="switch" title="Read-only"><input type="checkbox" checked disabled aria-label="Read-only"><span class="slider" aria-hidden="true"></span></label>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">field_grid</code><span class="demo-alt">field_row / field_control / .field</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">The responsive grid of label/input cells that builds every config form. Each cell is a <code>field_row</code>; the control type is switched on <code>f.kind</code> — one of each is shown below.</p>
+  <div class="demo-stage">
+    <div class="field-grid">
+
+      <div class="field" data-field="host" data-kind="text">
+        <label class="field-line">
+          <span class="field-name">Host</span>
+          <span class="field-input"><input type="text" name="host" value="0.0.0.0" placeholder="optional"></span>
+        </label>
+      </div>
+
+      <div class="field" data-field="port" data-kind="number">
+        <label class="field-line">
+          <span class="field-name">Port</span>
+          <span class="field-input"><input type="number" step="any" name="port" min="1" max="65535" value="8700" placeholder="optional"></span>
+        </label>
+      </div>
+
+      <div class="field" data-field="timeout" data-kind="number">
+        <label class="field-line">
+          <span class="field-name">Request timeout</span>
+          <span class="field-input"><input type="number" step="any" name="timeout" value="30" placeholder="optional"><span class="unit" data-unit="s">[s]</span></span>
+        </label>
+        <span class="optional-hint" data-flag="field-help">Neutral per-field caption via <code>help=</code> — <code>.optional-hint</code>.</span>
+      </div>
+
+      <div class="field" data-field="backend" data-kind="select">
+        <label class="field-line">
+          <span class="field-name">Backend</span>
+          <span class="field-input"><select name="backend" data-role="backend"><option>claude-api</option><option selected>openrouter</option><option>local-gpu</option><option>bedrock</option></select></span>
+        </label>
+      </div>
+
+      <div class="field" data-field="api_key" data-kind="password">
+        <label class="field-line">
+          <span class="field-name">API key</span>
+          <span class="field-input">
+            <span class="secret" data-block="secret">
+              <input type="password" name="api_key" value="sk-demo-1234567890" autocomplete="off" placeholder="optional" data-role="secret-input" data-secret>
+              <button type="button" class="icon-btn eye" data-action="toggle-secret" title="Show value" aria-label="Show value" data-eye aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </span>
+          </span>
+        </label>
+        <span class="meta" data-flag="env-note">Stored in your <code>.env</code> file — an edit is written there, not into the YAML.</span>
+      </div>
+
+      <div class="field" data-field="stream" data-kind="checkbox">
+        <div class="field-line">
+          <span class="field-name">Stream responses</span>
+          <span class="field-input"><label class="switch" title="Stream responses"><input type="checkbox" name="stream" value="true" checked aria-label="Stream responses"><span class="slider" aria-hidden="true"></span></label></span>
+        </div>
+      </div>
+
+      <div class="field" data-field="starts_on" data-kind="date">
+        <label class="field-line">
+          <span class="field-name">Starts on</span>
+          <span class="field-input"><input type="date" name="starts_on" value="2026-07-12"></span>
+        </label>
+      </div>
+
+      <div class="field" data-field="expires_at" data-kind="datetime">
+        <label class="field-line">
+          <span class="field-name">Expires at</span>
+          <span class="field-input">
+            <input type="datetime-local" step="1" value="2026-07-12T18:00:00" data-utc-local title="Shown in your local time — saved as UTC">
+            <input type="hidden" name="expires_at" value="2026-07-12T18:00:00" data-utc-value>
+          </span>
+        </label>
+      </div>
+
+      <div class="field" data-field="secret_ref" data-kind="locked">
+        <label class="field-line">
+          <span class="field-name">Secret ref</span>
+          <span class="field-input"><input type="text" name="secret_ref" value="${OPENAI_API_KEY}" readonly disabled data-flag="locked-field"></span>
+        </label>
+        <span class="meta" data-flag="locked-note"><code>${VAR}</code> secrets render locked — they are never resolved here.</span>
+      </div>
+
+      <div class="field" data-field="workers" data-kind="number">
+        <label class="field-line">
+          <span class="field-name">Workers</span>
+          <span class="field-input"><input type="number" step="any" name="workers" value="256" placeholder="optional"></span>
+        </label>
+        <span class="warning" data-flag="footgun-warning">⚠ Above 64 workers may exhaust GPU memory.</span>
+      </div>
+
+      <div class="field is-invalid" data-field="region" data-kind="text">
+        <label class="field-line">
+          <span class="field-name">Region</span>
+          <span class="field-input"><input type="text" name="region" value="" placeholder="required" data-required></span>
+        </label>
+        <span class="error" data-error-field="region" data-error-code="REQUIRED">This field is required.</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">secret field</code><span class="demo-alt">.secret + eye toggle</span><span class="demo-tag">field_control kind=password</span></div>
+  <p class="demo-desc">Masked value + eye reveal (click the eye). Standalone view of the password control used in the grid above.</p>
+  <div class="demo-stage">
+    <span class="secret" data-block="secret" style="max-width:320px">
+      <input type="password" value="hunter2-super-secret" autocomplete="off" placeholder="optional" data-role="secret-input" data-secret>
+      <button type="button" class="icon-btn eye" data-action="toggle-secret" title="Show value" aria-label="Show value" data-eye aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </span>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">required-field validation</code><span class="demo-alt">data-required · .is-invalid</span><span class="demo-tag">kit.js §10</span></div>
+  <p class="demo-desc">Submit with the required field empty → kit.js flags it red, fires an error toast, focuses it, blocks the submit. Fill it and the red clears on input. Live — press Save.</p>
+  <div class="demo-stage">
+    <form onsubmit="return false">
+      <div class="field-grid">
+        <div class="field" data-field="demo_required" data-kind="text">
+          <label class="field-line">
+            <span class="field-name">Required name</span>
+            <span class="field-input"><input type="text" name="demo_required" value="" placeholder="required" data-required></span>
+          </label>
+        </div>
+      </div>
+      <div class="actions"><button type="submit">Save changes</button></div>
+    </form>
+  </div>
+</div>
+</section>
+
+
+<!-- ════════════════════════════ COLLECTIONS ════════════════════════════ -->
+<section class="gal-section" id="collections">
+<div class="section-bar"><h2 class="section-title">📚 Collections</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">string_list</code><span class="demo-alt">.string-list / .chip / .chips</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">A list of free-text values as removable chips. “+ add” clones a new chip; ✕ removes one — live.</p>
+  <div class="demo-stage">
+    <fieldset class="string-list" data-list="allowed_origins">
+      <legend>Allowed origins</legend>
+      <div class="chips" data-chips>
+        <span class="chip"><input type="text" value="https://app.example.com"><button type="button" data-remove aria-label="Remove">✕</button></span>
+        <span class="chip"><input type="text" value="https://admin.example.com"><button type="button" data-remove aria-label="Remove">✕</button></span>
+      </div>
+      <button type="button" data-add-chip="allowed_origins">+ add</button>
+      <template data-chip-template="allowed_origins"><span class="chip"><input type="text" value=""><button type="button" data-remove aria-label="Remove">✕</button></span></template>
+    </fieldset>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">keyed_map</code><span class="demo-alt">.keyed-map</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">An id-keyed table of typed sub-fields (each row has an <code>id</code> + columns). “+ add row” / ✕ live.</p>
+  <div class="demo-stage">
+    <fieldset class="keyed-map" data-kmap="rate_limits">
+      <legend>Rate limits</legend>
+      <table>
+        <thead><tr><th>id</th><th>rpm</th><th>burst</th><th></th></tr></thead>
+        <tbody data-rows>
+          <tr class="kmap-row">
+            <td><input type="text" value="default"></td>
+            <td><input type="number" step="any" value="60"></td>
+            <td><input type="number" step="any" value="10"></td>
+            <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" data-add-row>+ add row</button>
+      <template data-row-template><tr class="kmap-row"><td><input type="text" value=""></td><td><input type="number" step="any" value=""></td><td><input type="number" step="any" value=""></td><td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+    </fieldset>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">object_list</code><span class="demo-alt">.object-list</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">Like <code>keyed_map</code> but rows are anonymous objects (no id column) — an ordered list of typed records.</p>
+  <div class="demo-stage">
+    <fieldset class="object-list" data-olist="siem.targets">
+      <legend>SIEM targets</legend>
+      <table>
+        <thead><tr><th>host</th><th>port</th><th>protocol</th><th></th></tr></thead>
+        <tbody data-rows>
+          <tr class="olist-row">
+            <td><input type="text" value="siem.internal"></td>
+            <td><input type="number" step="any" value="514"></td>
+            <td><select><option selected>udp</option><option>tcp</option></select></td>
+            <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" data-add-row>+ add row</button>
+      <template data-row-template><tr class="olist-row"><td><input type="text" value=""></td><td><input type="number" step="any" value=""></td><td><select><option selected>udp</option><option>tcp</option></select></td><td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+    </fieldset>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">toggle_block</code><span class="demo-alt">.optional-block · “the box”</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">A switch-header card: a title + an always-visible enable switch. ALL its content stays inside the box and reveals only when ticked — toggle the switch to see it. Widths: <code>data-span</code> 2 (1×) · 3 (1.5×) · 4 (2×).</p>
+  <div class="demo-stage">
+    <div class="optional-grid">
+      <div class="optional-block" data-block="enable" data-group="enable:azure" data-span="2">
+        <div class="optional-head">
+          <span class="optional-title">Azure OpenAI</span>
+          <input type="hidden" name="enable_seen.azure" value="1">
+          <label class="switch" title="Enable Azure OpenAI"><input type="checkbox" name="enable.azure" value="true" data-role="enable-toggle" aria-label="Enable Azure OpenAI"><span class="slider" aria-hidden="true"></span></label>
+        </div>
+        <p class="optional-hint">BYOK credentials only — routing config is server-side.</p>
+        <div class="optional-content" data-role="enable-content" hidden>
+          <div class="enable-content">
+            <div class="field-grid">
+              <div class="field" data-field="azure.key" data-kind="password">
+                <label class="field-line"><span class="field-name">API key</span>
+                  <span class="field-input"><span class="secret" data-block="secret"><input type="password" value="" placeholder="optional" data-role="secret-input" data-secret><button type="button" class="icon-btn eye" data-action="toggle-secret" title="Show value" aria-label="Show value" data-eye aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button></span></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="optional-block" data-block="enable" data-group="enable:bedrock" data-span="2">
+        <div class="optional-head">
+          <span class="optional-title">AWS Bedrock</span>
+          <input type="hidden" name="enable_seen.bedrock" value="1">
+          <label class="switch" title="Enable AWS Bedrock"><input type="checkbox" name="enable.bedrock" value="true" checked data-role="enable-toggle" aria-label="Enable AWS Bedrock"><span class="slider" aria-hidden="true"></span></label>
+        </div>
+        <p class="warning" data-flag="footgun-warning">⚠ Charges bill to the connected AWS account.</p>
+        <div class="optional-content" data-role="enable-content">
+          <div class="enable-content">
+            <div class="field-grid">
+              <div class="field" data-field="bedrock.access" data-kind="text">
+                <label class="field-line"><span class="field-name">Access key ID</span>
+                  <span class="field-input"><input type="text" value="AKIA…" placeholder="optional"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="demo-note">Left card is OFF (content hidden); right card is ON with a footgun warning. Toggle either switch.</p>
+  </div>
+</div>
+</section>
+
+
+<!-- ════════════════════════════ STATUS & TOASTS ════════════════════════════ -->
+<section class="gal-section" id="status">
+<div class="section-bar"><h2 class="section-title">🚦 Status &amp; toasts</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">status messages</code><span class="demo-alt">.ok · .warning · .notice · ul.errors</span><span class="demo-tag">inline status</span></div>
+  <p class="demo-desc">Inline status blocks. Note: operator-facing notifications should be <code>toast</code>s (below) — these are the static/inline styles the kit still ships (e.g. a validation error list rendered in place).</p>
+  <div class="demo-stage">
+    <p class="ok">Saved — configuration written to disk.</p>
+    <p class="warning">Some backends are disabled; requests may queue.</p>
+    <p class="notice">Restart the router for port changes to take effect.</p>
+    <ul class="errors validation-errors" data-flag="validation-errors" data-validation="errors">
+      <li class="validation-error" data-error-field="port" data-error-code="OUT_OF_RANGE"><strong>OUT_OF_RANGE</strong>: port must be 1–65535.</li>
+      <li class="validation-error" data-error-field="region" data-error-code="REQUIRED"><strong>REQUIRED</strong>: region is required for this backend.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">toast</code><span class="demo-alt">kitToast() · .toast</span><span class="demo-tag">macro _toast.html · kit.js §6</span></div>
+  <p class="demo-desc">Floating notification — the ONE operator-message component both dashboards use. <code>success/info/warning</code> auto-dismiss (hover to freeze the countdown bar); <strong><code>error</code> is sticky</strong> — no timer, dismiss by hand. Click to spawn:</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <button type="button" data-toast-demo="success">success toast</button>
+      <button type="button" data-toast-demo="info">info toast</button>
+      <button type="button" data-toast-demo="warning">warning toast</button>
+      <button type="button" data-toast-demo="error">error toast (sticky)</button>
+    </div>
+    <p class="demo-note">Server side, a toast is a hidden <code>[data-toast]</code> seed the macro renders; kit.js lifts it into <code>#toast-host</code> on load + after every htmx swap.</p>
+  </div>
+</div>
+</section>
+
+
+<!-- ════════════════════════════ DIALOGS ════════════════════════════ -->
+<section class="gal-section" id="dialogs">
+<div class="section-bar"><h2 class="section-title">🪟 Dialogs</h2></div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">modal</code><span class="demo-alt">.kit-modal · &lt;dialog&gt;</span><span class="demo-tag">macro · _modal.html</span></div>
+  <p class="demo-desc">Native <code>&lt;dialog&gt;</code> on the browser top layer. Opened by any <code>data-open-modal="id"</code>; closed by Esc, backdrop click, or <code>data-close-modal</code>. Pass <code>size="wide"</code> for a wide dialog.</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <button type="button" class="add" data-open-modal="demo-modal">Open modal</button>
+      <button type="button" class="add" data-open-modal="demo-modal-wide">Open wide modal</button>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">kitConfirm</code><span class="demo-alt">.kit-confirm · window.kitConfirm()</span><span class="demo-tag">kit.js §11</span></div>
+  <p class="demo-desc">Programmatic <code>Promise&lt;boolean&gt;</code> confirm — the modern replacement for <code>window.confirm</code>. <code>danger:true</code> paints the confirm button red. Try both:</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <button type="button" data-confirm-demo="normal">Confirm…</button>
+      <button type="button" data-confirm-demo="danger">Delete… (danger)</button>
+    </div>
+  </div>
+</div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">folderPicker</code> <code class="demo-name">filesPicker</code><span class="demo-alt">.kit-picker</span><span class="demo-tag">macro · _picker.html</span></div>
+  <p class="demo-desc">Project-tree browse dialogs (built on <code>modal</code>). The kit owns the chrome — breadcrumbs, listbox, Cancel/Select; the host app supplies the data driver via <code>data-browse-url</code>. Open them (empty here — no app driver wired in the gallery):</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <button type="button" class="add" data-open-modal="demo-folder-picker">Browse folders…</button>
+      <button type="button" class="add" data-open-modal="demo-files-picker">Browse files…</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<p class="meta" style="margin-top:2.5rem">
+  Live components are the real kit markup driven by <code>../static/kit.css</code> +
+  <code>../static/kit.js</code>. To reference any object in a prompt, say its
+  monospace badge name.
+</p>
+
+</main>
+
+
+<!-- ═══════════ modals / pickers (top-layer dialogs, rendered once at page end) ═══════════ -->
+<dialog id="demo-modal" class="kit-modal" data-modal aria-labelledby="demo-modal-title">
+  <div class="kit-modal-card">
+    <header class="kit-modal-head">
+      <div class="head-titles">
+        <h2 id="demo-modal-title">Add backend</h2>
+        <p class="meta">Default width (560px)</p>
+      </div>
+      <button type="button" class="modal-close" aria-label="Close" data-close-modal>&times;</button>
+    </header>
+    <div class="kit-modal-body">
+      <div class="field-grid">
+        <div class="field" data-field="m_name" data-kind="text">
+          <label class="field-line"><span class="field-name">Name</span>
+            <span class="field-input"><input type="text" placeholder="required" data-required></span></label>
+        </div>
+        <div class="field" data-field="m_kind" data-kind="select">
+          <label class="field-line"><span class="field-name">Kind</span>
+            <span class="field-input"><select><option>claude-api</option><option>openrouter</option><option>local-gpu</option></select></span></label>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" data-close-modal>Cancel</button>
+        <button type="button" data-close-modal>Add</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="demo-modal-wide" class="kit-modal wide" data-modal aria-labelledby="demo-modal-wide-title">
+  <div class="kit-modal-card">
+    <header class="kit-modal-head">
+      <div class="head-titles">
+        <h2 id="demo-modal-wide-title">Rendered preview</h2>
+        <p class="meta">size="wide"</p>
+      </div>
+      <button type="button" class="modal-close" aria-label="Close" data-close-modal>&times;</button>
+    </header>
+    <div class="kit-modal-body">
+      <p class="meta" style="margin:0">A wider dialog for rendered markdown, a multi-column form, or a picker. Same open/close wiring — just <code>size="wide"</code>.</p>
+      <div class="actions"><button type="button" data-close-modal>Close</button></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- picker dialogs (folderPicker / filesPicker macro output) -->
+<dialog id="demo-folder-picker" class="kit-modal wide" data-modal aria-labelledby="demo-folder-picker-title">
+  <div class="kit-modal-card">
+    <header class="kit-modal-head">
+      <div class="head-titles">
+        <h2 id="demo-folder-picker-title">Browse project folders</h2>
+        <p class="meta">Confined to the project folder</p>
+      </div>
+      <button type="button" class="modal-close" aria-label="Close" data-close-modal>&times;</button>
+    </header>
+    <div class="kit-modal-body">
+      <div class="kit-picker" data-browse-url="/config/browse" data-picker-mode="folder">
+        <nav class="kit-picker-crumbs" data-picker-crumbs aria-label="Current folder"><span class="kit-picker-crumb">project</span></nav>
+        <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
+        <p class="meta kit-picker-empty" data-picker-empty>No app driver wired in the gallery — this is the empty chrome.</p>
+        <div class="actions">
+          <button type="button" data-close-modal>Cancel</button>
+          <button type="button" data-picker-select disabled>Select</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="demo-files-picker" class="kit-modal wide" data-modal aria-labelledby="demo-files-picker-title">
+  <div class="kit-modal-card">
+    <header class="kit-modal-head">
+      <div class="head-titles">
+        <h2 id="demo-files-picker-title">Browse project files</h2>
+        <p class="meta">Confined to the project folder</p>
+      </div>
+      <button type="button" class="modal-close" aria-label="Close" data-close-modal>&times;</button>
+    </header>
+    <div class="kit-modal-body">
+      <div class="kit-picker" data-browse-url="/config/browse" data-picker-mode="file">
+        <nav class="kit-picker-crumbs" data-picker-crumbs aria-label="Current folder"><span class="kit-picker-crumb">project</span></nav>
+        <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
+        <p class="meta kit-picker-empty" data-picker-empty>No app driver wired in the gallery — this is the empty chrome.</p>
+        <div class="actions">
+          <button type="button" data-close-modal>Cancel</button>
+          <button type="button" data-picker-select disabled>Select</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+
+<!-- the real kit behaviours (switch, secret eye, add/remove, optional-block,
+     toasts, modals, kitConfirm/kitToast) -->
+<script src="../static/kit.js" defer></script>
+
+<!-- gallery-only wiring: hook the demo buttons to the kit's public API -->
+<script defer>
+document.addEventListener("click", function (e) {
+  var t = e.target.closest("[data-toast-demo]");
+  if (t && window.kitToast) {
+    var sev = t.getAttribute("data-toast-demo");
+    window.kitToast({
+      success: "Configuration saved.",
+      info: "Router restart scheduled.",
+      warning: "3 backends are disabled.",
+      error: "Save failed — port 8700 already in use."
+    }[sev], sev);
+    return;
+  }
+  var c = e.target.closest("[data-confirm-demo]");
+  if (c && window.kitConfirm) {
+    var danger = c.getAttribute("data-confirm-demo") === "danger";
+    window.kitConfirm({
+      title: danger ? "Delete backend?" : "Apply changes?",
+      message: danger
+        ? "This permanently removes the backend and its GPU lease."
+        : "Restart the router to apply the new configuration?",
+      confirmLabel: danger ? "Delete" : "Apply",
+      danger: danger
+    }).then(function (ok) {
+      if (window.kitToast) window.kitToast(ok ? "You chose: confirm" : "You chose: cancel", ok ? "success" : "info");
+    });
+    return;
+  }
+});
+</script>
+
+</body>
+</html>

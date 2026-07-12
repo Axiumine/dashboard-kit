@@ -22,6 +22,14 @@ templates/kit/
                       # data driver via data-browse-url + selection handling)
 ```
 
+## Demo / component gallery
+
+`demo/gallery.html` — a single self-contained page rendering **every** kit object
+live, each tagged with the name to use when referring to it. Open it directly in a
+browser (`file://…/demo/gallery.html`); it links the real `../static/kit.css` +
+`../static/kit.js`, so what you see is the actual component driven by the real
+behaviour. Not vendored into app wheels — a dev aid only.
+
 ## Component rules
 
 - **`.actions` — action section.** The single rule for a page-bottom button row.
