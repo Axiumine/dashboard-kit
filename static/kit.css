@@ -366,6 +366,12 @@ button[data-add-backend] {
 button[data-add-chip]:hover,
 button[data-add-row]:hover,
 button[data-add-backend]:hover { border-color: var(--accent); transform: none; background: transparent; }
+/* per-card row/chip adders align flush-right — the card action-button convention
+   (a `+ add row`/`+ add` at the foot of a keyed-map/object-list/string-list card).
+   block + fit-content so margin-left:auto pushes the button to the card edge,
+   mirroring the .icon-btn.trash auto-margin (never a hand-rolled float). */
+button[data-add-chip],
+button[data-add-row] { display: block; width: fit-content; margin-left: auto; }
 
 /* ── action section — the single kit rule for a page-bottom button row ─────── */
 /* `.actions` is THE action-section component: any group of action buttons at the
