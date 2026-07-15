@@ -11,9 +11,12 @@
 
    Field-level macros (switch/field_control/field_row/field_grid) are consumed by
    BOTH apps. The collection macros (cell/string_list/keyed_map/object_list/
-   toggle_block) are consumed by AR; DP keeps its specialised collection
-   renderers (chip reorder, custom doc-schemas) app-local. #}
+   nested_map/toggle_block) are consumed by AR; string_list/keyed_map/object_list
+   take an opt-in reorder=True (▲▼, E152-S01) and nested_map (E152-S02) gives a
+   parent row its own add/remove/reorder child list. DP is migrating its
+   app-local collection renderers onto these (E153). #}
 {% from "kit/_icon_btn.html" import icon_button %}
+{% from "kit/_icon_cluster.html" import icon_cluster %}
 
 {# on/off switch — a styled checkbox; POST name/value are unchanged so the wire
    contract is identical to a bare checkbox. `role` tags section-enable toggles
@@ -197,6 +200,60 @@
   </table>
   <button type="button" data-add-row>+ add row</button>
   <template data-row-template><tr class="olist-row">{% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+</fieldset>
+{% endmacro %}
+
+{# ---- nested collection (E152-S02): a parent row owns its own child list ----
+
+   nested_map(nm) renders a keyed collection where EVERY parent row owns its own
+   add/remove/reorder child string-list — the shape DP's custom_schemas (stem →
+   required sections) and siem.targets (target → headers) hand-rolled app-local.
+   All behaviour is the generic kit.js §3 delegation: parent add = data-add-row on
+   [data-nmap] (kit.js substitutes a fresh id for the __RID__ token in the row
+   <template>, which also re-keys the row's nested child <template>); child
+   add/remove/reorder reuse the flat [data-add-chip]/[data-remove]/data-move-*
+   handlers, which resolve to the NEAREST child list because the child fieldset is
+   itself a [data-list]. No new handler, no second delegation path.
+
+   Wire (the nested extension of the kmap/olist family, index/DOM-order aligned):
+     <prefix>.ids                one hidden per parent row = its rid (order source)
+     <prefix>.<rid>.<id_key>     the parent scalar (e.g. cschema.<rid>.stem)
+     <prefix>.<rid>.<child_key>  one per child chip in DOM order (e.g. .section)
+   The <prefix>_form sentinel is emitted by the CONSUMER template, never here
+   (matching list_form/kmap_form/olist_form). `nm` fields: prefix, label, hint,
+   id_label, id_key, child_label, child_singular, child_key, rows=[[id,[child…]]]. #}
+{% macro _nmap_chip(prefix, rid, child_key, value) %}
+<li class="chip"><input type="text" name="{{ prefix }}.{{ rid }}.{{ child_key }}" value="{{ value }}" aria-label="{{ child_key }}">{% call icon_cluster() %}{{ icon_button("up", "Move up", extra_attrs="data-move-up") }}{{ icon_button("down", "Move down", extra_attrs="data-move-down") }}{{ icon_button("delete", "Remove", extra_attrs="data-remove") }}{% endcall %}</li>
+{% endmacro %}
+
+{% macro _nmap_row(nm, rid, entry_id, items) %}
+<fieldset class="nmap-row" data-group="{{ nm.prefix }}:{{ rid }}">
+  <input type="hidden" name="{{ nm.prefix }}.ids" value="{{ rid }}">
+  <div class="nmap-row-head">
+    <label class="field-line"><span class="field-name">{{ nm.id_label }}</span>
+      <span class="field-input"><input type="text" name="{{ nm.prefix }}.{{ rid }}.{{ nm.id_key }}" value="{{ entry_id }}" aria-label="{{ nm.id_key }}"></span></label>
+    {% call icon_cluster() %}{{ icon_button("delete", "Remove " ~ nm.id_label, extra_attrs="data-remove-row") }}{% endcall %}
+  </div>
+  <span class="field-name">{{ nm.child_label }}</span>
+  <fieldset class="string-list nmap-child" data-list>
+    <ul class="chips" data-chips>
+      {% for c in items %}{{ _nmap_chip(nm.prefix, rid, nm.child_key, c) }}{% endfor %}
+    </ul>
+    <div class="context-add"><button type="button" data-add-chip>+ add {{ nm.child_singular }}</button></div>
+    <template data-chip-template>{{ _nmap_chip(nm.prefix, rid, nm.child_key, '') }}</template>
+  </fieldset>
+</fieldset>
+{% endmacro %}
+
+{% macro nested_map(nm) %}
+<fieldset class="nested-map" data-nmap="{{ nm.prefix }}">
+  <legend>{{ nm.label }}</legend>
+  {% if nm.hint %}<p class="meta">{{ nm.hint }}</p>{% endif %}
+  <div data-rows>
+    {% for row in nm.rows %}{{ _nmap_row(nm, loop.index0, row[0], row[1]) }}{% endfor %}
+  </div>
+  <div class="context-add"><button type="button" data-add-row>+ add {{ nm.id_label }}</button></div>
+  <template data-row-template>{{ _nmap_row(nm, '__RID__', '', []) }}</template>
 </fieldset>
 {% endmacro %}
 

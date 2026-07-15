@@ -72,6 +72,28 @@ def test_gallery_block_open(page: Page, gallery_url: str, assert_screenshot: Cal
     assert_screenshot(page, "gallery_block_open", locator=card)
 
 
+def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """nested_map interactive add — '+ add Doc stem' clones a parent row (fresh id
+    for __RID__), then that new row's '+ add section' adds a child chip; kit.js §3
+    delegation drives both with no per-consumer JS."""
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("nested_map"))')
+    nmap = card.locator("[data-nmap]")
+    card.locator('[data-add-row]').click()  # add a 3rd parent row
+    page.wait_for_function(
+        "document.querySelector('[data-nmap] > [data-rows]')"
+        ".querySelectorAll(':scope > .nmap-row').length === 3"
+    )
+    # add a child section to the freshly-added (last) parent row
+    nmap.locator(".nmap-row").last.locator('[data-add-chip]').click()
+    page.wait_for_function(
+        "document.querySelectorAll('[data-nmap] > [data-rows] > .nmap-row')[2]"
+        ".querySelectorAll('[data-chips] > .chip').length === 1"
+    )
+    assert_screenshot(page, "gallery_nested_add", locator=nmap)
+
+
 def test_gallery_reorder_moved(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """Opt-in reorder — move-down on the first keyed_map row DOM-swaps it below the
     second (kit.js §3), so ``default`` and ``premium`` trade places with no save."""
