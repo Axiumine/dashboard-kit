@@ -13,18 +13,24 @@
    whether files are selectable (file mode) or the current folder is the pick
    (folder mode).
 
+   `kit_driven=True` marks the chrome `data-kit-picker` so kit.js §12 drives it
+   itself (E152-S03) — appending the picked path(s) into a `picker_list` chip list —
+   and app drivers (DEVPROTOCOL reference_browse.js) skip it. Leave it False for an
+   app-driven picker (e.g. a sink=input path field).
+
    The inner controls carry NO `name=` — they are pure JS state, never part of a
    form POST. Open with any `[data-open-modal="<id>"]` control (kit.js §9 shows it);
    close with Cancel (`[data-close-modal]`) or Esc/backdrop.
 
-     {% from "kit/_picker.html" import folderPicker, filesPicker %}
-     {{ folderPicker("ref-folder-picker", "/config/browse") }}
-     {{ filesPicker("ref-files-picker", "/config/browse") }}
+     {% from "kit/_picker.html" import folderPicker, filesPicker, picker_list %}
+     {{ folderPicker("ref-folder-picker", "/config/browse", kit_driven=True) }}
+     {{ picker_list(folders_field, "folder", "ref-folder-picker", label="Reference folders") }}
 #}
 {% from "kit/_modal.html" import modal %}
+{% from "kit/_icon_btn.html" import icon_button %}
 
-{% macro _picker_body(browse_url, mode) %}
-<div class="kit-picker" data-browse-url="{{ browse_url }}" data-picker-mode="{{ mode }}">
+{% macro _picker_body(browse_url, mode, kit_driven=False) %}
+<div class="kit-picker" data-browse-url="{{ browse_url }}" data-picker-mode="{{ mode }}"{% if kit_driven %} data-kit-picker{% endif %}>
   <nav class="kit-picker-crumbs" data-picker-crumbs aria-label="Current folder"></nav>
   <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
   <p class="meta kit-picker-empty" data-picker-empty hidden>This folder is empty.</p>
@@ -36,11 +42,38 @@
 {% endmacro %}
 
 {# folderPicker — browse + pick a single folder (the current directory). #}
-{% macro folderPicker(id, browse_url, subtitle="Confined to the project folder") %}
-{% call modal(id, "Browse project folders", subtitle=subtitle, size="wide") %}{{ _picker_body(browse_url, "folder") }}{% endcall %}
+{% macro folderPicker(id, browse_url, subtitle="Confined to the project folder", kit_driven=False) %}
+{% call modal(id, "Browse project folders", subtitle=subtitle, size="wide") %}{{ _picker_body(browse_url, "folder", kit_driven) }}{% endcall %}
 {% endmacro %}
 
 {# filesPicker — browse folders + tick one or more files. #}
-{% macro filesPicker(id, browse_url, subtitle="Confined to the project folder") %}
-{% call modal(id, "Browse project files", subtitle=subtitle, size="wide") %}{{ _picker_body(browse_url, "file") }}{% endcall %}
+{% macro filesPicker(id, browse_url, subtitle="Confined to the project folder", kit_driven=False) %}
+{% call modal(id, "Browse project files", subtitle=subtitle, size="wide") %}{{ _picker_body(browse_url, "file", kit_driven) }}{% endcall %}
+{% endmacro %}
+
+{# ---- picker-mode chip list (E152-S03) ------------------------------------
+
+   picker_list — a string_list whose values are chosen through a folderPicker/
+   filesPicker instead of typed. Each chip is a non-editable path (`data-picker-
+   path`) + a hidden `list.<name>.item` (the value that POSTs) + a delete; the
+   "+ Add" button opens `picker_id` (a kit_driven picker) and kit.js §12 appends
+   the picked path(s) with value dedupe. Wire is the plain string_list contract —
+   `list_form` + `list_paths` + `list.<name>.item[]`, emitted the same way — so no
+   new sentinel and no server parser change. `legend` renders only when `label` is
+   truthy (a consumer that titles the list itself passes label=''). `mode` =
+   "folder" | "file". `field` supplies `.name` + `.items`. #}
+{% macro _picker_chip(name, value) %}
+<span class="chip picker-chip"><span class="ref-path" data-picker-path>{{ value }}</span><input type="hidden" name="list.{{ name }}.item" value="{{ value }}">{{ icon_button("delete", "Remove " ~ value, extra_attrs="data-remove") }}</span>
+{% endmacro %}
+
+{% macro picker_list(field, mode, picker_id, label='') %}
+<fieldset class="string-list picker-list" data-list="{{ field.name }}">
+  {% if label %}<legend>{{ label }}</legend>{% endif %}
+  <input type="hidden" name="list_paths" value="{{ field.name }}">
+  <div class="chips" data-chips>
+    {% for item in field.items %}{{ _picker_chip(field.name, item) }}{% endfor %}
+  </div>
+  <div class="actions"><button type="button" class="add" data-open-modal="{{ picker_id }}" data-picker-open data-picker-target="{{ field.name }}" data-picker-mode="{{ mode }}">+ Add {{ mode }}</button></div>
+  <template data-chip-template>{{ _picker_chip(field.name, '') }}</template>
+</fieldset>
 {% endmacro %}

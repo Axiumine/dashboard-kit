@@ -688,6 +688,146 @@
     });
   }
 
+  // ── 12. Filesystem picker → chip list (E152-S03) ──────────────────────────
+  //   A kit-driven picker (folderPicker/filesPicker rendered with kit_driven=True,
+  //   so its .kit-picker chrome carries [data-kit-picker]) appends the picked
+  //   path(s) as non-editable chips into a picker_list. This is the list-sink half
+  //   of DP's reference_browse.js, generalised: load the [data-browse-url] JSON
+  //   listing, navigate (dirs drill in, files tick), and on Select clone the target
+  //   list's [data-chip-template] into [data-chips] with value dedupe. An app's
+  //   OWN sink=input pickers (no [data-kit-picker]) are left to the app driver — we
+  //   never touch them. No new wire: chips post as list.<name>.item[] like any
+  //   string_list. kit.js §9 opens the dialog; this only fills + delivers.
+  function appendPickerChip(target, value) {
+    var fs = document.querySelector('[data-list="' + target + '"]');
+    if (!fs) return;
+    var chips = fs.querySelector("[data-chips]");
+    var tmpl = fs.querySelector("[data-chip-template]");
+    if (!chips || !tmpl) return;
+    var existing = chips.querySelectorAll('input[type="hidden"][name="list.' + target + '.item"]');
+    for (var i = 0; i < existing.length; i++) {
+      if (existing[i].value === value) return;    // dedupe against rows already added
+    }
+    chips.insertAdjacentHTML("beforeend", tmpl.innerHTML);
+    var row = chips.lastElementChild;
+    var input = row.querySelector('input[type="hidden"]');
+    if (input) input.value = value;               // hidden field carries the value to POST
+    var label = row.querySelector("[data-picker-path]");
+    if (label) label.textContent = value;         // visible static path
+    var del = row.querySelector("[data-remove]");
+    if (del) del.setAttribute("aria-label", "Remove " + value);  // value-specific for AT nav
+  }
+
+  function wirePicker(host) {
+    var dlg = host.closest("dialog");
+    if (!dlg) return;
+    var crumbs = host.querySelector("[data-picker-crumbs]");
+    var listEl = host.querySelector("[data-picker-list]");
+    var emptyEl = host.querySelector("[data-picker-empty]");
+    var selectBtn = host.querySelector("[data-picker-select]");
+    var browseUrl = host.getAttribute("data-browse-url");
+    var mode = host.getAttribute("data-picker-mode") === "file" ? "file" : "folder";
+    var state = { target: "", path: "", checked: {} };
+    if (!listEl || !selectBtn) return;
+
+    // delegated: an Add button that targets THIS dialog (kit.js §9 also opens it)
+    document.addEventListener("click", function (e) {
+      var btn = e.target.closest('[data-picker-open][data-open-modal="' + dlg.id + '"]');
+      if (!btn) return;
+      state.target = btn.getAttribute("data-picker-target") || "";
+      state.checked = {};
+      selectBtn.textContent = mode === "file" ? "Select files" : "Select this folder";
+      load("");
+    });
+
+    selectBtn.addEventListener("click", function () {
+      // folder: the current dir ("." = root, never "" — a parser rejects empty)
+      var picks = mode === "file" ? Object.keys(state.checked) : [state.path || "."];
+      picks.forEach(function (p) { appendPickerChip(state.target, p); });
+      if (typeof dlg.close === "function") dlg.close();
+    });
+
+    function load(path) {
+      var url = browseUrl + "?path=" + encodeURIComponent(path) + "&mode=" + mode;
+      fetch(url, { headers: { Accept: "application/json" } })
+        .then(function (r) { if (!r.ok) throw new Error("browse"); return r.json(); })
+        .then(function (data) { if (data.error) throw new Error(data.error); render(data); })
+        .catch(function () {
+          if (window.kitToast) window.kitToast("Could not browse that folder.", "error");
+        });
+    }
+
+    function render(data) {
+      state.path = data.path;
+      state.checked = {};
+      selectBtn.disabled = mode === "file";       // folder mode: always selectable
+      renderCrumbs(data.path);
+      listEl.textContent = "";
+      if (data.parent !== null && data.parent !== undefined) listEl.appendChild(upRow(data.parent));
+      data.entries.forEach(function (en) { listEl.appendChild(entryRow(en)); });
+      if (emptyEl) emptyEl.hidden = data.entries.length > 0;
+    }
+
+    function renderCrumbs(path) {
+      if (!crumbs) return;
+      crumbs.textContent = "";
+      crumbs.appendChild(crumb("project", ""));
+      var acc = "";
+      (path ? path.split("/") : []).forEach(function (seg) {
+        acc = acc ? acc + "/" + seg : seg;
+        crumbs.appendChild(document.createTextNode(" / "));
+        crumbs.appendChild(crumb(seg, acc));
+      });
+    }
+
+    function crumb(label, path) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "kit-picker-crumb";
+      b.textContent = label;
+      b.addEventListener("click", function () { load(path); });
+      return b;
+    }
+
+    function upRow(parent) {
+      var li = document.createElement("li");
+      li.className = "kit-picker-row kit-picker-dir";
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = "‹ ..";
+      b.addEventListener("click", function () { load(parent); });
+      li.appendChild(b);
+      return li;
+    }
+
+    function entryRow(en) {
+      var li = document.createElement("li");
+      li.className = "kit-picker-row kit-picker-" + en.type;
+      if (en.type === "dir") {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = "📁 " + en.name;
+        b.addEventListener("click", function () { load(en.path); });
+        li.appendChild(b);
+      } else {
+        var lab = document.createElement("label");
+        var cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.addEventListener("change", function () {
+          if (cb.checked) state.checked[en.path] = true;
+          else delete state.checked[en.path];
+          selectBtn.disabled = Object.keys(state.checked).length === 0;
+        });
+        lab.appendChild(cb);
+        lab.appendChild(document.createTextNode(" 📄 " + en.name));
+        li.appendChild(lab);
+      }
+      return li;
+    }
+  }
+
+  document.querySelectorAll(".kit-picker[data-kit-picker]").forEach(wirePicker);
+
   // Supported programmatic surface for app scripts — the IIFE keeps everything
   // else private. kitToast mirrors §6 so pages stop hand-rolling toast nodes.
   window.kitConfirm = kitConfirm;

@@ -94,6 +94,23 @@ def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Cal
     assert_screenshot(page, "gallery_nested_add", locator=nmap)
 
 
+def test_gallery_picker_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """picker_list open state — '+ Add folder' opens the kit_driven folderPicker and
+    kit.js §12 loads the (gallery-stubbed) /config/browse listing into it."""
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("picker_list"))')
+    card.locator("[data-picker-open]").click()
+    dialog = page.locator("dialog#demo-kit-folder-picker")
+    dialog.wait_for(state="visible")
+    # wait for the stubbed listing to render (dir rows appear)
+    page.wait_for_function(
+        "document.querySelector('#demo-kit-folder-picker [data-picker-list]')"
+        ".querySelectorAll('li').length >= 3"
+    )
+    assert_screenshot(page, "gallery_picker_open", locator=dialog)
+
+
 def test_gallery_reorder_moved(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """Opt-in reorder — move-down on the first keyed_map row DOM-swaps it below the
     second (kit.js §3), so ``default`` and ``premium`` trade places with no save."""

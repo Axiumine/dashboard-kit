@@ -762,6 +762,23 @@ body {
     </div>
   </div>
 </div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">picker_list</code><span class="demo-alt">.picker-list · explorer-picked chips</span><span class="demo-tag">macro · _picker.html</span></div>
+  <p class="demo-desc">A <code>string_list</code> whose values are picked through a <code>folderPicker</code>/<code>filesPicker</code> instead of typed — non-editable path chips + a hidden <code>list.&lt;name&gt;.item</code> that POSTs. “+ Add folder” opens a <code>kit_driven=True</code> picker and kit.js §12 appends the pick with dedupe (no per-app JS). Same wire as any string_list. Open it — the gallery stubs <code>/config/browse</code>.</p>
+  <div class="demo-stage">
+<fieldset class="string-list picker-list" data-list="reference_folders">
+  <legend>Reference folders</legend>
+  <input type="hidden" name="list_paths" value="reference_folders">
+  <div class="chips" data-chips>
+<span class="chip picker-chip"><span class="ref-path" data-picker-path>./reference</span><input type="hidden" name="list.reference_folders.item" value="./reference"><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove ./reference" aria-label="Remove ./reference" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></span>
+<span class="chip picker-chip"><span class="ref-path" data-picker-path>docs/adr</span><input type="hidden" name="list.reference_folders.item" value="docs/adr"><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove docs/adr" aria-label="Remove docs/adr" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></span>
+  </div>
+  <div class="actions"><button type="button" class="add" data-open-modal="demo-kit-folder-picker" data-picker-open data-picker-target="reference_folders" data-picker-mode="folder">+ Add folder</button></div>
+  <template data-chip-template><span class="chip picker-chip"><span class="ref-path" data-picker-path></span><input type="hidden" name="list.reference_folders.item" value=""><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove " aria-label="Remove " data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></span></template>
+</fieldset>
+  </div>
+</div>
 </section>
 
 <p class="meta" style="margin-top:2.5rem">
@@ -865,6 +882,56 @@ body {
   </div>
 </dialog>
 
+
+<!-- kit_driven picker (E152-S03) — kit.js §12 drives this one itself -->
+<dialog id="demo-kit-folder-picker" class="kit-modal wide" data-modal aria-labelledby="demo-kit-folder-picker-title">
+  <div class="kit-modal-card">
+    <header class="kit-modal-head">
+      <div class="head-titles">
+        <h2 id="demo-kit-folder-picker-title">Browse project folders</h2>
+        <p class="meta">Confined to the project folder</p>
+      </div>
+      <button type="button" class="modal-close" aria-label="Close" data-close-modal>&times;</button>
+    </header>
+    <div class="kit-modal-body">
+      <div class="kit-picker" data-browse-url="/config/browse" data-picker-mode="folder" data-kit-picker>
+        <nav class="kit-picker-crumbs" data-picker-crumbs aria-label="Current folder"></nav>
+        <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
+        <p class="meta kit-picker-empty" data-picker-empty hidden>This folder is empty.</p>
+        <div class="actions">
+          <button type="button" data-close-modal>Cancel</button>
+          <button type="button" data-picker-select disabled>Select</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- gallery-only stub for the picker_list demo: kit.js §12 fetches data-browse-url,
+     which the file:// gallery has no server for — return a canned project listing. -->
+<script defer>
+(function () {
+  var LISTINGS = {
+    "": { path: "", parent: null, mode: "folder", entries: [
+      { name: "agents", path: "agents", type: "dir" },
+      { name: "docs", path: "docs", type: "dir" },
+      { name: "reference", path: "reference", type: "dir" }] },
+    "docs": { path: "docs", parent: "", mode: "folder", entries: [
+      { name: "adr", path: "docs/adr", type: "dir" }] }
+  };
+  var real = window.fetch;
+  window.fetch = function (url) {
+    if (typeof url === "string" && url.indexOf("/config/browse") === 0) {
+      var m = /path=([^&]*)/.exec(url);
+      var key = decodeURIComponent(m ? m[1] : "");
+      var data = LISTINGS[key] || { path: key, parent: "", mode: "folder", entries: [] };
+      return Promise.resolve(new Response(JSON.stringify(data), {
+        status: 200, headers: { "Content-Type": "application/json" } }));
+    }
+    return real ? real.apply(this, arguments) : Promise.reject(new Error("no fetch"));
+  };
+})();
+</script>
 
 <!-- the real kit behaviours (switch, secret eye, add/remove, optional-block,
      toasts, modals, kitConfirm/kitToast) -->
