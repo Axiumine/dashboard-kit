@@ -70,3 +70,17 @@ def test_gallery_block_open(page: Page, gallery_url: str, assert_screenshot: Cal
     card.locator("label.switch").first.click()
     card.locator('[data-role="enable-content"]').first.wait_for(state="visible")
     assert_screenshot(page, "gallery_block_open", locator=card)
+
+
+def test_gallery_reorder_moved(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """Opt-in reorder — move-down on the first keyed_map row DOM-swaps it below the
+    second (kit.js §3), so ``default`` and ``premium`` trade places with no save."""
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("keyed_map"))')
+    card.locator("tbody[data-rows] tr").first.locator("[data-move-down]").click()
+    # after the move the first row's id cell now reads "premium" — wait then shoot
+    page.wait_for_function(
+        "document.querySelector('.keyed-map tbody[data-rows] tr input').value === 'premium'"
+    )
+    assert_screenshot(page, "gallery_reorder_moved", locator=card)

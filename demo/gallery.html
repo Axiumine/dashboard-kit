@@ -519,23 +519,23 @@ body {
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">string_list</code><span class="demo-alt">.string-list / .chip / .chips</span><span class="demo-tag">macro · _field_macros.html</span></div>
-  <p class="demo-desc">A list of free-text values as removable chips. “+ add” clones a new chip; ✕ removes one — live.</p>
+  <p class="demo-desc">A list of free-text values as removable chips. “+ add” clones a new chip; ✕ removes one — live. Opt-in <code>reorder=True</code> adds ▲▼ to move a chip (kit.js §3, DOM-order-only).</p>
   <div class="demo-stage">
     <fieldset class="string-list" data-list="allowed_origins">
       <legend>Allowed origins</legend>
       <div class="chips" data-chips>
-        <span class="chip"><input type="text" value="https://app.example.com"><button type="button" data-remove aria-label="Remove">✕</button></span>
-        <span class="chip"><input type="text" value="https://admin.example.com"><button type="button" data-remove aria-label="Remove">✕</button></span>
+        <span class="chip"><input type="text" value="https://app.example.com"><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove aria-label="Remove">✕</button></span>
+        <span class="chip"><input type="text" value="https://admin.example.com"><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove aria-label="Remove">✕</button></span>
       </div>
       <button type="button" data-add-chip="allowed_origins">+ add</button>
-      <template data-chip-template="allowed_origins"><span class="chip"><input type="text" value=""><button type="button" data-remove aria-label="Remove">✕</button></span></template>
+      <template data-chip-template="allowed_origins"><span class="chip"><input type="text" value=""><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove aria-label="Remove">✕</button></span></template>
     </fieldset>
   </div>
 </div>
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">keyed_map</code><span class="demo-alt">.keyed-map</span><span class="demo-tag">macro · _field_macros.html</span></div>
-  <p class="demo-desc">An id-keyed table of typed sub-fields (each row has an <code>id</code> + columns). “+ add row” / ✕ live.</p>
+  <p class="demo-desc">An id-keyed table of typed sub-fields (each row has an <code>id</code> + columns). “+ add row” / ✕ live. Opt-in <code>reorder=True</code> adds ▲▼ to move a row (kit.js §3, DOM-order-only).</p>
   <div class="demo-stage">
     <fieldset class="keyed-map" data-kmap="rate_limits">
       <legend>Rate limits</legend>
@@ -546,19 +546,25 @@ body {
             <td><input type="text" value="default"></td>
             <td><input type="number" step="any" value="60"></td>
             <td><input type="number" step="any" value="10"></td>
-            <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+            <td><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+          </tr>
+          <tr class="kmap-row">
+            <td><input type="text" value="premium"></td>
+            <td><input type="number" step="any" value="600"></td>
+            <td><input type="number" step="any" value="100"></td>
+            <td><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
           </tr>
         </tbody>
       </table>
       <button type="button" data-add-row>+ add row</button>
-      <template data-row-template><tr class="kmap-row"><td><input type="text" value=""></td><td><input type="number" step="any" value=""></td><td><input type="number" step="any" value=""></td><td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+      <template data-row-template><tr class="kmap-row"><td><input type="text" value=""></td><td><input type="number" step="any" value=""></td><td><input type="number" step="any" value=""></td><td><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
     </fieldset>
   </div>
 </div>
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">object_list</code><span class="demo-alt">.object-list</span><span class="demo-tag">macro · _field_macros.html</span></div>
-  <p class="demo-desc">Like <code>keyed_map</code> but rows are anonymous objects (no id column) — an ordered list of typed records.</p>
+  <p class="demo-desc">Like <code>keyed_map</code> but rows are anonymous objects (no id column) — an ordered list of typed records. Opt-in <code>reorder=True</code> adds ▲▼ to move a row (kit.js §3, DOM-order-only).</p>
   <div class="demo-stage">
     <fieldset class="object-list" data-olist="siem.targets">
       <legend>SIEM targets</legend>
@@ -569,12 +575,18 @@ body {
             <td><input type="text" value="siem.internal"></td>
             <td><input type="number" step="any" value="514"></td>
             <td><select><option selected>udp</option><option>tcp</option></select></td>
-            <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+            <td><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+          </tr>
+          <tr class="olist-row">
+            <td><input type="text" value="archive.internal"></td>
+            <td><input type="number" step="any" value="601"></td>
+            <td><select><option>udp</option><option selected>tcp</option></select></td>
+            <td><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
           </tr>
         </tbody>
       </table>
       <button type="button" data-add-row>+ add row</button>
-      <template data-row-template><tr class="olist-row"><td><input type="text" value=""></td><td><input type="number" step="any" value=""></td><td><select><option selected>udp</option><option>tcp</option></select></td><td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+      <template data-row-template><tr class="olist-row"><td><input type="text" value=""></td><td><input type="number" step="any" value=""></td><td><select><option selected>udp</option><option>tcp</option></select></td><td><button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
     </fieldset>
   </div>
 </div>

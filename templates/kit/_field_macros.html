@@ -142,21 +142,26 @@
 {% else %}<input type="text" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">{% endif %}
 {% endmacro %}
 
-{% macro string_list(field) %}
+{# opt-in reorder controls (▲▼) — kit.js §3 data-move-up/down DOM-swap the closest
+   row/chip with its sibling. Emitted only when reorder=True, so a non-reorder
+   consumer's markup is byte-identical. Order is DOM-order-only; no wire change. #}
+{% macro _reorder_btns() %}<button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button>{% endmacro %}
+
+{% macro string_list(field, reorder=False) %}
 <fieldset class="string-list" data-list="{{ field.name }}">
   <legend>{{ field.label }}</legend>
   <input type="hidden" name="list_paths" value="{{ field.name }}">
   <div class="chips" data-chips>
     {% for item in field.items %}
-    <span class="chip"><input type="text" name="list.{{ field.name }}.item" value="{{ item }}"><button type="button" data-remove aria-label="Remove">✕</button></span>
+    <span class="chip"><input type="text" name="list.{{ field.name }}.item" value="{{ item }}">{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove aria-label="Remove">✕</button></span>
     {% endfor %}
   </div>
   <button type="button" data-add-chip="{{ field.name }}">+ add</button>
-  <template data-chip-template="{{ field.name }}"><span class="chip"><input type="text" name="list.{{ field.name }}.item" value=""><button type="button" data-remove aria-label="Remove">✕</button></span></template>
+  <template data-chip-template="{{ field.name }}"><span class="chip"><input type="text" name="list.{{ field.name }}.item" value="">{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove aria-label="Remove">✕</button></span></template>
 </fieldset>
 {% endmacro %}
 
-{% macro keyed_map(km) %}
+{% macro keyed_map(km, reorder=False) %}
 <fieldset class="keyed-map" data-kmap="{{ km.map_id }}">
   <legend>{{ km.label }}</legend>
   <table>
@@ -166,17 +171,17 @@
       <tr class="kmap-row">
         <td><input type="text" name="kmap.{{ km.map_id }}.id" value="{{ row.entry_id }}"></td>
         {% for sf in km.subfields %}<td>{{ cell("kmap." ~ km.map_id, sf, row.values[loop.index0]) }}</td>{% endfor %}
-        <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+        <td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   <button type="button" data-add-row>+ add row</button>
-  <template data-row-template><tr class="kmap-row"><td><input type="text" name="kmap.{{ km.map_id }}.id" value=""></td>{% for sf in km.subfields %}<td>{{ cell("kmap." ~ km.map_id, sf, "") }}</td>{% endfor %}<td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+  <template data-row-template><tr class="kmap-row"><td><input type="text" name="kmap.{{ km.map_id }}.id" value=""></td>{% for sf in km.subfields %}<td>{{ cell("kmap." ~ km.map_id, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
 </fieldset>
 {% endmacro %}
 
-{% macro object_list(ol) %}
+{% macro object_list(ol, reorder=False) %}
 <fieldset class="object-list" data-olist="{{ ol.path }}">
   <legend>{{ ol.label }}</legend>
   <table>
@@ -185,13 +190,13 @@
       {% for row in ol.rows %}
       <tr class="olist-row">
         {% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, row[loop.index0]) }}</td>{% endfor %}
-        <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+        <td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   <button type="button" data-add-row>+ add row</button>
-  <template data-row-template><tr class="olist-row">{% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, "") }}</td>{% endfor %}<td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+  <template data-row-template><tr class="olist-row">{% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
 </fieldset>
 {% endmacro %}
 
