@@ -94,6 +94,42 @@ def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Cal
     assert_screenshot(page, "gallery_nested_add", locator=nmap)
 
 
+def test_gallery_nol_add(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """nested_object_list interactive add — '+ add target' clones a row (fresh id
+    for __RID__, re-keying its envelope fields + nested child template), then that
+    new row's '+ add header' adds a key:value chip; kit.js §3 delegation drives
+    both with no per-consumer JS (mirrors nested_map's test_gallery_nested_add)."""
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("nested_object_list"))')
+    nol = card.locator("[data-nmap]")
+    card.locator("[data-add-row]").click()  # add a 3rd row
+    page.wait_for_function(
+        "document.querySelector('.nested-object-list > [data-rows]')"
+        ".querySelectorAll(':scope > .nol-row').length === 3"
+    )
+    # add a header chip to the freshly-added (last) row
+    nol.locator(".nol-row").last.locator("[data-add-chip]").click()
+    page.wait_for_function(
+        "document.querySelectorAll('.nested-object-list > [data-rows] > .nol-row')[2]"
+        ".querySelectorAll('[data-chips] > .chip').length === 1"
+    )
+    assert_screenshot(page, "gallery_nol_add", locator=nol)
+
+
+def test_gallery_nol_format_reveal(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """nested_object_list format-select reveal (E152-S04) — switching row 1's format
+    from splunk-hec to json hides the splunk_* cells with no group visible (kit.js
+    §13), live with no save."""
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("nested_object_list"))')
+    first = card.locator(".nol-row").first
+    first.locator("[data-format-select]").select_option("json")
+    first.locator('[data-format-group="splunk-hec"]').first.wait_for(state="hidden")
+    assert_screenshot(page, "gallery_nol_format_reveal", locator=first)
+
+
 def test_gallery_format_reveal(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """format-select reveal — changing row 1's format from splunk-hec to datadog-logs
     swaps its revealed cell live (kit.js §13), with no save."""

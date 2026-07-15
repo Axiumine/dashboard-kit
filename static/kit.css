@@ -534,14 +534,14 @@ textarea.is-invalid {
 /* ── collections: string-list / keyed-map / object-list (AR consumer) ─────── */
 /* collection fieldsets reset the UA-default groove box and adopt the same card +
    pill-legend look as .group, so they read as deliberate cards, not raw tables */
-.string-list, .keyed-map, .object-list, .nested-map {
+.string-list, .keyed-map, .object-list, .nested-map, .nested-object-list {
   margin: 0.5rem 0;
   padding: 0.85rem 1rem 1rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
-.string-list > legend, .keyed-map > legend, .object-list > legend, .nested-map > legend {
+.string-list > legend, .keyed-map > legend, .object-list > legend, .nested-map > legend, .nested-object-list > legend {
   padding: 0.15em 0.7em;
   font-size: 0.74rem;
   font-weight: 700;
@@ -669,6 +669,21 @@ textarea.is-invalid {
 .nmap-row-head { display: flex; align-items: flex-end; gap: 0.5rem; }
 .nmap-row-head > .field-line { flex: 1 1 auto; min-width: 0; margin: 0; }
 .nmap-row > .field-name { display: block; margin-top: 0.75rem; }
+
+/* nested_object_list (E153-S05): a .nol-row is ALSO a .nmap-row (same card frame
+   above) — it just lays its envelope cell() subfields out as a mini field-grid
+   before the .nmap-row > .field-name / nmap-child child list already styled above.
+   No `.field-line` display override needed: a grid item is blockified regardless
+   of its specified display, and NOT overriding it lets a hidden (E152-S04 format
+   reveal) .field-line's native `[hidden]` (UA display:none) win outright — an
+   explicit `display: block` here would out-specificity it and defeat the reveal. */
+.nested-object-list > [data-rows] { display: flex; flex-direction: column; gap: 0.7rem; }
+.nol-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 0.5rem 1.1rem;
+  margin-top: 0.5rem;
+}
 
 /* picker_list (E152-S03): explorer-picked path chips. Paths are long, so stack one
    per row (not inline-wrap) with the path filling the row and the trash flush-right. */
