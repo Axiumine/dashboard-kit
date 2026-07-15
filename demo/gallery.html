@@ -673,6 +673,96 @@ body {
 </div>
 
 <div class="demo-item">
+  <div class="demo-head"><code class="demo-name">nested_object_list</code><span class="demo-alt">.nested-object-list · multi-col row + nested key:value child</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">A multi-column collection row: several <code>cell()</code>-typed envelope fields (with the E152-S04 format-select reveal swapping visible fields by format) plus its own add/remove/reorder child list of key:value pairs — the shape DP's siem.targets (target envelope + splunk_*/dd_* format reveal + nested headers) hand-rolled app-local. “+ add target” clones a row (a fresh id replaces <code>__RID__</code>, re-keying its envelope fields and nested child template); each row's “+ add header” / ▲▼ / 🗑 drive the child list. All the generic kit.js §3/§13 delegation — no per-consumer JS.</p>
+  <div class="demo-stage">
+<fieldset class="nested-object-list" data-nmap="siem.targets">
+  <legend>SIEM export targets</legend>
+  <p class="meta">Each target owns its envelope (name/URL/format/HMAC secret) plus format-specific fields (splunk-hec vs datadog-logs, swapped live by the format select) and its own header key:value list. All driven by the generic kit.js §3/§13 delegation.</p>
+  <div data-rows>
+<fieldset class="nol-row nmap-row" data-group="siem.targets:0">
+  <input type="hidden" name="siem.targets.ids" value="0">
+  <div class="nmap-row-head">
+    <span class="field-name">Target</span>
+    <div class="icon-cluster"><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove target" aria-label="Remove target" data-remove-row><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div>
+  </div>
+  <div class="nol-fields">
+    <label class="field-line"><span class="field-name">Name</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.name" value="siem-primary"></span></label>
+    <label class="field-line"><span class="field-name">URL</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.url" value="https://siem.internal/collector"></span></label>
+    <label class="field-line"><span class="field-name">Format</span>
+      <span class="field-input"><select name="siem.targets.0.format" data-format-select><option value="json">json</option><option value="cef">cef</option><option value="splunk-hec" selected>splunk-hec</option><option value="datadog-logs">datadog-logs</option></select></span></label>
+    <label class="field-line"><span class="field-name">HMAC secret</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.hmac_secret" value="hmac-aaaa"></span></label>
+    <label class="field-line" data-format-group="splunk-hec"><span class="field-name">Splunk source</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.splunk_source" value="dp_agent"></span></label>
+    <label class="field-line" data-format-group="splunk-hec"><span class="field-name">Splunk sourcetype</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.splunk_sourcetype" value="_json"></span></label>
+    <label class="field-line" data-format-group="splunk-hec"><span class="field-name">Splunk index</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.splunk_index" value="main"></span></label>
+    <label class="field-line" data-format-group="datadog-logs" hidden><span class="field-name">DD service</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.dd_service" value=""></span></label>
+    <label class="field-line" data-format-group="datadog-logs" hidden><span class="field-name">DD source</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.dd_source" value=""></span></label>
+    <label class="field-line" data-format-group="datadog-logs" hidden><span class="field-name">DD host</span>
+      <span class="field-input"><input type="text" name="siem.targets.0.dd_host" value=""></span></label>
+  </div>
+  <span class="field-name">Headers</span>
+  <fieldset class="string-list nmap-child" data-list>
+    <ul class="chips" data-chips>
+<li class="chip"><input type="text" name="siem.targets.0.header.key" value="X-Api-Key" aria-label="key" placeholder="key"><input type="text" name="siem.targets.0.header.value" value="abc123" aria-label="value" placeholder="value"><div class="icon-cluster"><button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up" data-move-up><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button><button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down" data-move-down><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove" aria-label="Remove" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></li>
+<li class="chip"><input type="text" name="siem.targets.0.header.key" value="X-Env" aria-label="key" placeholder="key"><input type="text" name="siem.targets.0.header.value" value="prod" aria-label="value" placeholder="value"><div class="icon-cluster"><button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up" data-move-up><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button><button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down" data-move-down><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove" aria-label="Remove" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></li>
+    </ul>
+    <div class="context-add"><button type="button" data-add-chip>+ add header</button></div>
+    <template data-chip-template><li class="chip"><input type="text" name="siem.targets.0.header.key" value="" aria-label="key" placeholder="key"><input type="text" name="siem.targets.0.header.value" value="" aria-label="value" placeholder="value"><div class="icon-cluster"><button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up" data-move-up><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button><button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down" data-move-down><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove" aria-label="Remove" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></li></template>
+  </fieldset>
+</fieldset>
+<fieldset class="nol-row nmap-row" data-group="siem.targets:1">
+  <input type="hidden" name="siem.targets.ids" value="1">
+  <div class="nmap-row-head">
+    <span class="field-name">Target</span>
+    <div class="icon-cluster"><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove target" aria-label="Remove target" data-remove-row><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div>
+  </div>
+  <div class="nol-fields">
+    <label class="field-line"><span class="field-name">Name</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.name" value="siem-secondary"></span></label>
+    <label class="field-line"><span class="field-name">URL</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.url" value="https://dd.internal/logs"></span></label>
+    <label class="field-line"><span class="field-name">Format</span>
+      <span class="field-input"><select name="siem.targets.1.format" data-format-select><option value="json">json</option><option value="cef">cef</option><option value="splunk-hec">splunk-hec</option><option value="datadog-logs" selected>datadog-logs</option></select></span></label>
+    <label class="field-line"><span class="field-name">HMAC secret</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.hmac_secret" value="hmac-bbbb"></span></label>
+    <label class="field-line" data-format-group="splunk-hec" hidden><span class="field-name">Splunk source</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.splunk_source" value=""></span></label>
+    <label class="field-line" data-format-group="splunk-hec" hidden><span class="field-name">Splunk sourcetype</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.splunk_sourcetype" value=""></span></label>
+    <label class="field-line" data-format-group="splunk-hec" hidden><span class="field-name">Splunk index</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.splunk_index" value=""></span></label>
+    <label class="field-line" data-format-group="datadog-logs"><span class="field-name">DD service</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.dd_service" value="agents-router"></span></label>
+    <label class="field-line" data-format-group="datadog-logs"><span class="field-name">DD source</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.dd_source" value="agent-heartbeat"></span></label>
+    <label class="field-line" data-format-group="datadog-logs"><span class="field-name">DD host</span>
+      <span class="field-input"><input type="text" name="siem.targets.1.dd_host" value="dp-01"></span></label>
+  </div>
+  <span class="field-name">Headers</span>
+  <fieldset class="string-list nmap-child" data-list>
+    <ul class="chips" data-chips>
+<li class="chip"><input type="text" name="siem.targets.1.header.key" value="DD-API-KEY" aria-label="key" placeholder="key"><input type="text" name="siem.targets.1.header.value" value="dd-9f2c" aria-label="value" placeholder="value"><div class="icon-cluster"><button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up" data-move-up><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button><button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down" data-move-down><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove" aria-label="Remove" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></li>
+    </ul>
+    <div class="context-add"><button type="button" data-add-chip>+ add header</button></div>
+    <template data-chip-template><li class="chip"><input type="text" name="siem.targets.1.header.key" value="" aria-label="key" placeholder="key"><input type="text" name="siem.targets.1.header.value" value="" aria-label="value" placeholder="value"><div class="icon-cluster"><button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up" data-move-up><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button><button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down" data-move-down><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove" aria-label="Remove" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></li></template>
+  </fieldset>
+</fieldset>
+  </div>
+  <div class="context-add"><button type="button" data-add-row>+ add target</button></div>
+  <template data-row-template><fieldset class="nol-row nmap-row" data-group="siem.targets:__RID__"><input type="hidden" name="siem.targets.ids" value="__RID__"><div class="nmap-row-head"><span class="field-name">Target</span><div class="icon-cluster"><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove target" aria-label="Remove target" data-remove-row><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></div><div class="nol-fields"><label class="field-line"><span class="field-name">Name</span><span class="field-input"><input type="text" name="siem.targets.__RID__.name" value=""></span></label><label class="field-line"><span class="field-name">URL</span><span class="field-input"><input type="text" name="siem.targets.__RID__.url" value=""></span></label><label class="field-line"><span class="field-name">Format</span><span class="field-input"><select name="siem.targets.__RID__.format" data-format-select><option value="json">json</option><option value="cef">cef</option><option value="splunk-hec">splunk-hec</option><option value="datadog-logs">datadog-logs</option></select></span></label><label class="field-line"><span class="field-name">HMAC secret</span><span class="field-input"><input type="text" name="siem.targets.__RID__.hmac_secret" value=""></span></label><label class="field-line" data-format-group="splunk-hec" hidden><span class="field-name">Splunk source</span><span class="field-input"><input type="text" name="siem.targets.__RID__.splunk_source" value=""></span></label><label class="field-line" data-format-group="splunk-hec" hidden><span class="field-name">Splunk sourcetype</span><span class="field-input"><input type="text" name="siem.targets.__RID__.splunk_sourcetype" value=""></span></label><label class="field-line" data-format-group="splunk-hec" hidden><span class="field-name">Splunk index</span><span class="field-input"><input type="text" name="siem.targets.__RID__.splunk_index" value=""></span></label><label class="field-line" data-format-group="datadog-logs" hidden><span class="field-name">DD service</span><span class="field-input"><input type="text" name="siem.targets.__RID__.dd_service" value=""></span></label><label class="field-line" data-format-group="datadog-logs" hidden><span class="field-name">DD source</span><span class="field-input"><input type="text" name="siem.targets.__RID__.dd_source" value=""></span></label><label class="field-line" data-format-group="datadog-logs" hidden><span class="field-name">DD host</span><span class="field-input"><input type="text" name="siem.targets.__RID__.dd_host" value=""></span></label></div><span class="field-name">Headers</span><fieldset class="string-list nmap-child" data-list><ul class="chips" data-chips></ul><div class="context-add"><button type="button" data-add-chip>+ add header</button></div><template data-chip-template><li class="chip"><input type="text" name="siem.targets.__RID__.header.key" value="" aria-label="key" placeholder="key"><input type="text" name="siem.targets.__RID__.header.value" value="" aria-label="value" placeholder="value"><div class="icon-cluster"><button type="button" class="icon-btn" data-action="up" title="Move up" aria-label="Move up" data-move-up><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button><button type="button" class="icon-btn" data-action="down" title="Move down" aria-label="Move down" data-move-down><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button type="button" class="icon-btn trash danger" data-action="delete" title="Remove" aria-label="Remove" data-remove><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></li></template></fieldset></fieldset></template>
+</fieldset>
+  </div>
+</div>
+
+<div class="demo-item">
   <div class="demo-head"><code class="demo-name">toggle_block</code><span class="demo-alt">.optional-block · “the box”</span><span class="demo-tag">macro · _field_macros.html</span></div>
   <p class="demo-desc">A switch-header card: a title + an always-visible enable switch. ALL its content stays inside the box and reveals only when ticked — toggle the switch to see it. Widths: <code>data-span</code> 2 (1×) · 3 (1.5×) · 4 (2×).</p>
   <div class="demo-stage">

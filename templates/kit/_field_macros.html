@@ -299,3 +299,68 @@
   </div>
 </div>
 {% endmacro %}
+
+{# ---- nested object-list (E153-S05): a multi-column row that OWNS a nested
+   KEY:VALUE child collection + per-row format-select reveal ------------------
+
+   nested_object_list(nol) renders a positional list where EVERY row carries
+   several cell()-typed envelope subfields (with the E152-S04 format-select
+   reveal) AND its own add/remove/reorder child list of KEY:VALUE pairs — the
+   shape DP's siem.targets (target envelope + splunk_*/dd_* format reveal +
+   nested headers) hand-rolled app-local. Pure kit.js §3 delegation, no new
+   handler: parent add = data-add-row on [data-nmap] (__RID__ → fresh id on
+   clone, which also re-keys the row's nested child <template>); child
+   add/remove/reorder reuse the flat [data-add-chip]/[data-remove]/data-move-*
+   handlers (the child fieldset is itself a [data-list]); the row carries
+   .nmap-row so §3 remove-row and §13 format-select scoping both resolve to it.
+
+   Wire (nmap-family, index/DOM-order aligned; the <prefix>_form sentinel is
+   emitted by the CONSUMER template, matching list_form/kmap_form/olist_form):
+     <prefix>.ids                     one hidden per row = its rid (order source)
+     <prefix>.<rid>.<subfield.key>    each envelope cell (via cell())
+     <prefix>.<rid>.<child.key>.key   } one per child pair, DOM order
+     <prefix>.<rid>.<child.key>.value }
+   `nol` fields: prefix, label, hint, add_label; subfields (cell() specs — a
+   kind="format-select" one drives the reveal, grouped cells carry `group`);
+   child = {key, singular, label, key_label, val_label};
+   rows = [{values:[…aligned to subfields…], pairs:[(k,v)…]}]. #}
+{% macro _nol_pair(prefix, rid, child, k, v) %}
+<li class="chip"><input type="text" name="{{ prefix }}.{{ rid }}.{{ child.key }}.key" value="{{ k }}" aria-label="{{ child.key_label }}" placeholder="{{ child.key_label }}"><input type="text" name="{{ prefix }}.{{ rid }}.{{ child.key }}.value" value="{{ v }}" aria-label="{{ child.val_label }}" placeholder="{{ child.val_label }}">{% call icon_cluster() %}{{ icon_button("up", "Move up", extra_attrs="data-move-up") }}{{ icon_button("down", "Move down", extra_attrs="data-move-down") }}{{ icon_button("delete", "Remove", extra_attrs="data-remove") }}{% endcall %}</li>
+{% endmacro %}
+
+{% macro _nol_row(nol, rid, values, pairs) %}
+{% set current = _fmt(nol.subfields, values) %}
+<fieldset class="nol-row nmap-row" data-group="{{ nol.prefix }}:{{ rid }}">
+  <input type="hidden" name="{{ nol.prefix }}.ids" value="{{ rid }}">
+  <div class="nmap-row-head">
+    <span class="field-name">{{ nol.add_label | capitalize }}</span>
+    {% call icon_cluster() %}{{ icon_button("delete", "Remove " ~ nol.add_label, extra_attrs="data-remove-row") }}{% endcall %}
+  </div>
+  <div class="nol-fields">
+    {% for sf in nol.subfields %}
+    <label class="field-line"{{ _grp(sf, current) }}><span class="field-name">{{ sf.label }}</span>
+      <span class="field-input">{{ cell(nol.prefix ~ "." ~ rid, sf, values[loop.index0]) }}</span></label>
+    {% endfor %}
+  </div>
+  <span class="field-name">{{ nol.child.label }}</span>
+  <fieldset class="string-list nmap-child" data-list>
+    <ul class="chips" data-chips>
+      {% for k, v in pairs %}{{ _nol_pair(nol.prefix, rid, nol.child, k, v) }}{% endfor %}
+    </ul>
+    <div class="context-add"><button type="button" data-add-chip>+ add {{ nol.child.singular }}</button></div>
+    <template data-chip-template>{{ _nol_pair(nol.prefix, rid, nol.child, '', '') }}</template>
+  </fieldset>
+</fieldset>
+{% endmacro %}
+
+{% macro nested_object_list(nol) %}
+<fieldset class="nested-object-list" data-nmap="{{ nol.prefix }}">
+  {% if nol.label %}<legend>{{ nol.label }}</legend>{% endif %}
+  {% if nol.hint %}<p class="meta">{{ nol.hint }}</p>{% endif %}
+  <div data-rows>
+    {% for row in nol.rows %}{{ _nol_row(nol, loop.index0, row.values, row.pairs) }}{% endfor %}
+  </div>
+  <div class="context-add"><button type="button" data-add-row>+ add {{ nol.add_label }}</button></div>
+  <template data-row-template>{% set blanks = [] %}{% for sf in nol.subfields %}{% set _ = blanks.append('') %}{% endfor %}{{ _nol_row(nol, '__RID__', blanks, []) }}</template>
+</fieldset>
+{% endmacro %}
