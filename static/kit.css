@@ -681,6 +681,14 @@ textarea.is-invalid {
   font-size: 0.85rem;
 }
 
+/* format-select reveal (E152-S04): a row cell tagged data-format-group shows only
+   when its value matches the row's [data-format-select] (kit.js §13 sets `hidden`).
+   Keep a hidden group cell IN the table layout (blanked, not removed) so the shared
+   <thead> columns never go ragged and the row's other cells don't shift left under
+   the wrong header. The control still posts — a hidden format's cell is an ordinary
+   cell on the wire. */
+td[data-format-group][hidden] { display: table-cell; visibility: hidden; }
+
 /* ── tables (keyed-map / object-list grids; DP roster overrides app-side) ─── */
 table {
   width: 100%;

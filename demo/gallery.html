@@ -592,6 +592,37 @@ body {
 </div>
 
 <div class="demo-item">
+  <div class="demo-head"><code class="demo-name">format-select reveal</code><span class="demo-alt">object_list · data-format-select / data-format-group</span><span class="demo-tag">kit.js §13</span></div>
+  <p class="demo-desc">A collection row where one cell picks a format and reveals only that format’s fields — the matching group shows at first paint (server-driven, no flash-then-hide) and changing the select toggles live. A row added via “+ add row” is synced on clone (no save-to-reveal). Change a row’s format to swap its revealed field.</p>
+  <div class="demo-stage">
+    <fieldset class="object-list" data-olist="siem.targets">
+      <legend>SIEM targets</legend>
+      <table>
+        <thead><tr><th>host</th><th>format</th><th>HEC token</th><th>DD API key</th><th></th></tr></thead>
+        <tbody data-rows>
+          <tr class="olist-row">
+            <td><input type="text" value="siem.internal"></td>
+            <td><select data-format-select><option value="splunk-hec" selected>splunk-hec</option><option value="datadog-logs">datadog-logs</option></select></td>
+            <td data-format-group="splunk-hec"><input type="text" value="hec-xxxx"></td>
+            <td data-format-group="datadog-logs" hidden><input type="text" value=""></td>
+            <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+          </tr>
+          <tr class="olist-row">
+            <td><input type="text" value="dd.internal"></td>
+            <td><select data-format-select><option value="splunk-hec">splunk-hec</option><option value="datadog-logs" selected>datadog-logs</option></select></td>
+            <td data-format-group="splunk-hec" hidden><input type="text" value=""></td>
+            <td data-format-group="datadog-logs"><input type="text" value="dd-yyyy"></td>
+            <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" data-add-row>+ add row</button>
+      <template data-row-template><tr class="olist-row"><td><input type="text" value=""></td><td><select data-format-select><option value="splunk-hec">splunk-hec</option><option value="datadog-logs">datadog-logs</option></select></td><td data-format-group="splunk-hec" hidden><input type="text" value=""></td><td data-format-group="datadog-logs" hidden><input type="text" value=""></td><td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+    </fieldset>
+  </div>
+</div>
+
+<div class="demo-item">
   <div class="demo-head"><code class="demo-name">nested_map</code><span class="demo-alt">.nested-map · row owns a child list</span><span class="demo-tag">macro · _field_macros.html</span></div>
   <p class="demo-desc">A keyed collection whose every parent row owns its own add/remove/reorder child list — the shape DP's custom_schemas (stem → required sections) hand-rolled app-local. “+ add Doc stem” clones a parent row (a fresh id replaces <code>__RID__</code>, re-keying its nested child template); each row’s “+ add section” / ▲▼ / 🗑 drive the child list. All the generic kit.js §3 delegation — no per-consumer JS.</p>
   <div class="demo-stage">
