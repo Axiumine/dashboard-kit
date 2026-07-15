@@ -147,7 +147,7 @@
     }
   });
 
-  // ── 3. Generic add/remove rows via <template> clone ───────────────────────
+  // ── 3. Generic add/remove/reorder rows via <template> clone ───────────────
   //   [data-add-chip]    → clones [data-chip-template]    into [data-chips]
   //                         within closest [data-list]
   //   [data-add-row]     → clones [data-row-template]     into [data-rows]
@@ -155,6 +155,11 @@
   //   [data-add-backend] → clones [data-backend-template] into [data-backend-rows]
   //                         within closest [data-backend-add]
   //   [data-remove] / [data-remove-row] → removes closest tr, .chip, .backend-new
+  //   [data-move-up] / [data-move-down] → DOM-swaps the closest tr/.chip with its
+  //                         previous/next element sibling (opt-in reorder=True on
+  //                         the collection macros). Order is DOM-order-only — the
+  //                         index-aligned wire format needs no change; boundary
+  //                         moves (first-up / last-down) are silent no-ops.
   function cloneInto(template, container) {
     if (template && container) {
       container.appendChild(template.content.cloneNode(true));
@@ -197,6 +202,22 @@
           editor.querySelector("[data-backend-rows]")
         );
       }
+      return;
+    }
+
+    var moveUp = target.closest("[data-move-up]");
+    if (moveUp) {
+      var upRow = moveUp.closest("tr, .chip");
+      var prev = upRow && upRow.previousElementSibling;
+      if (prev) upRow.parentNode.insertBefore(upRow, prev);
+      return;
+    }
+
+    var moveDown = target.closest("[data-move-down]");
+    if (moveDown) {
+      var downRow = moveDown.closest("tr, .chip");
+      var next = downRow && downRow.nextElementSibling;
+      if (next) downRow.parentNode.insertBefore(next, downRow);
       return;
     }
 
