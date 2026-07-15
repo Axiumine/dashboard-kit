@@ -151,7 +151,8 @@
   //   [data-add-chip]    → clones [data-chip-template]    into [data-chips]
   //                         within closest [data-list]
   //   [data-add-row]     → clones [data-row-template]     into [data-rows]
-  //                         within closest [data-kmap] or [data-olist]
+  //                         within closest [data-kmap], [data-olist] or [data-nmap]
+  //                         (nested_map parent row: __RID__ → fresh id on clone)
   //   [data-add-backend] → clones [data-backend-template] into [data-backend-rows]
   //                         within closest [data-backend-add]
   //   [data-remove] / [data-remove-row] → removes closest tr, .chip, .backend-new
@@ -163,6 +164,23 @@
   function cloneInto(template, container) {
     if (template && container) {
       container.appendChild(template.content.cloneNode(true));
+    }
+  }
+
+  // add-row clone. A flat kmap/olist row template is a plain fragment clone. A
+  // nested_map (E152-S02) parent-row template carries the token __RID__ in every
+  // per-row field name (and inside its nested child <template>); substitute one
+  // fresh unique id across the whole clone so the new row — and its child list —
+  // post under their own rid. String-replace via innerHTML reaches the nested
+  // template too (a fragment clone would not); flat rows have no token → identical.
+  var rowSeq = 0;
+  function addRowInto(template, container) {
+    if (!template || !container) return;
+    var html = template.innerHTML;
+    if (html.indexOf("__RID__") !== -1) {
+      container.insertAdjacentHTML("beforeend", html.replace(/__RID__/g, "r" + rowSeq++));
+    } else {
+      cloneInto(template, container);
     }
   }
 
@@ -183,9 +201,9 @@
 
     var addRow = target.closest("[data-add-row]");
     if (addRow) {
-      var collection = addRow.closest("[data-kmap], [data-olist]");
+      var collection = addRow.closest("[data-kmap], [data-olist], [data-nmap]");
       if (collection) {
-        cloneInto(
+        addRowInto(
           collection.querySelector("[data-row-template]"),
           collection.querySelector("[data-rows]")
         );
@@ -223,7 +241,7 @@
 
     var remove = target.closest("[data-remove], [data-remove-row]");
     if (remove) {
-      var row = remove.closest("tr, .chip, .backend-new");
+      var row = remove.closest("tr, .chip, .backend-new, .nmap-row");
       if (row) row.remove();
     }
   });
