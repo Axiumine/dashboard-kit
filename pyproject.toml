@@ -26,3 +26,11 @@ package = false
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+# Mirror both consumers' ruff (AGENTS-ROUTER + DEVPROTOCOL) so the dev-only test
+# suite formats identically to how their pre-commit gates check this vendored
+# submodule — otherwise a `ruff format` run here (default line-length 88) drifts
+# against their line-length 100 and blocks their pin-bump commits.
+[tool.ruff]
+line-length = 100
+target-version = "py313"
