@@ -23,14 +23,18 @@ def _settle(page: Page) -> None:
     page.evaluate("document.fonts && document.fonts.ready")
 
 
-def test_gallery_full(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_full(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """The whole gallery — every kit component rendered by the real kit.css."""
     page.goto(gallery_url)
     _settle(page)
     assert_screenshot(page, "gallery_full")
 
 
-def test_gallery_toast_error(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_toast_error(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """Sticky error toast — spawnToast into #toast-host with no auto-dismiss timer."""
     page.goto(gallery_url)
     _settle(page)
@@ -40,7 +44,9 @@ def test_gallery_toast_error(page: Page, gallery_url: str, assert_screenshot: Ca
     assert_screenshot(page, "gallery_toast_error", locator=toast)
 
 
-def test_gallery_confirm_danger(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_confirm_danger(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """kitConfirm danger dialog — native <dialog> built on demand, red confirm button."""
     page.goto(gallery_url)
     _settle(page)
@@ -50,7 +56,9 @@ def test_gallery_confirm_danger(page: Page, gallery_url: str, assert_screenshot:
     assert_screenshot(page, "gallery_confirm_danger", locator=dialog)
 
 
-def test_gallery_secret_shown(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_secret_shown(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """Secret field revealed — the eye toggle flips its input password → text."""
     page.goto(gallery_url)
     _settle(page)
@@ -61,7 +69,9 @@ def test_gallery_secret_shown(page: Page, gallery_url: str, assert_screenshot: C
     assert_screenshot(page, "gallery_secret_shown", locator=card)
 
 
-def test_gallery_block_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_block_open(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """optional-block expanded — ticking the enable switch reveals its content."""
     page.goto(gallery_url)
     _settle(page)
@@ -72,7 +82,9 @@ def test_gallery_block_open(page: Page, gallery_url: str, assert_screenshot: Cal
     assert_screenshot(page, "gallery_block_open", locator=card)
 
 
-def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_nested_add(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """nested_map interactive add — '+ add Doc stem' clones a parent row (fresh id
     for __RID__), then that new row's '+ add section' adds a child chip; kit.js §3
     delegation drives both with no per-consumer JS."""
@@ -80,13 +92,13 @@ def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Cal
     _settle(page)
     card = page.locator('.demo-item:has(code.demo-name:text-is("nested_map"))')
     nmap = card.locator("[data-nmap]")
-    card.locator('[data-add-row]').click()  # add a 3rd parent row
+    card.locator("[data-add-row]").click()  # add a 3rd parent row
     page.wait_for_function(
         "document.querySelector('[data-nmap] > [data-rows]')"
         ".querySelectorAll(':scope > .nmap-row').length === 3"
     )
     # add a child section to the freshly-added (last) parent row
-    nmap.locator(".nmap-row").last.locator('[data-add-chip]').click()
+    nmap.locator(".nmap-row").last.locator("[data-add-chip]").click()
     page.wait_for_function(
         "document.querySelectorAll('[data-nmap] > [data-rows] > .nmap-row')[2]"
         ".querySelectorAll('[data-chips] > .chip').length === 1"
@@ -94,7 +106,9 @@ def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Cal
     assert_screenshot(page, "gallery_nested_add", locator=nmap)
 
 
-def test_gallery_reorder_moved(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_reorder_moved(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """Opt-in reorder — move-down on the first keyed_map row DOM-swaps it below the
     second (kit.js §3), so ``default`` and ``premium`` trade places with no save."""
     page.goto(gallery_url)
