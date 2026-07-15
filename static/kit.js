@@ -175,13 +175,14 @@
   // template too (a fragment clone would not); flat rows have no token → identical.
   var rowSeq = 0;
   function addRowInto(template, container) {
-    if (!template || !container) return;
+    if (!template || !container) return null;
     var html = template.innerHTML;
     if (html.indexOf("__RID__") !== -1) {
       container.insertAdjacentHTML("beforeend", html.replace(/__RID__/g, "r" + rowSeq++));
     } else {
       cloneInto(template, container);
     }
+    return container.lastElementChild;   // the freshly-added row (for a post-add sync)
   }
 
   document.addEventListener("click", function (e) {
@@ -203,10 +204,11 @@
     if (addRow) {
       var collection = addRow.closest("[data-kmap], [data-olist], [data-nmap]");
       if (collection) {
-        addRowInto(
+        var added = addRowInto(
           collection.querySelector("[data-row-template]"),
           collection.querySelector("[data-rows]")
         );
+        syncFormatRow(added);   // §13: reveal the new row's default group now, not after a save
       }
       return;
     }
@@ -827,6 +829,33 @@
   }
 
   document.querySelectorAll(".kit-picker[data-kit-picker]").forEach(wirePicker);
+
+  // ── 13. Per-row format-select reveal (E152-S04) ───────────────────────────
+  //   A collection row can carry a [data-format-select] (the kit cell kind
+  //   "format-select") whose value reveals a scoped subset of that same row's cells:
+  //   each grouped cell is [data-format-group="<value>"] and shows only when it
+  //   matches the select. First paint is server-driven (the macro renders the
+  //   matching group visible, the rest hidden — no flash-then-hide); this syncs on
+  //   every change and, via §3's add-row hook, immediately on a freshly cloned row,
+  //   so a chosen format never leaves a required field unseen behind a save ("No
+  //   save-to-reveal. Ever." — DP CLAUDE.md). No wire change: every cell posts as
+  //   an ordinary kmap/olist cell whether shown or hidden.
+  function syncFormatSelect(sel) {
+    var row = sel.closest("tr, .nmap-row");
+    if (!row) return;
+    row.querySelectorAll("[data-format-group]").forEach(function (g) {
+      g.hidden = g.getAttribute("data-format-group") !== sel.value;
+    });
+  }
+  function syncFormatRow(row) {
+    if (!row || !row.querySelectorAll) return;
+    row.querySelectorAll("[data-format-select]").forEach(syncFormatSelect);
+  }
+  document.querySelectorAll("[data-format-select]").forEach(syncFormatSelect);
+  document.addEventListener("change", function (e) {
+    var sel = e.target.closest("[data-format-select]");
+    if (sel) syncFormatSelect(sel);
+  });
 
   // Supported programmatic surface for app scripts — the IIFE keeps everything
   // else private. kitToast mirrors §6 so pages stop hand-rolling toast nodes.

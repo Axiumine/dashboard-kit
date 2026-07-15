@@ -94,6 +94,22 @@ def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Cal
     assert_screenshot(page, "gallery_nested_add", locator=nmap)
 
 
+def test_gallery_format_reveal(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """format-select reveal — changing row 1's format from splunk-hec to datadog-logs
+    swaps its revealed cell live (kit.js §13), with no save."""
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("format-select reveal"))')
+    first = card.locator("tbody[data-rows] tr").first
+    first.locator("[data-format-select]").select_option("datadog-logs")
+    # the datadog cell becomes visible, the splunk cell hides — assert then shoot
+    first.locator('[data-format-group="datadog-logs"]').wait_for(state="visible")
+    page.wait_for_function(
+        "document.querySelector('[data-olist] tbody tr [data-format-group=\"splunk-hec\"]').hidden === true"
+    )
+    assert_screenshot(page, "gallery_format_reveal", locator=card.locator("[data-olist]"))
+
+
 def test_gallery_picker_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """picker_list open state — '+ Add folder' opens the kit_driven folderPicker and
     kit.js §12 loads the (gallery-stubbed) /config/browse listing into it."""

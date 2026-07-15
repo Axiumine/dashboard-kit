@@ -139,6 +139,7 @@
 {# one keyed-map / object-list table cell, typed by subfield kind #}
 {% macro cell(prefix, sf, value) %}
 {% if sf.kind == "enum" %}<select name="{{ prefix }}.{{ sf.key }}">{% for option in sf.options %}<option value="{{ option }}" {% if option == value %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+{% elif sf.kind == "format-select" %}<select name="{{ prefix }}.{{ sf.key }}" data-format-select>{% for option in sf.options %}<option value="{{ option }}" {% if option == value %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
 {% elif sf.kind == "number" %}<input type="number" step="any" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
 {% elif sf.kind == "date" %}<input type="date" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}">
 {% elif sf.kind == "datetime" %}<input type="datetime-local" step="1" value="{{ value }}" data-utc-local title="Shown in your local time — saved as UTC"><input type="hidden" name="{{ prefix }}.{{ sf.key }}" value="{{ value }}" data-utc-value>
@@ -149,6 +150,15 @@
    row/chip with its sibling. Emitted only when reorder=True, so a non-reorder
    consumer's markup is byte-identical. Order is DOM-order-only; no wire change. #}
 {% macro _reorder_btns() %}<button type="button" data-move-up aria-label="Move up">▲</button><button type="button" data-move-down aria-label="Move down">▼</button>{% endmacro %}
+
+{# format-select reveal (E152-S04): a row's current format value = the value of its
+   kind="format-select" subfield (empty when the row has none). #}
+{% macro _fmt(subfields, values) %}{% set ns = namespace(v='') %}{% for sf in subfields %}{% if sf.kind == 'format-select' %}{% set ns.v = values[loop.index0] %}{% endif %}{% endfor %}{{ ns.v }}{% endmacro %}
+
+{# the reveal attribute for one cell: ` data-format-group="<value>"` (+ `hidden` when
+   the row's current format ≠ that group) for a grouped subfield, else empty — so a
+   cell with no `group` renders byte-identically to before. kit.js §13 toggles it. #}
+{% macro _grp(sf, current) %}{% if sf.group is defined and sf.group %} data-format-group="{{ sf.group }}"{% if sf.group != current %} hidden{% endif %}{% endif %}{% endmacro %}
 
 {% macro string_list(field, reorder=False) %}
 <fieldset class="string-list" data-list="{{ field.name }}">
@@ -173,14 +183,14 @@
       {% for row in km.rows %}
       <tr class="kmap-row">
         <td><input type="text" name="kmap.{{ km.map_id }}.id" value="{{ row.entry_id }}"></td>
-        {% for sf in km.subfields %}<td>{{ cell("kmap." ~ km.map_id, sf, row.values[loop.index0]) }}</td>{% endfor %}
+        {% for sf in km.subfields %}<td{{ _grp(sf, _fmt(km.subfields, row.values)) }}>{{ cell("kmap." ~ km.map_id, sf, row.values[loop.index0]) }}</td>{% endfor %}
         <td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   <button type="button" data-add-row>+ add row</button>
-  <template data-row-template><tr class="kmap-row"><td><input type="text" name="kmap.{{ km.map_id }}.id" value=""></td>{% for sf in km.subfields %}<td>{{ cell("kmap." ~ km.map_id, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+  <template data-row-template><tr class="kmap-row"><td><input type="text" name="kmap.{{ km.map_id }}.id" value=""></td>{% for sf in km.subfields %}<td{{ _grp(sf, '') }}>{{ cell("kmap." ~ km.map_id, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
 </fieldset>
 {% endmacro %}
 
@@ -192,14 +202,14 @@
     <tbody data-rows>
       {% for row in ol.rows %}
       <tr class="olist-row">
-        {% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, row[loop.index0]) }}</td>{% endfor %}
+        {% for sf in ol.subfields %}<td{{ _grp(sf, _fmt(ol.subfields, row)) }}>{{ cell("olist." ~ ol.path, sf, row[loop.index0]) }}</td>{% endfor %}
         <td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   <button type="button" data-add-row>+ add row</button>
-  <template data-row-template><tr class="olist-row">{% for sf in ol.subfields %}<td>{{ cell("olist." ~ ol.path, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+  <template data-row-template><tr class="olist-row">{% for sf in ol.subfields %}<td{{ _grp(sf, '') }}>{{ cell("olist." ~ ol.path, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
 </fieldset>
 {% endmacro %}
 
