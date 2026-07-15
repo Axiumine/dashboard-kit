@@ -23,18 +23,14 @@ def _settle(page: Page) -> None:
     page.evaluate("document.fonts && document.fonts.ready")
 
 
-def test_gallery_full(
-    page: Page, gallery_url: str, assert_screenshot: Callable
-) -> None:
+def test_gallery_full(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """The whole gallery — every kit component rendered by the real kit.css."""
     page.goto(gallery_url)
     _settle(page)
     assert_screenshot(page, "gallery_full")
 
 
-def test_gallery_toast_error(
-    page: Page, gallery_url: str, assert_screenshot: Callable
-) -> None:
+def test_gallery_toast_error(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """Sticky error toast — spawnToast into #toast-host with no auto-dismiss timer."""
     page.goto(gallery_url)
     _settle(page)
@@ -44,9 +40,7 @@ def test_gallery_toast_error(
     assert_screenshot(page, "gallery_toast_error", locator=toast)
 
 
-def test_gallery_confirm_danger(
-    page: Page, gallery_url: str, assert_screenshot: Callable
-) -> None:
+def test_gallery_confirm_danger(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """kitConfirm danger dialog — native <dialog> built on demand, red confirm button."""
     page.goto(gallery_url)
     _settle(page)
@@ -56,9 +50,7 @@ def test_gallery_confirm_danger(
     assert_screenshot(page, "gallery_confirm_danger", locator=dialog)
 
 
-def test_gallery_secret_shown(
-    page: Page, gallery_url: str, assert_screenshot: Callable
-) -> None:
+def test_gallery_secret_shown(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """Secret field revealed — the eye toggle flips its input password → text."""
     page.goto(gallery_url)
     _settle(page)
@@ -69,9 +61,7 @@ def test_gallery_secret_shown(
     assert_screenshot(page, "gallery_secret_shown", locator=card)
 
 
-def test_gallery_block_open(
-    page: Page, gallery_url: str, assert_screenshot: Callable
-) -> None:
+def test_gallery_block_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """optional-block expanded — ticking the enable switch reveals its content."""
     page.goto(gallery_url)
     _settle(page)
@@ -82,9 +72,7 @@ def test_gallery_block_open(
     assert_screenshot(page, "gallery_block_open", locator=card)
 
 
-def test_gallery_nested_add(
-    page: Page, gallery_url: str, assert_screenshot: Callable
-) -> None:
+def test_gallery_nested_add(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """nested_map interactive add — '+ add Doc stem' clones a parent row (fresh id
     for __RID__), then that new row's '+ add section' adds a child chip; kit.js §3
     delegation drives both with no per-consumer JS."""
@@ -106,9 +94,7 @@ def test_gallery_nested_add(
     assert_screenshot(page, "gallery_nested_add", locator=nmap)
 
 
-def test_gallery_reorder_moved(
-    page: Page, gallery_url: str, assert_screenshot: Callable
-) -> None:
+def test_gallery_reorder_moved(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """Opt-in reorder — move-down on the first keyed_map row DOM-swaps it below the
     second (kit.js §3), so ``default`` and ``premium`` trade places with no save."""
     page.goto(gallery_url)
