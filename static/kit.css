@@ -670,6 +670,17 @@ textarea.is-invalid {
 .nmap-row-head > .field-line { flex: 1 1 auto; min-width: 0; margin: 0; }
 .nmap-row > .field-name { display: block; margin-top: 0.75rem; }
 
+/* picker_list (E152-S03): explorer-picked path chips. Paths are long, so stack one
+   per row (not inline-wrap) with the path filling the row and the trash flush-right. */
+.picker-list .chips { flex-direction: column; align-items: stretch; }
+.picker-list .picker-chip { justify-content: space-between; }
+.picker-list .picker-chip > .ref-path {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+
 /* ── tables (keyed-map / object-list grids; DP roster overrides app-side) ─── */
 table {
   width: 100%;
