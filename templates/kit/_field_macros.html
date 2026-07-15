@@ -247,7 +247,9 @@
 
 {% macro nested_map(nm) %}
 <fieldset class="nested-map" data-nmap="{{ nm.prefix }}">
-  <legend>{{ nm.label }}</legend>
+  {# legend omitted when label is falsy — a consumer whose card head already names
+     the block (e.g. DP's optional-block) passes label='' to avoid a redundant title #}
+  {% if nm.label %}<legend>{{ nm.label }}</legend>{% endif %}
   {% if nm.hint %}<p class="meta">{{ nm.hint }}</p>{% endif %}
   <div data-rows>
     {% for row in nm.rows %}{{ _nmap_row(nm, loop.index0, row[0], row[1]) }}{% endfor %}
