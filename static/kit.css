@@ -534,14 +534,14 @@ textarea.is-invalid {
 /* ── collections: string-list / keyed-map / object-list (AR consumer) ─────── */
 /* collection fieldsets reset the UA-default groove box and adopt the same card +
    pill-legend look as .group, so they read as deliberate cards, not raw tables */
-.string-list, .keyed-map, .object-list {
+.string-list, .keyed-map, .object-list, .nested-map {
   margin: 0.5rem 0;
   padding: 0.85rem 1rem 1rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
-.string-list > legend, .keyed-map > legend, .object-list > legend {
+.string-list > legend, .keyed-map > legend, .object-list > legend, .nested-map > legend {
   padding: 0.15em 0.7em;
   font-size: 0.74rem;
   font-weight: 700;
@@ -579,7 +579,8 @@ textarea.is-invalid {
    its legend demotes to a plain caption, and the table scrolls rather than busts. */
 .optional-block .keyed-map,
 .optional-block .string-list,
-.optional-block .object-list {
+.optional-block .object-list,
+.optional-block .nested-map {
   margin: 0;
   padding: 0;
   border: 0;
@@ -588,7 +589,8 @@ textarea.is-invalid {
 }
 .optional-block .keyed-map > legend,
 .optional-block .string-list > legend,
-.optional-block .object-list > legend {
+.optional-block .object-list > legend,
+.optional-block .nested-map > legend {
   padding: 0 0 0.4rem;
   color: var(--text-dim);
   background: none;
@@ -651,6 +653,22 @@ textarea.is-invalid {
 }
 .chip input { width: auto; min-width: 120px; border: none; background: none; color: var(--text); font-size: 0.88rem; padding: 0; margin-top: 0; }
 .chip input:focus { outline: none; box-shadow: none; border: none; }
+
+/* nested_map (E152-S02): a parent row — its own card — owns a child string-list.
+   Inside an optional-block the outer .nested-map frame is stripped (rule above),
+   so the parent-row cards carry the structure. The row head lays the id field
+   beside a flush-right delete cluster (control-cluster invariant). */
+.nested-map > [data-rows] { display: flex; flex-direction: column; gap: 0.7rem; }
+.nmap-row {
+  margin: 0;
+  padding: 0.7rem 0.85rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.nmap-row-head { display: flex; align-items: flex-end; gap: 0.5rem; }
+.nmap-row-head > .field-line { flex: 1 1 auto; min-width: 0; margin: 0; }
+.nmap-row > .field-name { display: block; margin-top: 0.75rem; }
 
 /* ── tables (keyed-map / object-list grids; DP roster overrides app-side) ─── */
 table {
