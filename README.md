@@ -57,6 +57,19 @@ Baselines are headless-Chromium + Linux specific; a different OS/browser can
 false-fail on font anti-aliasing. Bypass the hook in a pinch (discouraged):
 `SKIP_SNAPSHOT_TESTS=1 git commit …`. See `CLAUDE.md` for the full rule.
 
+## Lint
+
+The same `.githooks/pre-commit` also runs `ruff check` + `ruff format --check`
+when a commit stages `*.py` or `pyproject.toml` — the kit's only lint gate (there
+is no CI here, and both consumers exclude this submodule from their own ruff).
+Bypass in a pinch (discouraged): `SKIP_LINT=1 git commit …`; it skips only the
+ruff gate, never the snapshots.
+
+```bash
+uv run ruff check . && uv run ruff format --check .   # what the gate runs
+uv run ruff format .                                  # fix drift
+```
+
 ## Component rules
 
 - **`.actions` — action section.** The single rule for a page-bottom button row.
