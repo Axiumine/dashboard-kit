@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
-# pre-commit — dashboard-kit visual snapshot gate.
+# pre-commit — dashboard-kit quality gate: ruff, then visual snapshots.
 #
+# ── Gate 1 · ruff (lint + format) ────────────────────────────────────────────
+# tests/ is the only Python here and never ships in a consumer wheel — but it is
+# still the kit's own code, and NOTHING else gates it: both consumers exclude
+# this submodule from their ruff ([tool.ruff] extend-exclude), on the grounds
+# that the kit's tests are the kit's gate, not theirs. That gate did not exist
+# until now — E153-S05 shipped a 101-char def over our own line-length = 100 and
+# it surfaced only as red CI in DEVPROTOCOL, whose repo-wide
+# `ruff format --check .` still walked the recursive submodule checkout. Catch it
+# HERE, where the code is actually written.
+#
+# ── Gate 2 · Playwright visual snapshots ─────────────────────────────────────
 # The kit ships pure static assets (static/kit.css, static/kit.js) + Jinja
 # templates, rendered LIVE by demo/gallery.html. An edit to any of those can
 # silently change how every consumer dashboard renders. This hook runs the
@@ -13,31 +24,74 @@
 #          you must re-baseline:  uv run pytest --snapshot-update
 #                                 git add tests/__screenshots__
 #
-# Emergency bypass (discouraged, client-side only, not a security boundary):
+# Emergency bypass (discouraged, client-side only, not a security boundary).
+# Each var skips ONLY its own gate:
+#   SKIP_LINT=1 git commit ...
 #   SKIP_SNAPSHOT_TESTS=1 git commit ...
 set -uo pipefail
-
-if [[ "${SKIP_SNAPSHOT_TESTS:-0}" == "1" ]]; then
-  echo "⚠️  SKIP_SNAPSHOT_TESTS=1 — skipping kit visual snapshot gate."
-  exit 0
-fi
 
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
 [[ -n "$REPO_ROOT" ]] || { echo "❌ pre-commit: cannot determine repo root"; exit 1; }
 cd "$REPO_ROOT" || { echo "❌ pre-commit: cannot cd to repo root"; exit 1; }
 
-# Only spin up the browser when a render-affecting path is staged. A docs-only
-# commit (README/CLAUDE.md) skips it — keeps unrelated commits fast.
-if ! git diff --cached --name-only --diff-filter=ACMR \
-     | grep -qE '^(static/|templates/|demo/|tests/)'; then
+staged() { git diff --cached --name-only --diff-filter=ACMR; }
+
+# $1 = what needs uv (for the message), $2 = the gate's bypass var.
+require_uv() {
+  command -v uv >/dev/null 2>&1 && return 0
+  echo "❌ pre-commit: 'uv' not found — needed to run $1."
+  echo "   Install uv, or bypass with $2=1 (discouraged)."
+  exit 1
+}
+
+# ── Gate 1 · ruff ────────────────────────────────────────────────────────────
+# Fires on staged Python, and on pyproject.toml because [tool.ruff] lives there —
+# a line-length edit re-checks every file. A css/template-only commit skips it.
+if staged | grep -qE '\.py$|^pyproject\.toml$'; then
+  if [[ "${SKIP_LINT:-0}" == "1" ]]; then
+    echo "⚠️  SKIP_LINT=1 — skipping kit ruff gate."
+  else
+    require_uv "the ruff gate" SKIP_LINT
+    echo "── kit ruff (lint + format) ───────────────────────"
+    if ! uv run ruff check .; then
+      cat <<'MSG'
+
+❌ pre-commit BLOCKED: ruff lint failed (above).
+
+Fix the findings, or auto-fix the mechanical ones:  uv run ruff check --fix .
+Bypass (discouraged): SKIP_LINT=1 git commit ...
+MSG
+      exit 1
+    fi
+    if ! uv run ruff format --check .; then
+      cat <<'MSG'
+
+❌ pre-commit BLOCKED: ruff format drift (above).
+
+The kit pins line-length = 100 to match both consumers. Reformat, then stage:
+      uv run ruff format .
+      git add -u
+Bypass (discouraged): SKIP_LINT=1 git commit ...
+MSG
+      exit 1
+    fi
+    echo "✅ kit ruff: clean"
+  fi
+fi
+
+# ── Gate 2 · visual snapshots ────────────────────────────────────────────────
+if [[ "${SKIP_SNAPSHOT_TESTS:-0}" == "1" ]]; then
+  echo "⚠️  SKIP_SNAPSHOT_TESTS=1 — skipping kit visual snapshot gate."
   exit 0
 fi
 
-if ! command -v uv >/dev/null 2>&1; then
-  echo "❌ pre-commit: 'uv' not found — needed to run the snapshot suite."
-  echo "   Install uv, or bypass with SKIP_SNAPSHOT_TESTS=1 (discouraged)."
-  exit 1
+# Only spin up the browser when a render-affecting path is staged. A docs-only
+# commit (README/CLAUDE.md) skips it — keeps unrelated commits fast.
+if ! staged | grep -qE '^(static/|templates/|demo/|tests/)'; then
+  exit 0
 fi
+
+require_uv "the snapshot suite" SKIP_SNAPSHOT_TESTS
 
 echo "── kit visual snapshots (Playwright) ──────────────"
 if uv run pytest -q; then
