@@ -18,7 +18,7 @@ dev = [
     "pillow>=10",
     # Pinned (not >=) and matching DEVPROTOCOL: the pre-commit ruff gate must
     # resolve here, never to whatever ruff happens to sit on the dev's PATH.
-    "ruff==0.15.20",
+    "ruff==0.15.22",
 ]
 
 # No [build-system]: the kit is not a Python package. Tell uv not to try building
