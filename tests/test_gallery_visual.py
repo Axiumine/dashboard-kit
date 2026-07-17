@@ -117,7 +117,9 @@ def test_gallery_nol_add(page: Page, gallery_url: str, assert_screenshot: Callab
     assert_screenshot(page, "gallery_nol_add", locator=nol)
 
 
-def test_gallery_nol_format_reveal(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+def test_gallery_nol_format_reveal(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
     """nested_object_list format-select reveal (E152-S04) — switching row 1's format
     from splunk-hec to json hides the splunk_* cells with no group visible (kit.js
     §13), live with no save."""
