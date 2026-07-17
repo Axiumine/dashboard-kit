@@ -67,8 +67,10 @@ grounds that the kit's dev-only `tests/` are the kit's business, not theirs. Tha
 gate was missing until it bit: E153-S05 shipped a 101-char `def` over our own
 `line-length = 100`, and it surfaced only as red CI in DEVPROTOCOL, whose
 repo-wide `ruff format --check .` still walked the recursive submodule checkout.
-Keep `ruff==0.15.20` pinned in the dev group — an unpinned gate silently resolves
-to whatever ruff sits on the dev's PATH.
+Keep ruff **pinned** (`==`, never `>=`) in the dev group, at whatever version
+DEVPROTOCOL pins — an unpinned gate silently resolves to whatever ruff sits on the
+dev's PATH, and a floating one reformats the kit the day ruff changes its style.
+DEVPROTOCOL takes Dependabot ruff bumps; follow them here in the same lockstep.
 
 ### What Claude runs when it edits the kit
 
