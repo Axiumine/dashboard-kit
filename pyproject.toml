@@ -16,6 +16,9 @@ dev = [
     "pytest>=8",
     "pytest-playwright>=0.5",
     "pillow>=10",
+    # Pinned (not >=) and matching DEVPROTOCOL: the pre-commit ruff gate must
+    # resolve here, never to whatever ruff happens to sit on the dev's PATH.
+    "ruff==0.15.20",
 ]
 
 # No [build-system]: the kit is not a Python package. Tell uv not to try building
@@ -27,10 +30,12 @@ package = false
 testpaths = ["tests"]
 addopts = "-q"
 
-# Mirror both consumers' ruff (AGENTS-ROUTER + DEVPROTOCOL) so the dev-only test
-# suite formats identically to how their pre-commit gates check this vendored
-# submodule — otherwise a `ruff format` run here (default line-length 88) drifts
-# against their line-length 100 and blocks their pin-bump commits.
+# The kit's OWN ruff gate — enforced by .githooks/pre-commit, nothing else.
+# Both consumers (AGENTS-ROUTER + DEVPROTOCOL) now exclude this submodule from
+# their ruff, on the grounds that the kit's dev-only tests/ are the kit's gate,
+# not theirs — so their gates no longer check these files at all.
+# line-length still mirrors theirs: the same devs read all three repos, and
+# ruff's default 88 would reflow every file here against that shared style.
 [tool.ruff]
 line-length = 100
 target-version = "py313"

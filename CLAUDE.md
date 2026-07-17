@@ -48,11 +48,27 @@ a screenshot is the true render). **The suite must stay 100% green.**
 
 ### Enforcement — `pre-commit`
 
-`.githooks/pre-commit` runs the suite automatically on any commit that stages a
-`static`/`templates`/`demo`/`tests` path (docs-only commits skip it, stay fast).
-It blocks the commit on a mismatch and prints how to re-baseline. One-time machine
-setup (arm the hook, install the browser) is the human dev's job — see
-`README.md` §"Visual snapshot tests". Assume it is already armed.
+`.githooks/pre-commit` runs **two independent gates**, each skipped when nothing
+it guards is staged (a docs-only commit runs neither and stays fast):
+
+| Gate | Fires on staged | Runs |
+|---|---|---|
+| 1 · ruff | `*.py`, `pyproject.toml` | `ruff check .` + `ruff format --check .` |
+| 2 · snapshots | `static/`, `templates/`, `demo/`, `tests/` | `uv run pytest` |
+
+Gate 1 goes first — it is cheap and fails before the browser starts. It blocks on
+a mismatch and prints the fix; gate 2 blocks and prints how to re-baseline.
+One-time machine setup (arm the hook, install the browser) is the human dev's job
+— see `README.md` §"Visual snapshot tests". Assume it is already armed.
+
+**Ruff is the kit's own gate — nothing else lints this repo.** There is no CI
+here, and both consumers `extend-exclude` this submodule from their ruff on the
+grounds that the kit's dev-only `tests/` are the kit's business, not theirs. That
+gate was missing until it bit: E153-S05 shipped a 101-char `def` over our own
+`line-length = 100`, and it surfaced only as red CI in DEVPROTOCOL, whose
+repo-wide `ruff format --check .` still walked the recursive submodule checkout.
+Keep `ruff==0.15.20` pinned in the dev group — an unpinned gate silently resolves
+to whatever ruff sits on the dev's PATH.
 
 ### What Claude runs when it edits the kit
 
