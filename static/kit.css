@@ -944,7 +944,7 @@ dialog.kit-modal.wide { width: min(920px, calc(100vw - 2rem)); }
 .kit-confirm-ok.danger:hover { background: var(--err); color: var(--bg); filter: none; }
 
 /* ── filesystem picker — folderPicker / filesPicker dialogs (kit/_picker.html) ─
-   breadcrumb bar, dense navigable listing, Cancel/Select cluster flush-right. The
+   breadcrumb bar, dense navigable listing, lone Select button flush-right. The
    app supplies the browse driver (data-browse-url) + selection handling. */
 .kit-picker { display: flex; flex-direction: column; gap: 0.6rem; min-width: min(32rem, 80vw); }
 .kit-picker-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem; font-size: 0.8rem; }

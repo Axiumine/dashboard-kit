@@ -875,7 +875,7 @@ body {
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">folderPicker</code> <code class="demo-name">filesPicker</code><span class="demo-alt">.kit-picker</span><span class="demo-tag">macro · _picker.html</span></div>
-  <p class="demo-desc">Project-tree browse dialogs (built on <code>modal</code>). The kit owns the chrome — breadcrumbs, listbox, Cancel/Select; the host app supplies the data driver via <code>data-browse-url</code>. Open them (empty here — no app driver wired in the gallery):</p>
+  <p class="demo-desc">Project-tree browse dialogs (built on <code>modal</code>). The kit owns the chrome — breadcrumbs, listbox, a lone Select (no Cancel — the header × / Esc / backdrop dismiss); the host app supplies the data driver via <code>data-browse-url</code>. Open them (empty here — no app driver wired in the gallery):</p>
   <div class="demo-stage">
     <div class="demo-row">
       <button type="button" class="add" data-open-modal="demo-folder-picker">Browse folders…</button>
@@ -933,7 +933,6 @@ body {
         </div>
       </div>
       <div class="actions">
-        <button type="button" data-close-modal>Cancel</button>
         <button type="button" data-close-modal>Add</button>
       </div>
     </div>
@@ -972,7 +971,6 @@ body {
         <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
         <p class="meta kit-picker-empty" data-picker-empty>No app driver wired in the gallery — this is the empty chrome.</p>
         <div class="actions">
-          <button type="button" data-close-modal>Cancel</button>
           <button type="button" data-picker-select disabled>Select</button>
         </div>
       </div>
@@ -995,7 +993,6 @@ body {
         <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
         <p class="meta kit-picker-empty" data-picker-empty>No app driver wired in the gallery — this is the empty chrome.</p>
         <div class="actions">
-          <button type="button" data-close-modal>Cancel</button>
           <button type="button" data-picker-select disabled>Select</button>
         </div>
       </div>
@@ -1020,7 +1017,6 @@ body {
         <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
         <p class="meta kit-picker-empty" data-picker-empty hidden>This folder is empty.</p>
         <div class="actions">
-          <button type="button" data-close-modal>Cancel</button>
           <button type="button" data-picker-select disabled>Select</button>
         </div>
       </div>
