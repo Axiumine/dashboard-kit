@@ -874,8 +874,8 @@ body {
 <div class="section-bar"><h2 class="section-title">🚦 Status &amp; toasts</h2></div>
 
 <div class="demo-item">
-  <div class="demo-head"><code class="demo-name">status messages</code><span class="demo-alt">.ok · .warning · .notice · ul.errors</span><span class="demo-tag">inline status</span></div>
-  <p class="demo-desc">Inline status blocks. Note: operator-facing notifications should be <code>toast</code>s (below) — these are the static/inline styles the kit still ships (e.g. a validation error list rendered in place).</p>
+  <div class="demo-head"><code class="demo-name">status messages</code><span class="demo-alt">.ok · .warning · .notice · ul.errors · .validation-fix-link</span><span class="demo-tag">inline status</span></div>
+  <p class="demo-desc">Inline status blocks. Note: operator-facing notifications should be <code>toast</code>s (below) — these are the static/inline styles the kit still ships (e.g. a validation error list rendered in place). The last row is a <code>.validation-fix-link</code>: the app's jump-to-the-fix anchor, rendered <em>inside</em> the box by <code>_validation.html</code>'s <code>fix_links</code> so it stays attached to the findings it resolves.</p>
   <div class="demo-stage">
     <p class="ok">Saved — configuration written to disk.</p>
     <p class="warning">Some backends are disabled; requests may queue.</p>
@@ -883,6 +883,7 @@ body {
     <ul class="errors validation-errors" data-flag="validation-errors" data-validation="errors">
       <li class="validation-error" data-error-field="port" data-error-code="OUT_OF_RANGE"><strong>OUT_OF_RANGE</strong>: port must be 1–65535.</li>
       <li class="validation-error" data-error-field="region" data-error-code="REQUIRED"><strong>REQUIRED</strong>: region is required for this backend.</li>
+      <li class="validation-fix-link"><a href="#status">Set the missing value → Backends &amp; GPUs</a></li>
     </ul>
   </div>
 </div>
