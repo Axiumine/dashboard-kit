@@ -857,6 +857,68 @@
     if (sel) syncFormatSelect(sel);
   });
 
+  // ── 14. Theme toggle (dark/light) ──────────────────────────────────────────
+  //   [data-action="toggle-theme"] (kit/_icon_btn.html, rendered once per page in
+  //   kit/_header.html's page_head — the header's .actions slot always carries it)
+  //   flips <html data-theme> between the hard default (DARK — attribute absent)
+  //   and "light", persists the choice in localStorage under THEME_KEY, and keeps
+  //   every such button's aria-pressed + title/aria-label in sync with reality.
+  //   THEME_KEY must match the anti-flash inline <script> in kit/layouts/base.html
+  //   <head> — that script runs synchronously before first paint and stamps
+  //   data-theme itself, so by the time this (deferred) script runs the attribute
+  //   already reflects the stored choice. Every button still needs a sync pass on
+  //   load regardless: the server always renders aria-pressed="true" (it has no
+  //   way to see localStorage at render time), so a returning light-mode operator
+  //   would otherwise see a sun icon claiming "dark is active" while the page is
+  //   actually light. One delegated click handler (works on a button added at any
+  //   time — htmx-swapped or not, same reasoning as every other data-action
+  //   handler in this file); explicit re-sync on htmx:afterSwap because a
+  //   swapped-in fragment can carry a fresh SSR-default button of its own.
+  var THEME_KEY = "theme";
+
+  function isDarkActive() {
+    return document.documentElement.getAttribute("data-theme") !== "light";
+  }
+
+  function syncThemeButton(btn) {
+    var dark = isDarkActive();
+    btn.setAttribute("aria-pressed", dark ? "true" : "false");
+    var label = dark ? "Switch to light theme" : "Switch to dark theme";
+    btn.setAttribute("title", label);
+    btn.setAttribute("aria-label", label);
+  }
+
+  function syncThemeButtons(root) {
+    var scope = root && root.querySelectorAll ? root : document;
+    scope.querySelectorAll('[data-action="toggle-theme"]').forEach(syncThemeButton);
+  }
+
+  function applyTheme(theme) {
+    if (theme === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+      try { localStorage.setItem(THEME_KEY, "light"); } catch (e) { /* private mode etc — still applies for this load */ }
+    } else {
+      // dark is the hard default — keep the attribute ABSENT, not "dark", so a
+      // page with no stored choice at all renders byte-identically to before
+      // this feature existed (see base.html's anti-flash script).
+      document.documentElement.removeAttribute("data-theme");
+      try { localStorage.removeItem(THEME_KEY); } catch (e) { /* private mode etc */ }
+    }
+    syncThemeButtons(document);
+  }
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest('[data-action="toggle-theme"]');
+    if (!btn) return;
+    e.preventDefault();
+    applyTheme(isDarkActive() ? "light" : "dark");
+  });
+
+  syncThemeButtons(document);   // correct the SSR-default aria-pressed/label on load
+  document.addEventListener("htmx:afterSwap", function (e) {
+    if (e.detail && e.detail.target) syncThemeButtons(e.detail.target);
+  });
+
   // Supported programmatic surface for app scripts — the IIFE keeps everything
   // else private. kitToast mirrors §6 so pages stop hand-rolling toast nodes.
   window.kitConfirm = kitConfirm;

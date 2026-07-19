@@ -2,11 +2,12 @@
 
    One flex row: a `.head-titles` column on the left — the <h1> with, stacked
    directly UNDER it, either a `.breadcrumb` trail (preferred, the kit
-   `breadcrumb` component) or a legacy `.meta` subtitle — and an optional
-   right-slot via `caller()` for title-bar actions. Styled by `.page-head`,
-   `.head-titles`, `.breadcrumb` + `.meta` in kit.css. One component so the
-   AGENTS-ROUTER config editor and the DEVPROTOCOL roster share ONE title bar
-   instead of each forking its own <header>.
+   `breadcrumb` component) or a legacy `.meta` subtitle — and a right-slot
+   `.actions` holding the theme toggle plus, when the caller supplies one, its
+   own title-bar actions after it. Styled by `.page-head`, `.head-titles`,
+   `.breadcrumb` + `.meta` in kit.css. One component so the AGENTS-ROUTER
+   config editor and the DEVPROTOCOL roster share ONE title bar instead of
+   each forking its own <header>.
 
      page_head("AGENTS-ROUTER configuration",
                crumbs=[("Home", "/"), ("Server & Routing", none)])
@@ -15,7 +16,7 @@
      page_head("Agent config roster", home_href="/",
                crumbs=[("Roster", "/"), ("Edit agent: x", none)])
 
-     -- title-bar action via the caller slot --
+     -- title-bar action via the caller slot: [sun/moon toggle] [+ New] --
      {%- call page_head("Roster", home_href="/") -%}
        <a class="add" href="/new">+ New</a>
      {%- endcall %}
@@ -24,14 +25,31 @@
    independent of the global <a> colour — see kit.css). `crumbs` is passed
    straight to the `breadcrumb` component (see kit/_breadcrumb.html); when both
    crumbs and subtitle are omitted the title sits alone. `target`, when set,
-   rides the subtitle as data-target (a test/JS hook some consumers key off). #}
+   rides the subtitle as data-target (a test/JS hook some consumers key off).
+
+   `.actions` ALWAYS renders now (it used to be gated on `caller`, so a page
+   with no title-bar action rendered zero `.actions` divs). It renders
+   unconditionally because every page header carries the dark/light theme
+   toggle (decided design: one .icon-btn, sun+moon glyphs, data-action=
+   "toggle-theme", in the header's .actions slot, same line as the <h1>) — a
+   page can have no caller action but never has no toggle. The toggle sits
+   FIRST so DOM order matches the approved mock, [sun] left of [+ New]; kit.css
+   `.page-head .actions` is a plain flex row (no reverse), so DOM order IS
+   visual order. No opt-out arg: the toggle is a global, unconditional control,
+   not a per-page opt-in — every page shares the same base.html <head> and the
+   same anti-flash script, so withholding it on some pages would just strand
+   an operator's light-mode choice the moment they open one. aria-pressed is
+   hardcoded "true" here (dark, the hard default) because the server cannot
+   see the operator's localStorage at render time; kit.js §14 corrects it (and
+   the title/aria-label) to match reality before the operator ever sees it. #}
 {% from "kit/_breadcrumb.html" import breadcrumb %}
+{% from "kit/_icon_btn.html" import icon_button %}
 {% macro page_head(title, subtitle=none, target=none, crumbs=none, home_href=none) %}
 <header class="page-head">
   <div class="head-titles">
     <h1>{% if home_href %}<a href="{{ home_href }}" class="brand-home">{{ title }}</a>{% else %}{{ title }}{% endif %}</h1>
     {% if crumbs %}{{ breadcrumb(crumbs) }}{% elif subtitle %}<p class="meta"{% if target %} data-target="{{ target }}"{% endif %}>{{ subtitle }}</p>{% endif %}
   </div>
-  {% if caller %}<div class="actions">{{ caller() }}</div>{% endif %}
+  <div class="actions">{{ icon_button("toggle-theme", "Toggle dark/light theme", data_action="toggle-theme", extra_attrs='aria-pressed="true"') }}{% if caller %}{{ caller() }}{% endif %}</div>
 </header>
 {% endmacro %}

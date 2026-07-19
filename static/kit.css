@@ -287,6 +287,51 @@ label > input[type="checkbox"] {
 .icon-btn[aria-pressed="true"] .eye-shut {
   display: block;
 }
+/* theme toggle — same both-glyphs-in-the-DOM trick (kit/_icon_btn.html), keyed
+   off the aria-pressed kit.js §14 syncs to <html data-theme>. Here aria-pressed
+   means DARK is active (the app's hard default), not "revealed" like the eye
+   above, so the polarity is flipped: the resting/default state (aria-pressed=
+   "true" or the attribute simply absent, since a stray icon-btn with no
+   aria-pressed at all must still resolve to something) paints the sun — the
+   "switch to light" affordance — and only an explicit aria-pressed="false"
+   (light is active) swaps to the moon. */
+.icon-btn .theme-moon {
+  display: none;
+}
+.icon-btn[aria-pressed="false"] .theme-sun {
+  display: none;
+}
+.icon-btn[aria-pressed="false"] .theme-moon {
+  display: block;
+}
+/* theme toggle glyph — pre-paint correctness (FOUC fix). The rules above key
+   the sun/moon swap off `aria-pressed`, which the SERVER hardcodes to "true"
+   (dark) on every render (kit/_header.html) because it cannot see the
+   operator's localStorage choice at render time — only kit.js §14 corrects
+   it, client-side, AFTER the page parses. But the anti-flash inline script
+   in kit/layouts/base.html runs synchronously, before first paint, and
+   already stamps data-theme="light" on <html> when the stored choice is
+   "light" — that attribute is already correct before paint even though
+   aria-pressed is still stale. kit.js is `defer`, queued behind the htmx CDN
+   `<script defer>` that precedes it in <head> (deferred scripts run in
+   DOCUMENT order once all are parsed+fetched, not fetch-completion order),
+   so a slow/blocked CDN widens the window where the glyph shows wrong.
+   Keying the glyph off :root[data-theme] instead inherits the inline
+   script's pre-paint guarantee, so the correct glyph paints on the FIRST
+   frame regardless of kit.js/CDN timing. Both new selectors below carry one
+   more compound (0,4,0) than the aria-pressed pair above (0,3,0), so they win
+   outright while aria-pressed is still stale; once kit.js syncs aria-pressed
+   to match reality the two agree and this is a no-op duplicate, not a
+   conflict. aria-pressed stays the a11y source of truth (kit.js keeps it in
+   sync) — this only drives the visual glyph. DARK STAYS THE HARD DEFAULT:
+   both rules are gated on [data-theme="light"], so a dark/unset <html>
+   render is untouched — the aria-pressed-keyed rules above still own it. */
+:root[data-theme="light"] .icon-btn .theme-sun {
+  display: none;
+}
+:root[data-theme="light"] .icon-btn .theme-moon {
+  display: block;
+}
 /* destructive action (delete/remove) — red on hover */
 .icon-btn.danger:hover {
   color: var(--err);
@@ -965,3 +1010,210 @@ dialog.kit-modal.wide { width: min(920px, calc(100vw - 2rem)); }
 .kit-picker-row > label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; width: 100%; }
 .kit-picker-empty { margin: 0; }
 .kit-picker .actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin: 0; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES — kit.css's own hardcoded literals only.
+
+   kit.css declares no :root block (see the file banner, line 1) and never
+   will — it only ever consumes host tokens. Every rule below targets a
+   colour kit.css itself hardcoded (hex or rgba) for a component whose
+   light-mode compositing partner (the page/card surface it paints onto) is
+   a HOST token — kit.css can't fix these with a var() fallback, it has to
+   be told the pairing flipped. Verified against the ACTUAL DEVPROTOCOL +
+   AGENTS-ROUTER :root[data-theme="light"] blocks (both hosts ship
+   byte-identical light tokens) — nothing below is guessed.
+
+   Every OTHER hardcoded literal in this file — white text on the file's own
+   red-gradient delete chrome, white text on its own accent-gradient CTAs,
+   the saturated colour-alpha status/toast borders, dialog.kit-modal's
+   var(--shadow, …) / .kit-picker-crumb's var(--accent, …) /
+   .kit-picker-list's var(--border, …) fallbacks — is confirmed self-
+   contained or dormant (both hosts define --shadow/--accent/--border in
+   EVERY theme, so those fallbacks never fire) and is deliberately left
+   untouched here. */
+
+/* ── page header title — text-clip gradient (L47, L58) ─────────────────────
+   White→lavender gradient clipped to the h1 glyphs is near-invisible on a
+   light page. background-image, NOT the background shorthand: the shorthand
+   resets background-clip to its border-box initial value, which would
+   silently undo the -webkit-background-clip:text / background-clip:text /
+   color:transparent trio the base rule already set and unpaint the title
+   entirely. Dark-ink → accent-blue reads clearly on light: var(--text) on
+   var(--bg) is 16.25:1, var(--accent) on var(--surface-solid) is 4.72:1
+   (both per dashboard.css's own light-token contrast comments) — the h1's
+   clamp(1.6rem,3vw,2.2rem) size clears WCAG large-text (3:1) on both stops
+   with room to spare. */
+[data-theme="light"] .page-head h1,
+[data-theme="light"] .page-head h1 a.brand-home {
+  background-image: linear-gradient(120deg, var(--text) 20%, var(--accent) 80%);
+}
+
+/* ── inputs / select / textarea (L106, L141, L146) — THE critical fix ──────
+   Every text field, select and textarea painted a hardcoded near-black
+   (#0d1019 resting / #0f131e focus / #0a0d14 disabled) regardless of theme,
+   trapping var(--text)'s light-mode near-black glyphs on a near-black field.
+   background-color everywhere below, never the background shorthand — select
+   draws its arrow via background-image (two var(--text-dim)-keyed CSS
+   gradients, L121-123 — not an SVG data-uri, so it already re-tints itself
+   in light) and the shorthand would reset that image to `none`. This
+   discipline is required even for the RESTING state here, unlike the base
+   rule at L106: our [data-theme="light"] selector carries an extra
+   attribute-selector's worth of specificity over the plain `select { … }`
+   arrow rule, so — unlike the dark original, which only gets away with the
+   shorthand via source-order luck — a shorthand override here would beat
+   the arrow rule outright regardless of order.
+   Resting sits at var(--bg): a visibly recessed "well" against the white
+   --surface-solid card, mirroring dark's #0d1019 sitting barely above dark's
+   own --bg (#0a0c12). Focus brightens to var(--surface-solid) (pure white) —
+   the same "lift on focus" direction as dark's #0d1019 → #0f131e. Disabled
+   falls back to var(--bg), reading as flattened into the page exactly like
+   dark's #0a0d14 ≈ dark's own --bg — further muted by the opacity:0.55
+   already on that rule (untouched here).
+   Contrast: var(--text) on var(--bg) is 16.25:1; on var(--surface-solid) is
+   18.38:1 (both per dashboard.css's own documented light-token ratios). */
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="email"],
+[data-theme="light"] input[type="url"],
+[data-theme="light"] input[type="search"],
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background-color: var(--bg);
+}
+[data-theme="light"] input[type="text"]:focus,
+[data-theme="light"] input[type="number"]:focus,
+[data-theme="light"] input[type="password"]:focus,
+[data-theme="light"] input[type="email"]:focus,
+[data-theme="light"] input[type="url"]:focus,
+[data-theme="light"] input[type="search"]:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+  background-color: var(--surface-solid);  /* not shorthand — would wipe the select arrow image */
+}
+[data-theme="light"] input:disabled,
+[data-theme="light"] select:disabled,
+[data-theme="light"] textarea:disabled {
+  background-color: var(--bg);  /* not shorthand — keep the select arrow image */
+}
+/* placeholders (L492) ride --text-faint, which the host tunes for a DARK field.
+   Once the fields above turn light it lands at 3.86:1 on --bg / 4.37:1 on
+   --surface-solid — under the 4.5:1 AA floor for normal text, and the host's own
+   token comment already documents those numbers. --text-dim is the darkest
+   secondary token (6.89:1 / 7.80:1) and clears AA on both field states, so the
+   hint stays visibly a hint without failing contrast. */
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-dim);
+}
+/* chip pill inputs (L713 `.chip input`) stay borderless/transparent — the input
+   background rule above is `[type=…]`-qualified so it out-specifies `.chip
+   input`'s own `background: none` (0,2,1) vs (0,1,1); re-assert it here at
+   matching (0,2,1) so a light-theme chip input doesn't grow an unwanted --bg
+   box behind its text. */
+[data-theme="light"] .chip input,
+[data-theme="light"] .chip input:focus {
+  background: none;
+}
+
+/* ── icon-btn resting wash (L257) ───────────────────────────────────────────
+   2% white lift meant to nudge a dark surface slightly brighter goes
+   white-on-white on a light card — the icon button loses its faint resting
+   distinction. Flip polarity per the exact convention dashboard.css already
+   documents for --border ("white-alpha (dark) → dark-alpha (light)"): same
+   2% alpha, dark-ink anchor rgb(15,23,42) — the same anchor the host itself
+   uses for --border/--border-hi in light. Purely decorative (the glyph's own
+   stroke=currentColor carries the real affordance), so no text-contrast
+   requirement applies here.
+
+   `:not(.trash)` is load-bearing, not cosmetic: `.icon-btn.trash` (L345) has the
+   SAME (0,2,0) specificity as `[data-theme="light"] .icon-btn`, so a bare rule
+   here would tie and win on source order — silently replacing the canonical
+   delete button's solid-red gradient with a 2% grey wash in light theme, via the
+   `background` shorthand. Excluding .trash keeps the red CTA self-contained
+   chrome it is meant to be in BOTH themes. */
+[data-theme="light"] .icon-btn:not(.trash) {
+  background: rgba(15, 23, 42, 0.02);
+}
+
+/* ── button:hover fill (L363) ───────────────────────────────────────────────
+   Near-opaque (0.9 alpha) dark slate-navy hover fill; var(--text) resolves
+   near-black in light, so hovering ANY button traps dark label text on a
+   near-opaque dark background — the same near-black-field failure as the
+   inputs above, now on hover. Because this is a near-SOLID fill rather than
+   a decorative wash, it needs an inverted-lightness solid (same treatment as
+   the input backgrounds), not a same-alpha polarity flip — rgba(15,23,42,0.9)
+   would still composite to near-opaque near-black and fail exactly the same
+   way. Light slate-blue, hue-matched to the dark hover's rgb(48,56,76) navy
+   family at inverted lightness. Computed contrast of var(--text) (#12141c)
+   against this fill: ≈13.9:1 — comfortably clears the 4.5:1 AA floor, using
+   the same relative-luminance basis as dashboard.css's own 16.25:1/18.38:1
+   figures. */
+[data-theme="light"] button:hover {
+  background-color: rgba(219, 224, 236, 0.9);
+}
+/* exceptions — buttons that already carry their own hover background (or
+   deliberately keep none) must not be re-painted by the generic fill above.
+   `[data-theme="light"] button:hover` is (0,2,1); `.icon-btn:hover` (L260) and
+   `.section-btn:hover` (L820) are only (0,2,0) so the generic rule would win
+   and clobber their host-token `var(--surface-hi)` with the literal — same
+   fight, same fix as the .chip input case above: re-assert at a selector
+   specific enough to out-rank (0,2,1). The remove/add ghost-button hovers
+   (L414, L425) already tie the generic rule's specificity but sit earlier in
+   source, so they need the same explicit re-assertion, not just a specificity
+   bump. */
+/* .trash and .danger are excluded for the same reason as the resting rule above:
+   `.icon-btn.trash:hover` (L350) and `.icon-btn.danger:hover` (L336) are both
+   (0,3,0), tying this rule and losing on source order — which would strip the
+   delete button's red gradient and the danger button's --err-bg tint in light
+   theme. Their red is intentional, self-contained chrome in both themes. */
+[data-theme="light"] .icon-btn:hover:not(.trash):not(.danger) {
+  background: var(--surface-hi);
+}
+[data-theme="light"] .section-btn:hover {
+  background: var(--surface-hi);
+}
+[data-theme="light"] button[data-remove]:hover,
+[data-theme="light"] button[data-remove-row]:hover,
+[data-theme="light"] button[data-add-chip]:hover,
+[data-theme="light"] button[data-add-row]:hover,
+[data-theme="light"] button[data-add-backend]:hover {
+  background: transparent;
+}
+
+/* ── toast shadow (L516) ────────────────────────────────────────────────────
+   35% black-alpha elevation reads as a heavy, muddy smudge on a light toast
+   surface. Recoloured to dashboard.css's own light --shadow anchor + alpha
+   (rgba(15,23,42,0.18)) in place of black — same 6px/24px offset/blur as the
+   original, only the tint changes, so the toast's silhouette is unchanged. */
+[data-theme="light"] .toast {
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.18);
+}
+
+/* ── collection cards — string-list / keyed-map / object-list / nested-*
+   (L571) ────────────────────────────────────────────────────────────────────
+   Same 2% white-lift-vanishes-on-white pattern as .icon-btn above: identical
+   fix, identical dark-ink anchor, so every collection/fieldset card keeps its
+   subtle card-vs-page distinction in light too. */
+[data-theme="light"] .string-list,
+[data-theme="light"] .keyed-map,
+[data-theme="light"] .object-list,
+[data-theme="light"] .nested-map,
+[data-theme="light"] .nested-object-list {
+  background: rgba(15, 23, 42, 0.02);
+}
+
+/* ── table row divider + hover wash (L756, L758) ────────────────────────────
+   4% / 3.5% white-alpha washes disappear against a light table surface —
+   rows lose their separators and hovering gives no feedback at all. Same-
+   alpha dark-ink flip, mirroring the .icon-btn / collection-card fix above:
+   both dark's near-black --bg family and light's near-white --surface-solid
+   sit at the extreme of their own scale, so an identical low alpha against
+   the opposite-extreme anchor colour reproduces the same faint-hairline /
+   faint-wash weight the original design intended in dark. */
+[data-theme="light"] tbody td {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+}
+[data-theme="light"] tbody tr:hover {
+  background: rgba(15, 23, 42, 0.035);
+}

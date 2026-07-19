@@ -45,6 +45,40 @@
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, monospace;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
+/* ── light-theme token overrides — copied verbatim from the host palette's own
+      :root[data-theme="light"] block (DEVPROTOCOL/AGENTS-ROUTER dashboard.css
+      ship byte-identical light tokens) so the gallery's [data-theme="light"]
+      toggle actually flips every host-token-driven kit.css rule (e.g.
+      `.icon-btn:hover { background: var(--surface-hi); }`) to its real light
+      value — without this block the toggle only flips kit.css's OWN hardcoded-
+      literal overrides while every var()-driven rule stayed pinned to the dark
+      values above, making "light theme" in this demo a partial fake. Radius/
+      mono/sans are theme-invariant, not redefined here (mirrors the host). */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef1f7;
+  --bg-grad-a: #f8fafc;
+  --bg-grad-b: #e9edf5;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-solid: #ffffff;
+  --surface-hi: rgba(255, 255, 255, 0.92);
+  --border: rgba(15, 23, 42, 0.10);
+  --border-hi: rgba(15, 23, 42, 0.18);
+  --text: #12141c;
+  --text-dim: #4a5268;
+  --text-faint: #70798d;
+  --accent: #4a5fd9;
+  --accent-2: #8343d9;
+  --accent-grad: linear-gradient(135deg, #4a5fd9 0%, #8343d9 100%);
+  --ok: #14753a;
+  --ok-bg: rgba(20, 117, 58, 0.08);
+  --err: #be123c;
+  --err-bg: rgba(190, 18, 60, 0.12);
+  --warn: #8a5a00;
+  --warn-bg: rgba(138, 90, 0, 0.08);
+  --shadow: 0 10px 40px -12px rgba(15, 23, 42, 0.18);
+  --ring: 0 0 0 3px rgba(74, 95, 217, 0.5);
+}
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -113,6 +147,7 @@ body {
     </nav>
   </div>
   <div class="actions">
+    <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
     <a class="add" href="#top">+ New</a>
   </div>
 </header>
@@ -195,7 +230,7 @@ body {
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">page_head</code><span class="demo-alt">.page-head</span><span class="demo-tag">macro · _header.html</span></div>
-  <p class="demo-desc">The app title bar: gradient <code>&lt;h1&gt;</code> (optionally a <code>brand-home</code> home link), a breadcrumb or subtitle under it, and an optional flush-right action slot. One per page.</p>
+  <p class="demo-desc">The app title bar: gradient <code>&lt;h1&gt;</code> (optionally a <code>brand-home</code> home link), a breadcrumb or subtitle under it, and a flush-right <code>.actions</code> slot that ALWAYS renders — the dark/light theme toggle first, then any caller action (e.g. <code>+ New</code>) after it. One per page.</p>
   <div class="demo-stage">
     <header class="page-head">
       <div class="head-titles">
@@ -206,7 +241,10 @@ body {
           <span class="crumb-current" aria-current="page">Edit agent: planner</span>
         </nav>
       </div>
-      <div class="actions"><a class="add" href="#headers">+ New agent</a></div>
+      <div class="actions">
+        <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+        <a class="add" href="#headers">+ New agent</a>
+      </div>
     </header>
   </div>
 </div>
@@ -352,6 +390,17 @@ body {
 </div>
 
 <div class="demo-item">
+  <div class="demo-head"><code class="demo-name">theme toggle</code><span class="demo-alt">.icon-btn[data-action=toggle-theme]</span><span class="demo-tag">macro · _icon_btn.html + kit.js §14</span></div>
+  <p class="demo-desc">Dark/light switch — lives in every <code>page_head</code>'s <code>.actions</code> slot (see the hero header above), left of any caller action. One <code>icon_button("toggle-theme", …)</code> carries BOTH a sun and a moon glyph; kit.css paints exactly one, keyed off <code>aria-pressed</code> — kit.js §14 flips it, stamps <code>data-theme="light"</code> on <code>&lt;html&gt;</code> (or clears it back to the dark default), and persists the choice in <code>localStorage</code>. Dark is the hard default. Try it — every toggle instance on this page (including the hero above) flips together, since the theme is page-wide, not per-button.</p>
+  <div class="demo-stage">
+    <div class="demo-row">
+      <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+    </div>
+    <p class="demo-note">sun = dark active, click switches to light · moon = light active, click switches back to dark</p>
+  </div>
+</div>
+
+<div class="demo-item">
   <div class="demo-head"><code class="demo-name">icon_cluster</code><span class="demo-alt">.icon-cluster</span><span class="demo-tag">macro · _icon_cluster.html</span></div>
   <p class="demo-desc">Wrapper for a block of adjacent icon buttons (reorder ▲▼ + delete, or 👁 ✏ 🗑 row actions) so every such cluster spaces identically.</p>
   <div class="demo-stage">
@@ -414,6 +463,13 @@ body {
         <label class="field-line">
           <span class="field-name">Backend</span>
           <span class="field-input"><select name="backend" data-role="backend"><option>claude-api</option><option selected>openrouter</option><option>local-gpu</option><option>bedrock</option></select></span>
+        </label>
+      </div>
+
+      <div class="field" data-field="description" data-kind="textarea">
+        <label class="field-line">
+          <span class="field-name">Description</span>
+          <span class="field-input"><textarea name="description" rows="3" placeholder="optional">Routes GPU-bound inference requests across the backend pool.</textarea></span>
         </label>
       </div>
 

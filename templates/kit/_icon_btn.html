@@ -5,7 +5,9 @@
    Replaces hand-written emoji/SVG buttons so edit/delete/eye/… look identical
    across the DEVPROTOCOL and AGENTS-ROUTER dashboards.
 
-   action      one of: edit | delete | eye | up | down | close | add (else blank)
+   action      one of: edit | delete | eye | up | down | close | add | sun | moon
+               (else blank — "toggle-theme" is a data_action, not a glyph key;
+               see the dual-glyph gate below, same as "toggle-secret")
    label       aria-label (required for a11y); title defaults to it
    href        when set → <a href>; otherwise <button type=btn_type>
    btn_type    button (default) | submit  (e.g. AR's per-backend delete submits)
@@ -21,7 +23,9 @@
   "close":  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
   "up":     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>',
   "down":   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
-  "add":    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>'
+  "add":    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
+  "sun":    '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>',
+  "moon":   '<svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
 } -%}
 {% macro icon_button(action, label, href=None, btn_type="button", extra_attrs="", title=None, cls="", data_action=None) -%}
 {%- set _title = title if title else label -%}
@@ -46,6 +50,17 @@
    lone (non-toggle) eye stays byte-identical to what it always rendered. #}
 {%- if _data_action == "toggle-secret" -%}
 {%- set _glyph = _svg["eye"] | replace('<svg ', '<svg class="eye-open" ', 1) ~ _svg["eye-off"] -%}
+{%- endif -%}
+{# the THEME TOGGLE (kit/_header.html page_head) is the same dual-glyph trick:
+   both a sun and a moon are authored here, kit.css shows exactly one, keyed off
+   aria-pressed — but the state it keys off is DARK-active (kit.js §14), not
+   "revealed" like the eye. Sun paints on the resting default (aria-pressed=
+   "true", i.e. dark — the app's hard default per CLAUDE.md) as the "switch to
+   light" affordance; moon paints once aria-pressed flips to "false" (light
+   active), offering "switch to dark". Authored, not JS-swapped, for the same
+   reason as the eye: one DOM, zero swap cost, state lives in one attribute. #}
+{%- if _data_action == "toggle-theme" -%}
+{%- set _glyph = _svg["sun"] | replace('<svg ', '<svg class="theme-sun" ', 1) ~ _svg["moon"] -%}
 {%- endif -%}
 {%- if href -%}
 <a class="{{ _cls }}" data-action="{{ _data_action }}" href="{{ href }}" title="{{ _title }}" aria-label="{{ label }}"{% if extra_attrs %} {{ extra_attrs | safe }}{% endif %}>{{ _glyph | safe }}</a>
