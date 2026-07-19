@@ -11,13 +11,32 @@
    Both consumers' class + data-attribute conventions are emitted side by side
    (DP: .errors + data-flag; AR: .validation-errors + data-validation) so each
    app's CSS, JS and tests keep matching. The summary toast carries the same
-   data-flag/data-validation outcome markers the old inline paragraph did. #}
+   data-flag/data-validation outcome markers the old inline paragraph did.
+
+   `fix_links` (optional) is a sequence of {url, label} mappings — an app's
+   "jump to the page that fixes this" affordance. Each renders as one extra
+   <li class="validation-fix-link"> at the TAIL OF THIS SAME <ul>, so the link
+   sits INSIDE the alert box with the findings it resolves instead of floating
+   under it as a detached sibling. It is a separate variable rather than part of
+   `e.message` because this partial escapes the message, so a URL written there
+   renders as dead text. Set it with {% set %} in the caller BEFORE its
+   {% include %} — include inherits the caller's context — which keeps every
+   app-specific route and finding code out of this shared template. Omitted
+   (DEVPROTOCOL never sets it) the loop below is fully whitespace-trimmed and
+   emits zero bytes, so existing callers render byte-for-byte as before.
+
+   The extra <li> deliberately carries NO data-error-field: kit.js §5/§7 route
+   section focus and invalid-field highlighting off that attribute and would
+   otherwise treat the link row as a form control to focus. #}
 {% from "kit/_toast.html" import toast %}
 {% if errors %}
 <ul class="errors validation-errors" data-flag="validation-errors" data-validation="errors">
   {% for e in errors %}
   <li class="validation-error" data-error-field="{{ e.field }}" data-error-code="{{ e.code }}"><strong>{{ e.code }}</strong>: {{ e.message }}</li>
   {% endfor %}
+  {%- for link in fix_links | default([]) %}
+  <li class="validation-fix-link"><a href="{{ link.url }}">{{ link.label }}</a></li>
+  {%- endfor %}
 </ul>
 {{ toast("Form not valid", "error", flag="validation-errors", validation="errors") }}
 {% else %}

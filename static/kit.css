@@ -477,6 +477,21 @@ ul.errors, .validation-errors {
   padding-left: 1rem;
 }
 ul.errors li, .validation-error { margin: 0.2rem 0; }
+/* "jump to the page that fixes this" row, appended inside the error box by
+   kit/_validation.html's `fix_links` (see that template). Selectors are class-
+   qualified on the parent so they beat `ul.errors li` (0,1,2) on specificity —
+   a bare `.validation-fix-link` (0,1,0) would lose and keep the 0.2rem margin.
+   Colour stays `inherit` (the box's --err) rather than --accent: the link is
+   part of the alert, and inheriting keeps the contrast the box already passes
+   in BOTH themes instead of putting accent-blue on an error-red background. */
+ul.errors .validation-fix-link, .validation-errors .validation-fix-link { margin: 0.5rem 0 0; }
+ul.errors .validation-fix-link a, .validation-errors .validation-fix-link a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+ul.errors .validation-fix-link a:hover, .validation-errors .validation-fix-link a:hover { opacity: 0.75; }
 span.error {
   display: block;
   margin-top: 0.3rem;
