@@ -30,6 +30,59 @@ def test_gallery_full(page: Page, gallery_url: str, assert_screenshot: Callable)
     assert_screenshot(page, "gallery_full")
 
 
+def test_gallery_full_light(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """The whole gallery again, in LIGHT theme — the broad light-mode guard.
+
+    ``gallery_full`` only ever shot the dark default, so every light-theme rule was
+    unguarded except where a clipped case happened to cover it. That gap shipped two
+    bugs in a row: kit.css's near-black input backgrounds with no light override, and
+    a ``[data-theme="light"] .icon-btn`` rule that tied ``.icon-btn.trash`` on
+    specificity (both 0,2,0) and won on source order — silently replacing the
+    canonical red delete button with a grey wash everywhere in light mode. Neither
+    was visible to any existing baseline. A full-page light shot covers every
+    component the sheet renders, so the next light-only regression re-baselines here
+    instead of reaching a dashboard.
+    """
+    page.goto(gallery_url)
+    _settle(page)
+    toggle_card = page.locator('.demo-item:has(code.demo-name:text-is("theme toggle"))')
+    toggle_card.locator('[data-action="toggle-theme"]').click()
+    page.wait_for_function('document.documentElement.getAttribute("data-theme") === "light"')
+    assert_screenshot(page, "gallery_full_light")
+
+
+def test_gallery_light_theme_trash(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
+    """The canonical red delete button, clipped, in LIGHT theme.
+
+    ``gallery_full_light`` above cannot guard this on its own: a 34px button on an
+    ~11.6k-px-tall page is far below ``_MAX_DIFF_RATIO`` (1%), so the full-page shot
+    passes whether or not the delete button keeps its red gradient — verified
+    empirically by reintroducing the bug and watching it stay green. Same reasoning
+    as ``test_gallery_eye_glyph_swaps_on_reveal``: only a tight clip can hold a small
+    element to account.
+
+    The bug this pins: ``[data-theme="light"] .icon-btn`` ties ``.icon-btn.trash``
+    (L345) on specificity — both (0,2,0) — and wins on source order, so its
+    ``background`` SHORTHAND replaces the solid-red gradient with a 2% grey wash. The
+    red is deliberate, self-contained chrome in BOTH themes, so the light rule
+    excludes ``.trash`` (and ``.danger`` on hover).
+    """
+    page.goto(gallery_url)
+    _settle(page)
+    toggle_card = page.locator('.demo-item:has(code.demo-name:text-is("theme toggle"))')
+    toggle_card.locator('[data-action="toggle-theme"]').click()
+    page.wait_for_function('document.documentElement.getAttribute("data-theme") === "light"')
+    trash = (
+        page.locator('.demo-item:has(code.demo-name:text-is("icon_button"))')
+        .locator(".icon-btn.trash")
+        .first
+    )
+    trash.wait_for(state="visible")
+    assert_screenshot(page, "gallery_light_theme_trash", locator=trash)
+
+
 def test_gallery_toast_error(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """Sticky error toast — spawnToast into #toast-host with no auto-dismiss timer."""
     page.goto(gallery_url)
@@ -79,6 +132,56 @@ def test_gallery_eye_glyph_swaps_on_reveal(
     eye.click()
     card.locator('input[type="text"]').first.wait_for(state="visible")
     assert_screenshot(page, "gallery_eye_revealed", locator=eye)
+
+
+def test_gallery_theme_toggle_glyph_swaps(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
+    """The theme-toggle button itself, dark-active vs light-active — sun swaps to
+    moon once clicked. Mirrors ``test_gallery_eye_glyph_swaps_on_reveal``: clipped
+    to the 34px button so a 17px glyph swap isn't lost in the diff tolerance, and
+    asserts the underlying state (data-theme + aria-pressed) rather than trusting
+    the pixels alone.
+    """
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("theme toggle"))')
+    toggle = card.locator('[data-action="toggle-theme"]')
+    assert toggle.get_attribute("aria-pressed") == "true"  # dark, the hard default
+    assert page.evaluate("document.documentElement.getAttribute('data-theme')") is None
+    assert_screenshot(page, "gallery_theme_dark", locator=toggle)
+
+    toggle.click()
+    page.wait_for_function('document.documentElement.getAttribute("data-theme") === "light"')
+    assert toggle.get_attribute("aria-pressed") == "false"
+    assert_screenshot(page, "gallery_theme_light", locator=toggle)
+
+
+def test_gallery_light_theme_fields(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
+    """Text input + select + textarea rendered in LIGHT theme.
+
+    Regression guard for the bug where kit.css's own hardcoded near-black
+    backgrounds (#0d1019 resting / #0f131e focus / #0a0d14 disabled) on every
+    input/select/textarea shipped with ZERO [data-theme="light"] override —
+    trapping var(--text)'s light-mode near-black glyphs on a near-black field
+    (near-invisible text) in both dashboards. No prior snapshot exercised any
+    typeable control under light theme, so the bug shipped unguarded — this
+    is the missing case. Clips to the ``field_grid`` demo card, which carries
+    a live text input, select and textarea (plus password/date/checkbox/
+    disabled/invalid states) side by side.
+    """
+    page.goto(gallery_url)
+    _settle(page)
+    toggle_card = page.locator('.demo-item:has(code.demo-name:text-is("theme toggle"))')
+    toggle_card.locator('[data-action="toggle-theme"]').click()
+    page.wait_for_function('document.documentElement.getAttribute("data-theme") === "light"')
+    fields_card = page.locator('.demo-item:has(code.demo-name:text-is("field_grid"))')
+    assert fields_card.locator('input[type="text"]').first.is_visible()
+    assert fields_card.locator("select").first.is_visible()
+    assert fields_card.locator("textarea").first.is_visible()
+    assert_screenshot(page, "gallery_light_theme_fields", locator=fields_card)
 
 
 def test_gallery_block_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:

@@ -20,12 +20,26 @@
      scripts_foot  end-of-body scripts        (optional — page-specific JS)
 
    kit.js is loaded unconditionally (every page needs its behaviours); htmx is the
-   `scripts_head` default so a page can opt out by overriding the block empty. #}
+   `scripts_head` default so a page can opt out by overriding the block empty.
+
+   Anti-flash theme script: a synchronous, BLOCKING inline <script> (no defer/
+   async) runs before the stylesheets below and before kit.js (which is
+   `defer`, so it only runs after parsing — too late, the wrong-theme paint
+   would already have happened). It reads the operator's stored choice and, if
+   and only if it is "light", stamps `data-theme="light"` on <html> before any
+   CSS token loads. DARK IS THE HARD DEFAULT: no stored value, or any value
+   other than "light", stamps nothing — the render stays byte-identical to
+   before this feature existed. kit.js §14 owns writing/clearing the stored
+   value and keeps the header toggle button in sync with whatever this script
+   decided. try/catch swallows a disabled/unavailable localStorage (private
+   mode etc.) and falls through to the dark default silently — it must never
+   throw and block head parsing. #}
 <!doctype html>
 <html lang="{% block lang %}en{% endblock %}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})();</script>
   <title>{% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="/static/dashboard.css?v={{ asset_v }}">
   <link rel="stylesheet" href="/kit/kit.css?v={{ asset_v }}">
