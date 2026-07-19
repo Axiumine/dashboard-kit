@@ -35,9 +35,9 @@
   <nav class="kit-picker-crumbs" data-picker-crumbs aria-label="Current folder"></nav>
   <ul class="kit-picker-list" data-picker-list role="listbox" aria-label="Folder contents"></ul>
   <p class="meta kit-picker-empty" data-picker-empty hidden>This folder is empty.</p>
-  {# No Cancel button: the modal header's × already dismisses, as do Esc (native
-     <dialog>) and a backdrop click — three ways out, so a fourth would only pad
-     the row and compete with Select. #}
+  {#- No Cancel button: the modal header's × already dismisses, as do Esc (native
+      <dialog>) and a backdrop click — three ways out, so a fourth would only pad
+      the row and compete with Select. -#}
   <div class="actions">
     <button type="button" data-picker-select disabled>Select</button>
   </div>
