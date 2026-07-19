@@ -61,6 +61,26 @@ def test_gallery_secret_shown(page: Page, gallery_url: str, assert_screenshot: C
     assert_screenshot(page, "gallery_secret_shown", locator=card)
 
 
+def test_gallery_eye_glyph_swaps_on_reveal(
+    page: Page, gallery_url: str, assert_screenshot: Callable
+) -> None:
+    """The eye button itself, masked vs revealed — a slashed eye once the value shows.
+
+    Clipped to the 34px button on purpose. ``gallery_secret_shown`` above shoots the
+    whole card, where a 17px glyph is a smaller share of the frame than the diff
+    tolerance absorbs (_MAX_DIFF_RATIO) — so it passes whether or not the glyph
+    swaps, and cannot guard this. Two tight baselines can.
+    """
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("secret field"))')
+    eye = card.locator('[data-action="toggle-secret"]')
+    assert_screenshot(page, "gallery_eye_masked", locator=eye)
+    eye.click()
+    card.locator('input[type="text"]').first.wait_for(state="visible")
+    assert_screenshot(page, "gallery_eye_revealed", locator=eye)
+
+
 def test_gallery_block_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """optional-block expanded — ticking the enable switch reveals its content."""
     page.goto(gallery_url)
