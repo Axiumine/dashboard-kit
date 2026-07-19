@@ -273,6 +273,20 @@ label > input[type="checkbox"] {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* eye reveal toggle — the button holds BOTH glyphs (kit/_icon_btn.html) and this
+   picks the one that paints, keyed off the aria-pressed that kit.js §2 flips with
+   the input's type. Slashed eye = the value is CURRENTLY VISIBLE, i.e. the button
+   now offers "hide" — matching the masked-by-default resting state (open eye =
+   "reveal"). CSS, not a JS innerHTML swap: state lives in one attribute. */
+.icon-btn .eye-shut {
+  display: none;
+}
+.icon-btn[aria-pressed="true"] .eye-open {
+  display: none;
+}
+.icon-btn[aria-pressed="true"] .eye-shut {
+  display: block;
+}
 /* destructive action (delete/remove) — red on hover */
 .icon-btn.danger:hover {
   color: var(--err);
