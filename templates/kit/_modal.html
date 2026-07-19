@@ -11,10 +11,16 @@
    inputs must post with it, and do NOT open a second <form> inside (invalid
    nesting) — close buttons use [data-close-modal], never method="dialog".
 
+   NO Cancel button — MANDATORY. The header × below, Esc (native <dialog>) and a
+   backdrop click are three ways out already; a Cancel in the actions row is a
+   redundant fourth that pads the row and competes with the real action. The row
+   carries the confirming button ALONE. (The one exception lives elsewhere:
+   kit.js `kitConfirm()` keeps its Cancel — that dialog is a destructive-action
+   gate, where the safe choice must be explicit and pre-focusable.)
+
      {% call modal("add-backend-dialog", "Add backend") %}
        …fields…
        <div class="actions">
-         <button type="button" data-close-modal>Cancel</button>
          <button type="submit">Add</button>
        </div>
      {% endcall %}
