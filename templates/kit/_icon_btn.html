@@ -34,11 +34,15 @@
 {%- if cls -%}{%- set _parts = _parts + [cls] -%}{%- endif -%}
 {%- set _cls = _parts | join(" ") -%}
 {%- set _glyph = _svg[action] if action in _svg else "" -%}
-{# an eye carries BOTH glyphs; kit.css paints exactly one, keyed off aria-pressed
-   (kit.js §2 flips it with the input's type). Authored here rather than swapped
-   into the button by JS, so the markup lives in one place and a reveal costs no
-   DOM surgery — and a call site that never gets a11y-wired still renders sanely. #}
-{%- if action == "eye" -%}{%- set _glyph = _svg["eye"] ~ _svg["eye-off"] -%}{%- endif -%}
+{# a SECRET TOGGLE carries BOTH glyphs; kit.css paints exactly one, keyed off the
+   aria-pressed that kit.js §2 flips with the input's type. Authored here rather
+   than swapped in by JS, so the markup lives in one place and a reveal costs no
+   DOM surgery.
+   Gated on data_action, not on action == "eye": the eye glyph is also borrowed as
+   a plain "view/preview" icon (DEVPROTOCOL's agent roster passes data_action=
+   "view"), and those never toggle — pairing them would hang a hidden slashed eye
+   off every roster row for a state that can never be reached. #}
+{%- if _data_action == "toggle-secret" -%}{%- set _glyph = _svg["eye"] ~ _svg["eye-off"] -%}{%- endif -%}
 {%- if href -%}
 <a class="{{ _cls }}" data-action="{{ _data_action }}" href="{{ href }}" title="{{ _title }}" aria-label="{{ label }}"{% if extra_attrs %} {{ extra_attrs | safe }}{% endif %}>{{ _glyph | safe }}</a>
 {%- else -%}
