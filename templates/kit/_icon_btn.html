@@ -41,7 +41,7 @@
    Gated on data_action, not on action == "eye": the eye glyph is also borrowed as
    a plain "view/preview" icon (DEVPROTOCOL's agent roster passes data_action=
    "view"), and those never toggle — pairing them would hang a hidden slashed eye
-   off every roster row for a state that can never be reached. #}
+   off every roster row for a state that can never be reached.
    The `eye-open` class is stamped on HERE rather than baked into _svg["eye"], so a
    lone (non-toggle) eye stays byte-identical to what it always rendered. #}
 {%- if _data_action == "toggle-secret" -%}
