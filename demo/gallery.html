@@ -147,8 +147,8 @@ body {
     </nav>
   </div>
   <div class="actions">
-    <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
     <a class="add" href="#top">+ New</a>
+    <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
   </div>
 </header>
 
@@ -230,7 +230,7 @@ body {
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">page_head</code><span class="demo-alt">.page-head</span><span class="demo-tag">macro · _header.html</span></div>
-  <p class="demo-desc">The app title bar: gradient <code>&lt;h1&gt;</code> (optionally a <code>brand-home</code> home link), a breadcrumb or subtitle under it, and a flush-right <code>.actions</code> slot that ALWAYS renders — the dark/light theme toggle first, then any caller action (e.g. <code>+ New</code>) after it. One per page.</p>
+  <p class="demo-desc">The app title bar: gradient <code>&lt;h1&gt;</code> (optionally a <code>brand-home</code> home link), a breadcrumb or subtitle under it, and a flush-right <code>.actions</code> slot that ALWAYS renders — any caller action (e.g. <code>+ New</code>) first, with the dark/light theme toggle LAST so it is always the rightmost control. One per page.</p>
   <div class="demo-stage">
     <header class="page-head">
       <div class="head-titles">
@@ -242,8 +242,8 @@ body {
         </nav>
       </div>
       <div class="actions">
-        <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
         <a class="add" href="#headers">+ New agent</a>
+        <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
       </div>
     </header>
   </div>
@@ -391,7 +391,7 @@ body {
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">theme toggle</code><span class="demo-alt">.icon-btn[data-action=toggle-theme]</span><span class="demo-tag">macro · _icon_btn.html + kit.js §14</span></div>
-  <p class="demo-desc">Dark/light switch — lives in every <code>page_head</code>'s <code>.actions</code> slot (see the hero header above), left of any caller action. One <code>icon_button("toggle-theme", …)</code> carries BOTH a sun and a moon glyph; kit.css paints exactly one, keyed off <code>aria-pressed</code> — kit.js §14 flips it, stamps <code>data-theme="light"</code> on <code>&lt;html&gt;</code> (or clears it back to the dark default), and persists the choice in <code>localStorage</code>. Dark is the hard default. Try it — every toggle instance on this page (including the hero above) flips together, since the theme is page-wide, not per-button.</p>
+  <p class="demo-desc">Dark/light switch — lives in every <code>page_head</code>'s <code>.actions</code> slot (see the hero header above), always rightmost — right of any caller action. One <code>icon_button("toggle-theme", …)</code> carries BOTH a sun and a moon glyph; kit.css paints exactly one, keyed off <code>aria-pressed</code> — kit.js §14 flips it, stamps <code>data-theme="light"</code> on <code>&lt;html&gt;</code> (or clears it back to the dark default), and persists the choice in <code>localStorage</code>. Dark is the hard default. Try it — every toggle instance on this page (including the hero above) flips together, since the theme is page-wide, not per-button.</p>
   <div class="demo-stage">
     <div class="demo-row">
       <button type="button" class="icon-btn" data-action="toggle-theme" title="Toggle dark/light theme" aria-label="Toggle dark/light theme" aria-pressed="true"><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
