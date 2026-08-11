@@ -36,9 +36,13 @@
   {# `required` is a superset attribute (either consumer may set it; absent → optional).
      A required typeable control carries data-required so kit.js validates it on save and
      placeholders "required"; every other typeable control placeholders "optional" (shown
-     only while empty). select/checkbox/date/datetime always hold a value → neither. #}
+     only while empty). select/checkbox/date/datetime always hold a value → neither.
+     `required_hint` is the label WITHOUT the gate: a field the server mandates but that
+     may be filled elsewhere (an env var landing in .env later), where data-required would
+     block the very save that supplies it. It must still not read "optional" once emptied. #}
   {% set req = f.required is defined and f.required %}
-  {% set ph = 'required' if req else 'optional' %}
+  {% set hinted = req or (f.required_hint is defined and f.required_hint) %}
+  {% set ph = 'required' if hinted else 'optional' %}
   {% if f.kind == 'locked' %}
   <input type="text" name="{{ f.name }}" value="{{ f.value }}" readonly disabled
          data-flag="locked-field">
