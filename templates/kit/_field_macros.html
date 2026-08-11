@@ -39,9 +39,9 @@
      only while empty). select/checkbox/date/datetime always hold a value → neither.
      `required_hint` is the label WITHOUT the gate: a field the server mandates but that
      may be filled elsewhere (an env var landing in .env later), where data-required would
-     block the very save that supplies it. It must still not read "optional" once emptied. #}
-  {# NB: keep this at exactly two `set` tags — each one emits its trailing newline into
-     the rendered HTML, and both consumers snapshot these bytes. #}
+     block the very save that supplies it. It must still not read "optional" once emptied.
+     NB: keep this ONE comment block and exactly two `set` tags — every tag emits its own
+     trailing newline into the rendered HTML, and both consumers snapshot these bytes. #}
   {% set req = f.required is defined and f.required %}
   {% set ph = 'required' if req or (f.required_hint is defined and f.required_hint) else 'optional' %}
   {% if f.kind == 'locked' %}
