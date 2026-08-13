@@ -343,6 +343,30 @@ body {
     </div>
   </div>
 </div>
+
+<div class="demo-item">
+  <div class="demo-head"><code class="demo-name">launcher problems</code><span class="demo-alt">.has-error / ⚠ badge</span><span class="demo-tag">launcher · problem slot</span></div>
+  <p class="demo-desc">Pass a <code>problems</code> map (<code>{id: "why it is broken"}</code>) and the matching tile alerts: <code>.has-error</code> paints it red, the badge gains a leading <code>⚠</code>, and the message rides a <code>title</code> plus an <code>aria-describedby</code> → <code>.sr-only</code> span. With <code>badge=True</code> the ⚠ prefixes the count; a problem with no count still shows the badge as a bare ⚠, so a broken section is never silent.</p>
+  <div class="demo-stage">
+    <div class="section-grid">
+      <a class="section-btn has-error" href="#launcher" title="manifest_store is required but missing from config." aria-describedby="section-problem-db">
+        <span class="section-icon" aria-hidden="true">🗄</span>
+        <span class="section-text"><span class="section-label">Database</span><span class="section-subtitle">manifest store, isolation, DSN</span><span class="sr-only" id="section-problem-db">manifest_store is required but missing from config.</span></span>
+        <span class="section-badge" title="manifest_store is required but missing from config.">⚠ 0 / 2</span>
+      </a>
+      <a class="section-btn has-error" href="#launcher" title="Project name is required but empty." aria-describedby="section-problem-proj">
+        <span class="section-icon" aria-hidden="true">🗂</span>
+        <span class="section-text"><span class="section-label">Project &amp; Workspace</span><span class="section-subtitle">no count — bare ⚠ badge</span><span class="sr-only" id="section-problem-proj">Project name is required but empty.</span></span>
+        <span class="section-badge" title="Project name is required but empty.">⚠</span>
+      </a>
+      <a class="section-btn" href="#launcher">
+        <span class="section-icon" aria-hidden="true">🖥</span>
+        <span class="section-text"><span class="section-label">Infrastructure</span><span class="section-subtitle">healthy — no problem entry</span></span>
+        <span class="section-badge" title="enabled / total blocks">2 / 4</span>
+      </a>
+    </div>
+  </div>
+</div>
 </section>
 
 

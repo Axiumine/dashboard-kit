@@ -9,21 +9,30 @@
    `items` is any sequence of objects exposing `.id`, `.icon`, `.label`, and an
    optional `.subtitle`. `badge=True` renders a per-tile badge slot; pass
    `counts` (a {id: "enabled/total"} map) to fill it server-side (route-per-button
-   nav), or leave it empty for the page JS to fill (drill-in recount). #}
-{% macro launcher(items, link_base=none, badge=False, counts={}) %}
+   nav), or leave it empty for the page JS to fill (drill-in recount).
+
+   `problems` (a {id: "why it is broken"} map) marks a tile as alerting: the tile
+   gets `.has-error` (red border + red icon + red badge, all already in kit.css),
+   the badge gains a leading ⚠ and shows even with no count, and the message is
+   exposed three ways — `title` on the tile for a sighted hover, `title` on the
+   badge, and an `aria-describedby` → visually-hidden span for a screen reader.
+   An id absent from the map renders byte-identical to a no-`problems` call. #}
+{% macro launcher(items, link_base=none, badge=False, counts={}, problems={}) %}
 <div class="section-grid" data-role="section-grid">
   {% for s in items %}
+  {%- set p = problems.get(s.id) %}
   {%- if link_base %}
-  <a class="section-btn" href="{{ link_base }}/{{ s.id }}">
+  <a class="section-btn{% if p %} has-error{% endif %}" href="{{ link_base }}/{{ s.id }}"{% if p %} title="{{ p }}" aria-describedby="section-problem-{{ s.id }}"{% endif %}>
   {%- else %}
-  <button type="button" class="section-btn" data-open-section="{{ s.id }}">
+  <button type="button" class="section-btn{% if p %} has-error{% endif %}" data-open-section="{{ s.id }}"{% if p %} title="{{ p }}" aria-describedby="section-problem-{{ s.id }}"{% endif %}>
   {%- endif %}
     <span class="section-icon" aria-hidden="true">{{ s.icon }}</span>
     <span class="section-text">
       <span class="section-label">{{ s.label }}</span>
       {% if s.subtitle is defined and s.subtitle %}<span class="section-subtitle">{{ s.subtitle }}</span>{% endif %}
+      {%- if p %}<span class="sr-only" id="section-problem-{{ s.id }}">{{ p }}</span>{% endif %}
     </span>
-    {%- if badge %}{% set c = counts.get(s.id) %}<span class="section-badge" data-section-badge="{{ s.id }}"{% if not c %} hidden{% endif %} title="enabled / total blocks">{{ c or '' }}</span>{% endif %}
+    {%- if badge %}{% set c = counts.get(s.id) %}<span class="section-badge" data-section-badge="{{ s.id }}"{% if not c and not p %} hidden{% endif %} title="{{ p or 'enabled / total blocks' }}">{% if p %}⚠{{ ' ' if c }}{% endif %}{{ c or '' }}</span>{% endif %}
   {%- if link_base %}</a>{% else %}</button>{% endif %}
   {% endfor %}
 </div>
