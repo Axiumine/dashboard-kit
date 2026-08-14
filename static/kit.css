@@ -1209,6 +1209,20 @@ dialog.kit-modal.wide { width: min(920px, calc(100vw - 2rem)); }
 [data-theme="light"] button[data-add-backend]:hover {
   background: transparent;
 }
+/* the `.add` pill (L938) is the same component on two elements — <button> for
+   Start clean / + Add backend, <a> for the roster's header pills — and it carries
+   its own gradient + white ink in BOTH themes, so neither generic light rule may
+   reach it. Two separate (0,2,1) selectors out-rank its (0,2,0) `.add:hover`:
+   `[data-theme="light"] button:hover` above repaints the <button>'s background-color
+   (invisible only while the gradient image on top stays opaque), and each host's own
+   `[data-theme="light"] a:hover` (DEVPROTOCOL dashboard.css L115) repaints the <a>'s
+   ink — which is why the header pills hovered dark-blue-on-blue while the identical
+   Start clean button hovered white, from one class. Re-assert at (0,3,0) so the
+   component hovers one way whatever element it sits on. */
+[data-theme="light"] .add:hover {
+  color: #fff;
+  background: var(--accent-grad);
+}
 
 /* ── toast shadow (L516) ────────────────────────────────────────────────────
    35% black-alpha elevation reads as a heavy, muddy smudge on a light toast
