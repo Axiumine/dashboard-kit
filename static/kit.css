@@ -86,6 +86,18 @@
    (kit.js setCrumb) — looks/behaves like a breadcrumb link, not bold text. */
 .breadcrumb .crumb-back { color: var(--text-dim); cursor: pointer; }
 .breadcrumb .crumb-back:hover { color: var(--text); text-decoration: underline; }
+/* a file path folded into the current crumb — both config editors name the yaml
+   they write, so the operator always sees WHICH file Save touches. Opts out of
+   the bold .crumb-current weight so the path reads as secondary, not a page
+   label; wrap it in the crumb text ('<label> · <path>'), never as its own crumb
+   (the '/' separators belong to the trail, not to a filesystem path). */
+.breadcrumb .crumb-file {
+  font-weight: 400;
+  color: var(--text-dim);
+  /* a real config path is long and has no spaces — let it break mid-token rather
+     than widen the page (an overflowing crumb pushes every card out with it). */
+  overflow-wrap: anywhere;
+}
 
 /* ── inputs / select / textarea ───────────────────────────────────────────── */
 input[type="text"],

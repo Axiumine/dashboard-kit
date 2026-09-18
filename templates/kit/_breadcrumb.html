@@ -8,6 +8,14 @@
 
      {% from "kit/_breadcrumb.html" import breadcrumb %}
      {{ breadcrumb([("Home", "/"), ("Server & Routing", none)]) }}
+
+   A file path rides INSIDE the current crumb's label, ' · '-joined and wrapped
+   in `.crumb-file` (kit.css drops the bold `.crumb-current` weight) — never as a
+   crumb of its own, because the trail's '/' separators would read as path
+   separators. Both config editors name the yaml they write this way:
+
+     {% set file_html = '<span class="crumb-file">%s</span>' | format(model.file_path|e) %}
+     {{ breadcrumb([("Home", "/"), (('%s · %s' | format(label|e, file_html)) | safe, none)]) }}
 #}
 {% macro breadcrumb(crumbs) %}
 <nav class="breadcrumb" aria-label="Breadcrumb">

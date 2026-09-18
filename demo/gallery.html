@@ -251,7 +251,7 @@ body {
 
 <div class="demo-item">
   <div class="demo-head"><code class="demo-name">breadcrumb</code><span class="demo-alt">.breadcrumb</span><span class="demo-tag">macro · _breadcrumb.html</span></div>
-  <p class="demo-desc">A linked navigation trail joined by “/”; every crumb links except the last (the current page). Renders under an <code>&lt;h1&gt;</code> or standalone.</p>
+  <p class="demo-desc">A linked navigation trail joined by “/”; every crumb links except the last (the current page). Renders under an <code>&lt;h1&gt;</code> or standalone. A file path folds into the current crumb as <code>.crumb-file</code> (second row) — “ · ”-joined, un-bold, never its own crumb.</p>
   <div class="demo-stage">
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="#top">Home</a>
@@ -259,6 +259,11 @@ body {
       <a href="#headers">Server &amp; Routing</a>
       <span class="crumb-sep" aria-hidden="true">/</span>
       <span class="crumb-current" aria-current="page">Backends</span>
+    </nav>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="#top">Home</a>
+      <span class="crumb-sep" aria-hidden="true">/</span>
+      <span class="crumb-current" aria-current="page">Server &amp; Routing · <span class="crumb-file">/home/dev/.config/agents-router/agents_router.config.yaml</span></span>
     </nav>
   </div>
 </div>
