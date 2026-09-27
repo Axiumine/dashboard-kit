@@ -547,7 +547,12 @@ textarea.is-invalid {
 .toast-seed { display: none !important; }
 #toast-host {
   position: fixed;
-  top: 1rem;
+  /* clears .page-head (title + breadcrumb/subtitle + header actions), whose
+     bottom edge lands ~100-115px down on every consumer page measured
+     (DEVPROTOCOL roster ~102px, /config ~112px) — 1rem put a sticky error
+     toast directly over the header's own action buttons (e.g. "Start clean"),
+     stealing their hover/click. */
+  top: 7.5rem;
   right: 1rem;
   z-index: 1000;
   display: flex;
