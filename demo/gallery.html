@@ -693,6 +693,31 @@ body {
 </div>
 
 <div class="demo-item">
+  <div class="demo-head"><code class="demo-name">object_list · help + info_tip</code><span class="demo-alt">.object-list / .optional-hint / .info-tip</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">Opt-in <code>ol.help</code> renders a neutral caption inside the fieldset under “+ add row”; a subfield's <code>help</code> puts an <code>info_tip</code> ⓘ beside its column header — hover, focus or tap shows the text (pure CSS). No help → byte-identical markup.</p>
+  <div class="demo-stage">
+    <fieldset class="object-list" data-olist="calibration">
+      <legend>Decision calibration</legend>
+      <table>
+        <thead><tr><th>Workload</th><th>Temperature</th><th>Rows</th><th>ECE<span class="info-tip" tabindex="0" role="img" aria-label="Expected calibration error after the fit. 0 = perfectly calibrated; lower is better."><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span class="info-tip-text" aria-hidden="true">Expected calibration error after the fit. 0 = perfectly calibrated; lower is better.</span></span></th><th></th></tr></thead>
+        <tbody data-rows>
+          <tr class="olist-row">
+            <td><input type="text" value="merge_readiness"></td>
+            <td><input type="number" step="any" value="1.35"></td>
+            <td><input type="number" step="any" value="800"></td>
+            <td><input type="number" step="any" value="0.021"></td>
+            <td><button type="button" data-remove-row aria-label="Remove row">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" data-add-row>+ add row</button>
+      <span class="optional-hint" data-flag="field-help" data-help-field="calibration">One fitted temperature per workload. Empty = answers served raw.</span>
+      <template data-row-template><tr class="olist-row"><td><input type="text" value=""></td><td><input type="number" step="any" value=""></td><td><input type="number" step="any" value=""></td><td><input type="number" step="any" value=""></td><td><button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
+    </fieldset>
+  </div>
+</div>
+
+<div class="demo-item">
   <div class="demo-head"><code class="demo-name">format-select reveal</code><span class="demo-alt">object_list · data-format-select / data-format-group</span><span class="demo-tag">kit.js §13</span></div>
   <p class="demo-desc">A collection row where one cell picks a format and reveals only that format’s fields — the matching group shows at first paint (server-driven, no flash-then-hide) and changing the select toggles live. A row added via “+ add row” is synced on clone (no save-to-reveal). Change a row’s format to swap its revealed field.</p>
   <div class="demo-stage">

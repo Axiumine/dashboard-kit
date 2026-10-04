@@ -205,11 +205,23 @@
 </fieldset>
 {% endmacro %}
 
+{# info tip (ⓘ) — an icon beside a label whose hover / keyboard focus / tap reveals
+   `text` in a bubble (pure CSS, kit.css .info-tip; no kit.js). The bubble opens
+   leftward under the icon, so it suits a right-hand column; a container with
+   overflow set (e.g. an .optional-block card) can clip it. #}
+{% macro info_tip(text) -%}
+<span class="info-tip" tabindex="0" role="img" aria-label="{{ text }}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span class="info-tip-text" aria-hidden="true">{{ text }}</span></span>
+{%- endmacro %}
+
+{# opt-in column tip: a subfield with a non-empty `help` gets an info_tip beside its
+   header label. Superset attr via is-defined guard: no help → empty, header byte-identical. #}
+{% macro _col_tip(sf) %}{% if sf.help is defined and sf.help %}{{ info_tip(sf.help) }}{% endif %}{% endmacro %}
+
 {% macro object_list(ol, reorder=False) %}
 <fieldset class="object-list" data-olist="{{ ol.path }}">
   <legend>{{ ol.label }}</legend>
   <table>
-    <thead><tr>{% for sf in ol.subfields %}<th>{{ sf.label }}</th>{% endfor %}<th></th></tr></thead>
+    <thead><tr>{% for sf in ol.subfields %}<th>{{ sf.label }}{{ _col_tip(sf) }}</th>{% endfor %}<th></th></tr></thead>
     <tbody data-rows>
       {% for row in ol.rows %}
       <tr class="olist-row">
@@ -220,6 +232,12 @@
     </tbody>
   </table>
   <button type="button" data-add-row>+ add row</button>
+  {#- neutral caption inside the fieldset — same .optional-hint as string_list's `help`.
+      Superset attr via is-defined guard: a list with no (or empty) help renders byte-identically. -#}
+  {%- set help = ol.help if ol.help is defined else '' %}
+  {%- if help %}
+  <span class="optional-hint" data-flag="field-help" data-help-field="{{ ol.path }}">{{ help }}</span>
+  {%- endif %}
   <template data-row-template><tr class="olist-row">{% for sf in ol.subfields %}<td{{ _grp(sf, '') }}>{{ cell("olist." ~ ol.path, sf, "") }}</td>{% endfor %}<td>{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove-row aria-label="Remove row">✕</button></td></tr></template>
 </fieldset>
 {% endmacro %}
