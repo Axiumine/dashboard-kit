@@ -175,6 +175,12 @@
     {% endfor %}
   </div>
   <button type="button" data-add-chip="{{ field.name }}">+ add</button>
+  {#- neutral caption inside the fieldset — same .optional-hint as field_grid's `help`.
+      Superset attr via is-defined guard: a field with no (or empty) help renders byte-identically. -#}
+  {%- set help = field.help if field.help is defined else '' %}
+  {%- if help %}
+  <span class="optional-hint" data-flag="field-help" data-help-field="{{ field.name }}">{{ help }}</span>
+  {%- endif %}
   <template data-chip-template="{{ field.name }}"><span class="chip"><input type="text" name="list.{{ field.name }}.item" value="">{% if reorder %}{{ _reorder_btns() }}{% endif %}<button type="button" data-remove aria-label="Remove">✕</button></span></template>
 </fieldset>
 {% endmacro %}
