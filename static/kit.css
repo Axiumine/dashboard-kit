@@ -818,6 +818,55 @@ tbody tr { transition: background 0.12s; }
 tbody tr:hover { background: rgba(255, 255, 255, 0.035); }
 tbody tr:last-child td { border-bottom: none; }
 
+/* ── info tip (ⓘ beside a label; hover / focus / tap shows its text) ──────── */
+/* resets every header style it would inherit (uppercase, tracking, nowrap) so the
+   bubble reads as prose; opens leftward under the icon (right-hand columns) */
+.info-tip {
+  position: relative;
+  display: inline-flex;
+  vertical-align: -2px;
+  margin-left: 0.35rem;
+  color: var(--text-faint);
+  cursor: help;
+  transition: color 0.14s;
+}
+.info-tip:hover, .info-tip:focus { color: var(--accent); outline: none; }
+.info-tip svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.info-tip-text {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: -0.5rem;
+  z-index: 30;
+  width: max-content;
+  max-width: 18rem;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: left;
+  white-space: normal;
+  color: var(--text);
+  background: var(--surface-solid, var(--surface));  /* opaque: the bubble sits over inputs */
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow, 0 20px 60px -20px rgba(0, 0, 0, 0.6));
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+.info-tip:hover > .info-tip-text, .info-tip:focus > .info-tip-text { visibility: visible; opacity: 1; }
+
 /* ── section launcher (icon-left tiles → one dedicated section at a time) ─── */
 /* :not([hidden]) so the JS hidden-attribute toggle wins over display:grid */
 .section-grid:not([hidden]) {

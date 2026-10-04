@@ -271,6 +271,19 @@ def test_gallery_format_reveal(page: Page, gallery_url: str, assert_screenshot: 
     assert_screenshot(page, "gallery_format_reveal", locator=card.locator("[data-olist]"))
 
 
+def test_gallery_info_tip_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
+    """info_tip — keyboard focus on a column header's ⓘ reveals its bubble (pure CSS
+    :focus, the same rule a tap hits), un-uppercased and wrapped, over the rows."""
+    page.goto(gallery_url)
+    _settle(page)
+    card = page.locator('.demo-item:has(code.demo-name:text-is("object_list · help + info_tip"))')
+    card.locator(".info-tip").focus()
+    page.wait_for_function(
+        "getComputedStyle(document.querySelector('.info-tip-text')).visibility === 'visible'"
+    )
+    assert_screenshot(page, "gallery_info_tip_open", locator=card.locator(".demo-stage"))
+
+
 def test_gallery_picker_open(page: Page, gallery_url: str, assert_screenshot: Callable) -> None:
     """picker_list open state — '+ Add folder' opens the kit_driven folderPicker and
     kit.js §12 loads the (gallery-stubbed) /config/browse listing into it."""
