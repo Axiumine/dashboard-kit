@@ -619,6 +619,22 @@ body {
 </div>
 
 <div class="demo-item">
+  <div class="demo-head"><code class="demo-name">string_list · help</code><span class="demo-alt">.string-list / .optional-hint</span><span class="demo-tag">macro · _field_macros.html</span></div>
+  <p class="demo-desc">Opt-in <code>field.help</code> renders a neutral caption <em>inside</em> the fieldset, under “+ add” — the same <code>.optional-hint</code> as <code>field_grid</code>'s <code>help=</code>. No help → byte-identical markup.</p>
+  <div class="demo-stage">
+    <fieldset class="string-list" data-list="decision_models">
+      <legend>Decision models</legend>
+      <div class="chips" data-chips>
+        <span class="chip"><input type="text" value="typesafe/jev-1.13"><button type="button" data-remove aria-label="Remove">✕</button></span>
+      </div>
+      <button type="button" data-add-chip="decision_models">+ add</button>
+      <span class="optional-hint" data-flag="field-help" data-help-field="decision_models">Model ids this backend may use. Empty = none allowed.</span>
+      <template data-chip-template="decision_models"><span class="chip"><input type="text" value=""><button type="button" data-remove aria-label="Remove">✕</button></span></template>
+    </fieldset>
+  </div>
+</div>
+
+<div class="demo-item">
   <div class="demo-head"><code class="demo-name">keyed_map</code><span class="demo-alt">.keyed-map</span><span class="demo-tag">macro · _field_macros.html</span></div>
   <p class="demo-desc">An id-keyed table of typed sub-fields (each row has an <code>id</code> + columns). “+ add row” / ✕ live. Opt-in <code>reorder=True</code> adds ▲▼ to move a row (kit.js §3, DOM-order-only).</p>
   <div class="demo-stage">
